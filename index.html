@@ -2,21 +2,8 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="NMC Finance">
-<meta name="application-name" content="NMC Finance">
-<meta name="theme-color" content="#c9a84c">
-<meta name="description" content="Nobrega Mall Consultant — Sistema de Gestão Financeira">
-<title>NMC Finance — Nobrega Mall Consultant</title>
-<link rel="manifest" href="/manifest.json">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nobrega Mall Consultant – Finance</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
@@ -53,7 +40,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 15px; scroll-behavior: smooth; overflow-x: hidden; max-width: 100vw; }
+html { font-size: 15px; scroll-behavior: smooth; }
 
 body {
   font-family: var(--sans);
@@ -61,8 +48,6 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
-  max-width: 100vw;
-  width: 100%;
 }
 
 /* subtle noise grain */
@@ -154,7 +139,7 @@ body::before {
 .af-row:last-child { border-bottom: none; }
 .af-cart { font-weight: 500; color: var(--text); }
 .af-mes { color: var(--text3); font-family: var(--mono); font-size: 12px; }
-.af-val { font-family: var(--mono); font-weight: 500; color: var(--gold); word-break: break-all; }
+.af-val { font-family: var(--mono); font-weight: 500; color: var(--gold); white-space: nowrap; }
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -311,7 +296,7 @@ body::before {
 /* ─────────────────────────────────────────
    APP SHELL
 ───────────────────────────────────────── */
-#app { display: none; min-height: 100vh; width: 100%; overflow-x: hidden; }
+#app { display: none; min-height: 100vh; }
 
 /* ── MOBILE TOP BAR ── */
 .topbar {
@@ -323,8 +308,6 @@ body::before {
   padding: 13px 18px;
   position: sticky; top: 0; z-index: 200;
   min-height: 53px;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .topbar-brand { font-family: var(--serif); font-size: 17px; color: var(--gold); }
@@ -354,8 +337,6 @@ body::before {
   display: grid;
   grid-template-columns: 230px 1fr;
   min-height: 100vh;
-  width: 100%;
-  overflow-x: hidden;
 }
 
 /* ── SIDEBAR ── */
@@ -475,13 +456,10 @@ body::before {
   min-height: 100vh;
   background: var(--bg);
   position: relative;
-  width: 100%;
-  overflow-x: hidden;
-  min-width: 0;
 }
 
 /* ── SECTIONS ── */
-.section { display: none; padding: 30px 32px; animation: fadeUp .25s ease both; width: 100%; box-sizing: border-box; overflow-x: hidden; }
+.section { display: none; padding: 30px 32px; animation: fadeUp .25s ease both; }
 .section.active { display: block; }
 
 /* ── PAGE HEADER ── */
@@ -502,7 +480,6 @@ body::before {
   border-radius: var(--r2);
   padding: 22px 24px;
   margin-bottom: 20px;
-  min-width: 0; box-sizing: border-box; width: 100%;
 }
 
 .card-title {
@@ -525,7 +502,6 @@ body::before {
 
 /* ── STAT CARDS ── */
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
-.stats-grid-3 { grid-template-columns: repeat(3, 1fr); }
 
 .stat-card {
   background: var(--card);
@@ -534,7 +510,6 @@ body::before {
   padding: 20px 22px;
   position: relative; overflow: hidden;
   transition: border-color .2s;
-  min-width: 0; box-sizing: border-box;
 }
 .stat-card:hover { border-color: var(--border2); }
 .stat-card::after {
@@ -552,14 +527,13 @@ body::before {
 }
 
 .stat-val {
-  font-family: var(--mono); font-size: clamp(14px, 3.5vw, 24px); font-weight: 500;
-  word-break: break-all; overflow-wrap: anywhere; min-width: 0;
+  font-family: var(--mono); font-size: 24px; font-weight: 500;
 }
 .stat-val.pos { color: var(--teal); }
 .stat-val.neg { color: var(--red); }
 .stat-val.neu { color: var(--gold); }
 
-.stat-hint { font-size: 11px; color: var(--text3); margin-top: 5px; font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stat-hint { font-size: 11px; color: var(--text3); margin-top: 5px; font-family: var(--mono); }
 
 /* ── TABLE ── */
 .tbl-wrap {
@@ -567,6 +541,10 @@ body::before {
   -webkit-overflow-scrolling: touch;
   /* subtle gradient hint for horizontal scroll */
   position: relative;
+}
+@media (max-width: 960px) {
+  .tbl-wrap { font-size: 12px; }
+  .tbl-wrap td, .tbl-wrap th { padding: 9px 10px; white-space: nowrap; }
 }
 
 table {
@@ -637,8 +615,8 @@ tbody tr:last-child td { border-bottom: none; }
 .hr { height: 1px; background: var(--border); margin: 20px 0; }
 
 /* ── CHART ── */
-.chart-box { position: relative; width: 100%; overflow: hidden; }
-.chart-box canvas { max-height: 300px; max-width: 100%; }
+.chart-box { position: relative; }
+.chart-box canvas { max-height: 300px; }
 
 /* ── GRID LAYOUTS ── */
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -725,23 +703,17 @@ tbody tr:last-child td { border-bottom: none; }
   padding: 1px 6px; border-radius: 3px; color: var(--gold);
 }
 
-/* =========================================
-   RESPONSIVE - sistema unificado
-   Breakpoints: 960px | 700px | 540px | 380px
-========================================= */
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
 
-/* -- Mobile: esconde tabelas, mostra cards -- */
+/* ── Mobile: table cards view ── */
 .tbl-card-mobile { display: none; }
 
-/* ========= TABLET / MOBILE (< 960px) ========= */
 @media (max-width: 960px) {
+  .topbar  { display: flex; }
+  .layout  { grid-template-columns: 1fr; }
 
-  /* Layout principal */
-  .topbar { display: flex; }
-  .layout { grid-template-columns: 1fr; }
-  .main   { min-height: calc(100vh - 53px); }
-
-  /* Sidebar deslizante */
   .sidebar {
     position: fixed; top: 0; left: -260px; width: 260px;
     height: 100vh; z-index: 300;
@@ -750,52 +722,35 @@ tbody tr:last-child td { border-bottom: none; }
   }
   .sidebar.open { left: 0; box-shadow: 4px 0 24px rgba(0,0,0,.5); }
 
-  /* Sections padding uniforme */
-  .section { padding: 18px 16px 32px; }
+  .main { min-height: calc(100vh - 53px); }
 
-  /* Page header empilhado */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-card { padding: 16px 14px; }
+  .stat-val { font-size: 18px; }
+
+  .section { padding: 18px 14px; padding-bottom: 32px; }
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+
   .page-hd {
-    flex-direction: column; align-items: flex-start;
-    gap: 12px; margin-bottom: 18px; padding-bottom: 14px;
+    flex-direction: column; align-items: flex-start; gap: 12px;
+    margin-bottom: 18px; padding-bottom: 14px;
   }
   .page-title { font-size: 24px; }
 
-  /* Grids: todas as colunas viram 1 coluna */
-  .grid2,
-  .grid3           { grid-template-columns: 1fr; }
-
-  /* Stats: 2 colunas */
-  .stats-grid      { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stats-grid-3    { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-  .stat-card       { padding: 16px 14px; }
-  .stat-val        { font-size: 18px; }
-
-  /* Grids de cards especificos: 2 colunas */
-  .cartoes-grid    { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
-  .financ-grid     { grid-template-columns: 1fr 1fr; }
-  .invest-grid     { grid-template-columns: 1fr 1fr; }
-  .meta-grid       { grid-template-columns: 1fr 1fr; }
-  .comparativo-grid{ grid-template-columns: 1fr 1fr 1fr; }
-
-  /* Filtros */
-  .filter-bar      { gap: 8px; flex-wrap: wrap; }
-  .filter-field    { flex: 1 1 140px; }
+  /* Filters vertical on tablet */
+  .filter-bar { gap: 8px; }
+  .filter-field { flex: 1 1 140px; }
   .filter-bar input,
   .filter-bar select { min-width: 0; width: 100%; }
 
-  /* Dashboard filters */
-  .dash-filters { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
-  .dash-filters select { flex: 1 1 140px; min-width: 0; }
+  /* Cards grid single column on tablet */
+  #cartoesGrid { grid-template-columns: 1fr 1fr !important; }
 
-  /* Tabelas: esconde desktop, mostra cards mobile */
+  /* Hide desktop tables, show card list on mobile */
   .tbl-mobile-hide { display: none !important; }
   .tbl-card-mobile { display: block; }
-  .tbl-wrap        { font-size: 12px; }
-  .tbl-wrap td,
-  .tbl-wrap th     { padding: 9px 10px; white-space: nowrap; }
 
-  /* Modal: bottom sheet */
-  .modal-bg  { align-items: flex-end !important; }
+  /* Modal full screen on mobile */
   .modal {
     width: 100% !important;
     max-width: 100vw !important;
@@ -804,92 +759,48 @@ tbody tr:last-child td { border-bottom: none; }
     padding: 22px 18px !important;
     margin: auto 0 0 0 !important;
   }
+  .modal-bg { align-items: flex-end !important; }
 
-  /* Investimentos: stats inline do titulo */
-  #dashInvestStats { gap: 10px; }
+  /* Dashboard selects row */
+  .dash-filters {
+    display: flex; flex-wrap: wrap; gap: 8px; width: 100%;
+  }
+  .dash-filters select { flex: 1 1 140px; min-width: 0; }
 }
 
-/* ========= TABLET ESTREITO (< 700px) ========= */
-@media (max-width: 700px) {
-  .comparativo-grid { grid-template-columns: 1fr 1fr; }
-
-  /* Ocultar colunas extras de cartoes */
-  #tblCartoesBody td:nth-child(5),
-  #tblCartoesBody td:nth-child(6),
-  .cartoes-table th:nth-child(5),
-  .cartoes-table th:nth-child(6) { display: none; }
-}
-
-/* ========= MOBILE (< 540px) ========= */
 @media (max-width: 540px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-val { font-size: 16px; }
+  .stat-card { padding: 14px 12px; }
 
-  /* Section padding uniforme */
-  .section { padding: 14px 12px 28px; }
+  .section { padding: 14px 12px; }
 
-  /* Page header */
-  .page-title { font-size: 21px; }
-
-  /* Stats: mantem 2 colunas compactas */
-  .stats-grid   { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stats-grid-3 { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat-card    { padding: 13px 11px; }
-  .stat-val     { font-size: 15px; }
-  .stat-hint    { font-size: 10px; }
-
-  /* Grids: tudo em 1 coluna */
-  .cartoes-grid  { grid-template-columns: 1fr !important; gap: 10px; }
-  .financ-grid   { grid-template-columns: 1fr; }
-  .invest-grid   { grid-template-columns: 1fr; }
-  .meta-grid     { grid-template-columns: 1fr; }
-  .comparativo-grid { grid-template-columns: 1fr; }
-
-  /* Formularios: todos os input-row em 1 coluna */
   .input-row.cols2,
   .input-row.cols3,
   .input-row.cols4 { grid-template-columns: 1fr; }
 
-  /* Filtros em coluna */
-  .filter-bar      { flex-direction: column; align-items: stretch; }
-  .filter-field    { flex: none; width: 100%; }
+  .filter-bar {
+    flex-direction: column; align-items: stretch;
+  }
+  .filter-field { flex: none; width: 100%; }
   .filter-bar input,
   .filter-bar select { width: 100%; flex: none; }
 
-  /* Graficos menores */
-  .chart-box canvas { max-height: 200px; }
+  #cartoesGrid { grid-template-columns: 1fr !important; }
 
-  /* Botoes full width no mobile */
+  .chart-box canvas { max-height: 220px; }
+
+  .page-title { font-size: 22px; }
+
   .btn-full-mobile { width: 100%; justify-content: center; }
 
-  /* Tabelas compactas */
-  td, th { padding: 8px 9px; font-size: 12px; }
-
-  /* Cards compactos */
-  .card { padding: 16px 14px; }
-
-  /* Dashboard invest stats em coluna */
-  #dashInvestStats { flex-direction: column; gap: 4px; }
-
-  /* Comparativo: 1 coluna no mobile pequeno */
-  .comparativo-grid { grid-template-columns: 1fr; }
-
-  /* Proximas faturas: valores nao transbordam */
-  .af-row { flex-wrap: wrap; gap: 6px; }
-  .af-cart { min-width: 0; flex: 1 1 100%; }
-  .af-val  { flex-shrink: 0; }
-
-  /* Card title wraps corretamente */
-  .card-title { flex-wrap: wrap; gap: 8px; font-size: 15px; }
-
-  /* Stat grid no dashboard: 2 cols compactas */
-  .stats-grid { grid-template-columns: 1fr 1fr; }
+  /* Compactar tabelas no mobile */
+  td, th { padding: 9px 10px; font-size: 12px; }
 }
 
-/* ========= MOBILE PEQUENO (< 380px) ========= */
 @media (max-width: 380px) {
-  .section    { padding: 12px 10px 24px; }
-  .stats-grid,
-  .stats-grid-3 { grid-template-columns: 1fr; }
-  .stat-val   { font-size: 14px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .section { padding: 12px 10px; }
 }
 
 /* ── DASH FILTERS ROW ── */
@@ -913,10 +824,21 @@ tbody tr:last-child td { border-bottom: none; }
   gap: 16px;
   margin-bottom: 20px;
 }
-
+@media (max-width: 960px) {
+  .cartoes-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+@media (max-width: 540px) {
+  .cartoes-grid { grid-template-columns: 1fr; gap: 10px; }
+}
 
 /* ── HIDE TABLE COLUMNS ON MOBILE (cartoes) ── */
-
+@media (max-width: 700px) {
+  #tblCartoesBody td:nth-child(5),
+  #tblCartoesBody td:nth-child(6),
+  table thead th:nth-child(5):has(~ th:nth-child(6)),
+  .cartoes-table th:nth-child(5),
+  .cartoes-table th:nth-child(6) { display: none; }
+}
 
 /* ── LANÇAMENTOS EMPTY MOBILE ── */
 #lancMobileList:empty::after {
@@ -926,7 +848,8 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* ── FINANCIAMENTOS ── */
 .financ-grid { display: grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-bottom:20px; }
-
+@media(max-width:900px){ .financ-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:540px){ .financ-grid { grid-template-columns:1fr; } }
 
 .financ-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r2); padding:18px 20px; position:relative; overflow:hidden; }
 .financ-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--red),#f59e0b); }
@@ -941,7 +864,8 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* ── INVESTIMENTOS ── */
 .invest-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
-
+@media(max-width:900px){ .invest-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:540px){ .invest-grid { grid-template-columns:1fr; } }
 
 .invest-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r2); padding:18px 20px; position:relative; overflow:hidden; }
 .invest-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--teal),var(--gold)); }
@@ -969,7 +893,8 @@ tbody tr:last-child td { border-bottom: none; }
 .meta-card-name { font-family:var(--serif); font-size:16px; font-weight:600; color:var(--text); margin-bottom:4px; }
 .meta-card-tipo { font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:99px; background:var(--gold-pale); color:var(--gold); display:inline-block; margin-bottom:12px; }
 .meta-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
-
+@media(max-width:900px){ .meta-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:540px){ .meta-grid { grid-template-columns:1fr; } }
 
 /* ── ALERTA LIMITE CC ── */
 .limite-cc-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
@@ -982,10 +907,10 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* ── COMPARATIVO ── */
 .comparativo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:12px; }
-
-.comp-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; min-width:0; overflow:hidden; box-sizing:border-box; }
+@media(max-width:700px){ .comparativo-grid { grid-template-columns:1fr 1fr; } }
+.comp-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; }
 .comp-label { font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); margin-bottom:6px; }
-.comp-val { font-family:var(--mono); font-size:clamp(13px, 3vw, 18px); font-weight:500; word-break:break-all; min-width:0; }
+.comp-val { font-family:var(--mono); font-size:18px; font-weight:500; }
 .comp-delta { font-size:11px; font-family:var(--mono); margin-top:3px; }
 .comp-delta.up { color:var(--teal); }
 .comp-delta.dn { color:var(--red); }
@@ -1026,115 +951,9 @@ tbody tr:last-child td { border-bottom: none; }
 #tab-recorrentes td:nth-child(6) {
   font-size: 11px;
 }
-
-/* ── FAB LANCAMENTO RAPIDO ── */
-.fab {
-  position: fixed; bottom: 28px; right: 28px; z-index: 500;
-  width: 56px; height: 56px; border-radius: 50%;
-  background: var(--gold); color: #080b10;
-  border: none; cursor: pointer; font-size: 22px;
-  box-shadow: 0 4px 20px rgba(201,168,76,.45);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform .2s, background .2s;
-}
-.fab:hover { transform: scale(1.1); background: #d9b85c; }
-.fab-menu {
-  position: fixed; bottom: 92px; right: 28px; z-index: 500;
-  display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
-  opacity: 0; pointer-events: none; transform: translateY(10px);
-  transition: all .2s;
-}
-.fab-menu.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.fab-item {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--card2); border: 1px solid var(--border2);
-  border-radius: 24px; padding: 9px 16px 9px 12px;
-  color: var(--text); font-size: 13px; cursor: pointer;
-  box-shadow: var(--sh2); white-space: nowrap; transition: background .15s;
-}
-.fab-item:hover { background: var(--border); }
-.fab-item i { width: 18px; text-align: center; }
-
-/* ── BUSCA GLOBAL ── */
-.search-overlay {
-  display: none; position: fixed; inset: 0; z-index: 900;
-  background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
-  align-items: flex-start; justify-content: center; padding-top: 80px;
-}
-.search-overlay.on { display: flex; }
-.search-box {
-  background: var(--card); border: 1px solid var(--gold-dim);
-  border-radius: var(--r3); width: 620px; max-width: 95vw;
-  box-shadow: 0 8px 40px rgba(0,0,0,.6); overflow: hidden;
-}
-.search-input-wrap {
-  display: flex; align-items: center; gap: 10px; padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.search-input-wrap i { color: var(--gold); font-size: 16px; }
-.search-input-wrap input {
-  flex: 1; background: transparent; border: none; outline: none;
-  color: var(--text); font-size: 16px; font-family: var(--sans);
-}
-.search-input-wrap input::placeholder { color: var(--text3); }
-.search-results { max-height: 420px; overflow-y: auto; padding: 8px 0; }
-.search-result-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 20px; cursor: pointer; transition: background .1s;
-}
-.search-result-item:hover { background: var(--surface); }
-.search-result-icon { width: 32px; height: 32px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
-.search-result-title { font-size: 13px; color: var(--text); font-weight: 500; }
-.search-result-sub { font-size: 11px; color: var(--text3); font-family: var(--mono); }
-.search-empty { text-align: center; padding: 32px; color: var(--text3); font-size: 13px; }
-
-/* ── SALDO POR BANCO ── */
-.banco-saldo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 12px; margin-bottom: 20px; }
-.banco-saldo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; min-width:0; }
-.banco-saldo-nome { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-bottom: 4px; text-transform:uppercase; letter-spacing:1px; }
-.banco-saldo-val { font-family: var(--mono); font-size: 15px; font-weight: 500; word-break:break-all; }
-
-/* ── DUPLICAR ── */
-.btn-dup { color: var(--gold); border-color: rgba(201,168,76,.35); }
-.btn-dup:hover { background: var(--gold-pale); }
-
-/* ── LOG DE ALTERACOES ── */
-.log-item { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:12px; }
-.log-item:last-child { border-bottom:none; }
-.log-ts { font-family:var(--mono); color:var(--text3); white-space:nowrap; flex-shrink:0; }
-.log-msg { color:var(--text2); }
-
-@media (max-width: 540px) {
-  .fab { bottom: 20px; right: 16px; width: 50px; height: 50px; font-size: 20px; }
-  .fab-menu { bottom: 80px; right: 16px; }
-}
 </style>
 </head>
 <body>
-
-<!-- FAB LANCAMENTO RAPIDO -->
-<div class="fab-menu" id="fabMenu">
-  <div class="fab-item" onclick="closeFab();openModalLanc('Receita')"><i class="fa fa-arrow-up" style="color:var(--teal)"></i> Nova Receita</div>
-  <div class="fab-item" onclick="closeFab();openModalLanc('Despesa')"><i class="fa fa-arrow-down" style="color:var(--red)"></i> Nova Despesa</div>
-  <div class="fab-item" onclick="closeFab();openModalLanc()"><i class="fa fa-plus" style="color:var(--gold)"></i> Novo Lance</div>
-</div>
-<button class="fab" id="fabBtn" onclick="toggleFab()" title="Lance r\xc3\xa1pido" style="display:none">
-  <i class="fa fa-plus" id="fabIcon"></i>
-</button>
-
-<!-- BUSCA GLOBAL -->
-<div class="search-overlay" id="searchOverlay" onclick="closeSearch(event)">
-  <div class="search-box">
-    <div class="search-input-wrap">
-      <i class="fa fa-search"></i>
-      <input id="searchInput" placeholder="Buscar lan\xc3\xa7amentos, investimentos, metas..." oninput="runSearch(this.value)" autocomplete="off">
-      <span style="font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer" onclick="fecharBusca()">ESC</span>
-    </div>
-    <div class="search-results" id="searchResults"><div class="search-empty">Digite para buscar...</div></div>
-  </div>
-</div>
-
 
 <!-- ═══════════════════════════════════════════
      LOGIN SCREEN
@@ -1175,12 +994,10 @@ tbody tr:last-child td { border-bottom: none; }
       
       <span class="topbar-brand">NMC Finance</span>
     </div>
-    <div style="display:flex;align-items:center;gap:8px">
-<button class="btn btn-ghost btn-icon btn-sm" onclick="abrirBusca()" title="Busca global (Ctrl+K)" style="font-size:14px;padding:7px 10px"><i class="fa fa-search"></i></button>
-<button class="hamburger" id="ham" onclick="toggleSidebar()">
+    <button class="hamburger" id="ham" onclick="toggleSidebar()">
       <span></span><span></span><span></span>
     </button>
-  </div></div>
+  </div>
   <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
   <div class="layout">
@@ -1220,9 +1037,6 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
         <div class="nav-group">
           <div class="nav-group-label">Configurações</div>
-          <button class="nav-item" data-tab="relatorios" onclick="switchTab('relatorios',this)">
-            <i class="fa fa-chart-bar ni"></i> Relatórios
-          </button>
           <button class="nav-item" data-tab="cadastros" onclick="switchTab('cadastros',this)">
             <i class="fa fa-database ni"></i> Cadastros
           </button>
@@ -1266,11 +1080,6 @@ tbody tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
-        <!-- Saldo por Banco -->
-        <div id="bancosaldocard" style="display:none;margin-bottom:16px">
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Saldo por Conta</div>
-          <div class="banco-saldo-grid" id="bancoSaldoGrid"></div>
-        </div>
         <div class="stats-grid">
           <div class="stat-card pos">
             <div class="stat-label">Total Receitas</div>
@@ -1660,21 +1469,6 @@ tbody tr:last-child td { border-bottom: none; }
       </section>
 
       <!-- ──────────── CONFIGURAÇÃO ──────────── -->
-      <!-- RELATORIOS -->
-      <section class="section" id="tab-relatorios">
-        <div class="page-hd">
-          <div><div class="page-title">Relatórios</div><div class="page-sub">DRE mensal e análise por período</div></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-            <select id="relMesI" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:8px 12px;font-size:13px;outline:none"></select>
-            <span style="color:var(--text3);font-size:12px">até</span>
-            <select id="relMesF" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:8px 12px;font-size:13px;outline:none"></select>
-            <button class="btn btn-gold btn-sm" onclick="renderRelatorio()"><i class="fa fa-search"></i> Gerar</button>
-            <button class="btn btn-outline btn-sm" onclick="exportRelCSV()"><i class="fa fa-file-csv"></i> CSV</button>
-          </div>
-        </div>
-        <div id="relatorioBody"></div>
-      </section>
-
       <section class="section" id="tab-config">
         <div class="page-hd">
           <div style="display:flex;align-items:center;gap:12px">
@@ -1712,9 +1506,6 @@ tbody tr:last-child td { border-bottom: none; }
             <p style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.7">
               Apagar todos os dados do sistema. Esta ação não pode ser desfeita.
             </p>
-            <button class="btn btn-outline" onclick="exportCSV()" style="margin-top:8px">
-              <i class="fa fa-file-csv"></i> Exportar CSV (Lançamentos)
-            </button>
             <button class="btn btn-danger" onclick="clearData()">
               <i class="fa fa-trash"></i> Limpar Todos os Dados
             </button>
@@ -1724,542 +1515,79 @@ tbody tr:last-child td { border-bottom: none; }
             <div id="sysInfo" style="font-family:var(--mono);font-size:12px;color:var(--text2);line-height:2.1"></div>
           </div>
         </div>
-        <!-- Log de Alteracoes -->
-        <div class="card" style="margin-top:4px">
-          <div class="card-title"><i class="fa fa-history" style="color:var(--gold)"></i> Log de Alterações <span class="badge badge-gold">100 entradas</span></div>
-          <div id="auditLogBody" style="max-height:300px;overflow-y:auto"></div>
-        </div>
       </section>
 
       <!-- ──────────── MANUAL ──────────── -->
       <section class="section" id="tab-manual">
         <div class="page-hd">
           <div style="display:flex;align-items:center;gap:12px">
+            
             <div>
               <div class="page-title">Manual do Sistema</div>
-              <div class="page-sub">Guia completo de uso — NMC Finance</div>
+              <div class="page-sub">Guia de uso completo</div>
             </div>
           </div>
         </div>
-
-        <!-- Ãndice -->
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-title"><i class="fa fa-list" style="color:var(--gold)"></i> Ãndice</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 20px">
-            <a href="#man-visao" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">1. VisÃ£o Geral</a>
-            <a href="#man-login" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">2. Login e UsuÃ¡rios</a>
-            <a href="#man-cadastros" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">3. Cadastros Base</a>
-            <a href="#man-dashboard" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">4. Dashboard</a>
-            <a href="#man-lanc" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">5. LanÃ§amentos</a>
-            <a href="#man-cartoes" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">6. CartÃµes de CrÃ©dito</a>
-            <a href="#man-recorrentes" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">7. Recorrentes</a>
-            <a href="#man-financ" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">8. Financiamentos</a>
-            <a href="#man-invest" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">9. Investimentos</a>
-            <a href="#man-metas" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">10. Metas Financeiras</a>
-            <a href="#man-faturas" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">11. Faturas</a>
-            <a href="#man-config" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">12. ConfiguraÃ§Ã£o e Backup</a>
-            <a href="#man-notif" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">13. NotificaÃ§Ãµes</a>
-            <a href="#man-dicas" style="color:var(--gold);font-size:13px;text-decoration:none;font-family:var(--mono)">14. Dicas e Boas PrÃ¡ticas</a>
-          </div>
-        </div>
-
-        <!-- 1. Visao Geral -->
-        <div class="card" id="man-visao">
+        <div class="card">
           <div class="manual-section">
-            <h3><i class="fa fa-info-circle" style="color:var(--gold);margin-right:8px"></i>1. VisÃ£o Geral</h3>
-            <p>O <strong>NMC Finance</strong> (Nobrega Mall Consultant â Finance) Ã© um sistema completo de gestÃ£o financeira pessoal e empresarial que funciona inteiramente no navegador, sem necessidade de servidor ou instalaÃ§Ã£o. Todos os dados ficam armazenados localmente no dispositivo via <code>localStorage</code>.</p>
-            <p style="margin-top:10px">O sistema cobre os seguintes mÃ³dulos:</p>
-            <ul>
-              <li><strong>Dashboard</strong> â painel com indicadores, grÃ¡ficos e alertas em tempo real</li>
-              <li><strong>LanÃ§amentos</strong> â registro de todas as receitas e despesas</li>
-              <li><strong>CartÃµes de CrÃ©dito</strong> â controle de limites e faturas</li>
-              <li><strong>Recorrentes</strong> â cobranÃ§as e receitas que se repetem mensalmente</li>
-              <li><strong>Financiamentos</strong> â controle de parcelas e saldo devedor</li>
-              <li><strong>Investimentos</strong> â portfÃ³lio, movimentaÃ§Ãµes e rentabilidade</li>
-              <li><strong>Metas</strong> â objetivos financeiros e limites de gasto</li>
-              <li><strong>Faturas</strong> â visÃ£o consolidada das faturas por cartÃ£o</li>
-              <li><strong>Cadastros</strong> â bancos, centros de custo e formas de pagamento</li>
-            </ul>
-            <p style="margin-top:10px"><strong>Importante:</strong> como os dados ficam no <code>localStorage</code> do navegador, eles sÃ£o especÃ­ficos do dispositivo e do navegador utilizado. FaÃ§a backups regulares pela tela de <strong>ConfiguraÃ§Ã£o</strong>.</p>
+            <h3>Visão Geral</h3>
+            <p>O <strong>Nobrega Mall Consultant – Finance</strong> é um sistema completo de controle financeiro que funciona 100% offline no navegador. Todos os dados são armazenados no <code>localStorage</code>, sem necessidade de internet após o carregamento inicial.</p>
           </div>
-        </div>
-
-        <!-- 2. Login -->
-        <div class="card" id="man-login">
+          <div class="hr"></div>
           <div class="manual-section">
-            <h3><i class="fa fa-lock" style="color:var(--gold);margin-right:8px"></i>2. Login e UsuÃ¡rios</h3>
-            <p><strong>Acesso padrÃ£o:</strong> usuÃ¡rio <code>admin</code>, senha <code>1234</code>. Recomendamos alterar a senha apÃ³s o primeiro acesso.</p>
-            <p style="margin-top:10px"><strong>Criar novos usuÃ¡rios:</strong></p>
+            <h3>Login</h3>
             <ul>
-              <li>Acesse a aba <strong>UsuÃ¡rios</strong> no menu lateral</li>
-              <li>Informe nome de usuÃ¡rio, senha e perfil (admin ou padrÃ£o)</li>
-              <li>Clique em <strong>Adicionar</strong></li>
+              <li>Use <code>admin</code> / <code>1234</code> para o acesso padrão.</li>
+              <li>Novos usuários podem ser criados na aba <strong>Usuários</strong>.</li>
             </ul>
-            <p style="margin-top:10px"><strong>Perfis de acesso:</strong></p>
-            <ul>
-              <li><code>admin</code> â acesso completo a todas as funcionalidades, inclusive excluir dados e gerenciar usuÃ¡rios</li>
-              <li><code>padrÃ£o</code> â acesso operacional para lanÃ§ar transaÃ§Ãµes e visualizar relatÃ³rios</li>
-            </ul>
-            <p style="margin-top:10px"><strong>Dica de seguranÃ§a:</strong> o sistema nÃ£o criptografa as senhas no <code>localStorage</code>. NÃ£o utilize senhas sensÃ­veis em dispositivos compartilhados.</p>
           </div>
-        </div>
-
-        <!-- 3. Cadastros -->
-        <div class="card" id="man-cadastros">
+          <div class="hr"></div>
           <div class="manual-section">
-            <h3><i class="fa fa-database" style="color:var(--gold);margin-right:8px"></i>3. Cadastros Base</h3>
-            <p>Antes de comeÃ§ar a lanÃ§ar transaÃ§Ãµes, configure os cadastros base. Acesse a aba <strong>Cadastros</strong> no menu.</p>
-
-            <p style="margin-top:14px"><strong>Bancos / Contas Correntes</strong></p>
+            <h3>Dashboard</h3>
             <ul>
-              <li>Representa cada conta bancÃ¡ria ou carteira que vocÃª utiliza (ex: Nubank, ItaÃº, Caixa, Carteira)</li>
-              <li>Todo lanÃ§amento pode ser vinculado a um banco para rastreabilidade</li>
-              <li>O saldo total do Dashboard considera todos os lanÃ§amentos independente do banco, mas os filtros permitem ver por banco separadamente</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Centros de Custo</strong></p>
-            <ul>
-              <li>SÃ£o as categorias dos seus lanÃ§amentos (ex: AlimentaÃ§Ã£o, Moradia, SalÃ¡rio, Freelance)</li>
-              <li>Cada centro tem um tipo: <code>Receita</code>, <code>Despesa</code> ou <code>Ambos</code></li>
-              <li>O tipo define quais centros aparecem como opÃ§Ã£o ao lanÃ§ar cada transaÃ§Ã£o</li>
-              <li>Os grÃ¡ficos de pizza do Dashboard sÃ£o agrupados por centro de custo</li>
-              <li>Exemplos de centros: AlimentaÃ§Ã£o, Transporte, SaÃºde, Lazer, Moradia, SalÃ¡rio, Investimentos</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Formas de Pagamento</strong></p>
-            <ul>
-              <li>Registre as formas utilizadas (ex: PIX, Boleto, TED, DÃ©bito, Dinheiro, CartÃ£o)</li>
-              <li>Aparecem como opÃ§Ã£o em todos os lanÃ§amentos de despesa</li>
+              <li>Filtre por <strong>mês</strong> e <strong>banco</strong> para ver os indicadores do período.</li>
+              <li>O gráfico de <strong>Fluxo de Caixa</strong> mostra a variação diária de receitas e despesas.</li>
+              <li>Os gráficos de pizza mostram a distribuição por centros de custo.</li>
             </ul>
           </div>
-        </div>
-
-        <!-- 4. Dashboard -->
-        <div class="card" id="man-dashboard">
+          <div class="hr"></div>
           <div class="manual-section">
-            <h3><i class="fa fa-chart-line" style="color:var(--gold);margin-right:8px"></i>4. Dashboard</h3>
-            <p>O Dashboard Ã© a tela principal e oferece uma visÃ£o consolidada da saÃºde financeira do perÃ­odo selecionado.</p>
-
-            <p style="margin-top:14px"><strong>Filtros</strong></p>
+            <h3>Lançamentos</h3>
             <ul>
-              <li><strong>MÃªs:</strong> selecione um mÃªs especÃ­fico, Ãºltimos 6 meses ou o ano completo</li>
-              <li><strong>Banco:</strong> filtre por conta corrente especÃ­fica ou veja todos os bancos</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Cards de Indicadores</strong></p>
-            <ul>
-              <li><strong>Total Receitas</strong> â soma de todos os lanÃ§amentos de receita no perÃ­odo</li>
-              <li><strong>Total Despesas</strong> â soma de todas as despesas no perÃ­odo</li>
-              <li><strong>Saldo do PerÃ­odo</strong> â receitas menos despesas do perÃ­odo filtrado</li>
-              <li><strong>Saldo Total Hoje</strong> â saldo acumulado de todos os lanÃ§amentos atÃ© a data atual</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>GrÃ¡ficos</strong></p>
-            <ul>
-              <li><strong>Fluxo de Caixa DiÃ¡rio</strong> â barras de receitas (verde) e despesas (vermelho) por dia ou mÃªs, com linha de saldo acumulado. Marque a opÃ§Ã£o <em>Incluir financiamentos no saldo</em> para considerar tambÃ©m as parcelas.</li>
-              <li><strong>Receitas por Centro</strong> â grÃ¡fico de pizza com os maiores centros de receita</li>
-              <li><strong>Despesas por Centro</strong> â grÃ¡fico de pizza com os maiores centros de despesa</li>
-              <li><strong>EvoluÃ§Ã£o dos Investimentos</strong> â linha do patrimÃ´nio acumulado (dourado), linha do principal investido (azul tracejado) e barras de variaÃ§Ã£o mensal nos Ãºltimos 12 meses</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Comparativo MÃªs a MÃªs</strong></p>
-            <ul>
-              <li>Compara receitas, despesas e saldo do mÃªs atual com o mÃªs anterior</li>
-              <li>Setas verdes indicam melhora, setas vermelhas indicam piora</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>PrevisÃ£o â PrÃ³ximos 3 Meses</strong></p>
-            <ul>
-              <li>Calculada automaticamente com base nos lanÃ§amentos <strong>recorrentes ativos</strong></li>
-              <li>Mostra receitas e despesas previstas para cada um dos 3 prÃ³ximos meses</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Alertas de Limite por Centro de Custo</strong></p>
-            <ul>
-              <li>Aparece quando algum centro de custo atinge 70% ou mais do limite configurado em <strong>Metas</strong></li>
-              <li>A barra fica amarela acima de 70%, laranja acima de 90% e vermelha ao exceder o limite</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>PrÃ³ximas Faturas</strong></p>
-            <ul>
-              <li>Lista as faturas dos cartÃµes cadastrados para os prÃ³ximos 3 meses com valor e data de vencimento</li>
+              <li>Registre receitas e despesas com tipo, data, conta corrente, centro de custo e forma de pagamento.</li>
+              <li>Para pagamentos com cartão, selecione o cartão e informe o número de parcelas.</li>
+              <li>Use os <strong>filtros</strong> na tabela para buscar por qualquer campo.</li>
+              <li>Clique nos cabeçalhos para ordenar por coluna.</li>
             </ul>
           </div>
-        </div>
-
-        <!-- 5. Lancamentos -->
-        <div class="card" id="man-lanc">
+          <div class="hr"></div>
           <div class="manual-section">
-            <h3><i class="fa fa-exchange-alt" style="color:var(--gold);margin-right:8px"></i>5. LanÃ§amentos</h3>
-            <p>Central de registro de todas as movimentaÃ§Ãµes financeiras: receitas, despesas, compras no cartÃ£o e parcelas de investimentos.</p>
-
-            <p style="margin-top:14px"><strong>Como registrar um lanÃ§amento</strong></p>
+            <h3>Cartões de Crédito</h3>
             <ul>
-              <li>Clique em <strong>Novo LanÃ§amento</strong> no canto superior direito</li>
-              <li>Selecione o <strong>Tipo</strong>: Receita, Despesa ou Investimento</li>
-              <li>Preencha a <strong>Data</strong>, <strong>Valor</strong> e <strong>DescriÃ§Ã£o</strong></li>
-              <li>Associe a uma <strong>Conta Corrente</strong> (banco), <strong>Centro de Custo</strong> e <strong>Forma de Pagamento</strong></li>
-              <li>Clique em <strong>Salvar</strong></li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>LanÃ§amento com CartÃ£o de CrÃ©dito</strong></p>
-            <ul>
-              <li>Selecione <code>CartÃ£o de CrÃ©dito</code> como Forma de Pagamento</li>
-              <li>Escolha o <strong>cartÃ£o</strong> na lista</li>
-              <li>Informe o nÃºmero de <strong>parcelas</strong> (1 = Ã  vista)</li>
-              <li>O sistema cria automaticamente uma entrada na fatura do mÃªs correspondente ao vencimento do cartÃ£o</li>
-              <li>Em compras parceladas, cada parcela Ã© gerada na fatura dos meses seguintes</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>LanÃ§amento de Investimento</strong></p>
-            <ul>
-              <li>Selecione o tipo <code>Investimento</code></li>
-              <li>Escolha o investimento e a operaÃ§Ã£o: <code>Aporte</code>, <code>Resgate</code> ou <code>Rendimento</code></li>
-              <li>Este lanÃ§amento <strong>nÃ£o</strong> afeta o saldo da conta corrente (somente movimenta o portfÃ³lio)</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Filtros da Tabela</strong></p>
-            <ul>
-              <li>Filtre por <strong>tipo</strong> (Receita / Despesa), <strong>mÃªs</strong>, <strong>banco</strong>, <strong>centro de custo</strong> e <strong>perÃ­odo de datas</strong></li>
-              <li>Clique nos cabeÃ§alhos das colunas para <strong>ordenar</strong> a tabela</li>
-              <li>Clique em <strong>Limpar</strong> para remover todos os filtros ativos</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Editar e Excluir</strong></p>
-            <ul>
-              <li>Use o botÃ£o <i class="fa fa-pencil-alt" style="color:var(--blue)"></i> para editar qualquer campo do lanÃ§amento</li>
-              <li>Use o botÃ£o <i class="fa fa-trash" style="color:var(--red)"></i> para excluir permanentemente</li>
-              <li>LanÃ§amentos gerados por recorrentes tÃªm indicaÃ§Ã£o visual</li>
+              <li>Cadastre cartões com limite total, dia de fechamento e vencimento.</li>
+              <li>O <strong>limite utilizado</strong> é calculado automaticamente com base nos lançamentos feitos no cartão.</li>
+              <li>O <strong>limite disponível</strong> = Limite Total − Utilizado.</li>
             </ul>
           </div>
-        </div>
-
-        <!-- 6. Cartoes -->
-        <div class="card" id="man-cartoes">
+          <div class="hr"></div>
           <div class="manual-section">
-            <h3><i class="fa fa-credit-card" style="color:var(--gold);margin-right:8px"></i>6. CartÃµes de CrÃ©dito</h3>
-            <p>Gerencie seus cartÃµes de crÃ©dito, acompanhe o limite utilizado e visualize as faturas mes a mÃªs.</p>
-
-            <p style="margin-top:14px"><strong>Cadastrar um CartÃ£o</strong></p>
+            <h3>Cadastros</h3>
             <ul>
-              <li>Clique em <strong>Novo CartÃ£o</strong></li>
-              <li>Informe o <strong>nome</strong> do cartÃ£o (ex: Nubank Roxinho), <strong>limite total</strong>, <strong>dia de fechamento</strong> e <strong>dia de vencimento</strong></li>
-              <li>Vincule a um <strong>banco</strong> se desejar</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Cards de Resumo</strong></p>
-            <ul>
-              <li>Cada cartÃ£o exibe: limite total, limite utilizado no mÃªs e limite disponÃ­vel</li>
-              <li>A barra de progresso fica verde quando o uso estÃ¡ baixo, amarela acima de 70% e vermelha ao exceder</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Como funciona o cÃ¡lculo da fatura</strong></p>
-            <ul>
-              <li>Compras feitas <strong>antes do fechamento</strong> entram na fatura do mÃªs atual</li>
-              <li>Compras feitas <strong>apÃ³s o fechamento</strong> entram na fatura do mÃªs seguinte</li>
-              <li>O valor da fatura Ã© a soma de todos os lanÃ§amentos vinculados ao cartÃ£o no perÃ­odo</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Limite de Gasto</strong></p>
-            <ul>
-              <li>Para definir um alerta de limite por cartÃ£o, crie uma <strong>Meta</strong> do tipo <code>Limite de Gasto</code> vinculada ao centro de custo</li>
-              <li>O sistema alerta no Dashboard quando o uso atingir 70% do limite</li>
+              <li><strong>Bancos:</strong> cadastre suas contas correntes/bancos.</li>
+              <li><strong>Centros de Custo:</strong> categorias como Alimentação, Salário, etc.</li>
+              <li><strong>Formas de Pagamento:</strong> PIX, Boleto, Transferência, Cartão, Dinheiro, etc.</li>
             </ul>
           </div>
-        </div>
-
-        <!-- 7. Recorrentes -->
-        <div class="card" id="man-recorrentes">
+          <div class="hr"></div>
           <div class="manual-section">
-            <h3><i class="fa fa-sync-alt" style="color:var(--gold);margin-right:8px"></i>7. Recorrentes</h3>
-            <p>Automatize lanÃ§amentos que se repetem todo mÃªs, como assinaturas, salario, aluguel e contas fixas.</p>
-
-            <p style="margin-top:14px"><strong>Cadastrar um Recorrente</strong></p>
+            <h3>Configuração</h3>
             <ul>
-              <li>Clique em <strong>Novo Recorrente</strong></li>
-              <li>Informe: <strong>descriÃ§Ã£o</strong>, <strong>tipo</strong> (Receita ou Despesa), <strong>valor</strong>, <strong>banco</strong> e <strong>centro de custo</strong></li>
-              <li>Para recorrentes vinculados a cartÃ£o (ex: assinaturas debitadas no cartÃ£o), selecione o <strong>cartÃ£o</strong></li>
-              <li>O ciclo inicia no mÃªs do cadastro e dura <strong>12 meses</strong></li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Status do Ciclo</strong></p>
-            <ul>
-              <li>A barra de progresso mostra quantos dos 12 meses jÃ¡ foram lanÃ§ados (ex: 4/12)</li>
-              <li><span style="color:var(--teal)">LanÃ§ado</span> â o lanÃ§amento do mÃªs atual jÃ¡ foi gerado</li>
-              <li><span style="color:var(--blue)">Agendado</span> â vinculado a cartÃ£o, serÃ¡ incluÃ­do na fatura</li>
-              <li><span style="color:var(--gold)">Pendente</span> â ainda nÃ£o foi lanÃ§ado no mÃªs atual</li>
-              <li><span style="color:var(--gold)">Ciclo encerrado</span> â os 12 meses foram concluÃ­dos; renove para continuar</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>AÃ§Ãµes disponÃ­veis</strong></p>
-            <ul>
-              <li><i class="fa fa-bolt" style="color:var(--teal)"></i> <strong>LanÃ§ar agora</strong> â gera o lanÃ§amento do mÃªs atual imediatamente</li>
-              <li><i class="fa fa-redo" style="color:var(--gold)"></i> <strong>Renovar</strong> â reinicia o ciclo de 12 meses quando encerrado</li>
-              <li><i class="fa fa-ban" style="color:var(--red)"></i> <strong>Cancelar</strong> â pausa o recorrente sem excluir o histÃ³rico</li>
-              <li><i class="fa fa-trash" style="color:var(--red)"></i> <strong>Excluir</strong> â remove permanentemente o recorrente</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>LanÃ§amento automÃ¡tico ao login</strong></p>
-            <ul>
-              <li>Ao entrar no sistema, recorrentes com lanÃ§amento pendente no mÃªs atual sÃ£o gerados automaticamente (sem cartÃ£o)</li>
-              <li>Recorrentes vinculados a cartÃ£o sÃ£o incluÃ­dos diretamente na fatura</li>
+              <li>Faça <strong>backup</strong> exportando os dados como JSON.</li>
+              <li><strong>Importe</strong> um backup para restaurar os dados.</li>
+              <li>Use com cuidado a opção de <strong>limpar dados</strong>.</li>
             </ul>
           </div>
         </div>
-
-        <!-- 8. Financiamentos -->
-        <div class="card" id="man-financ">
-          <div class="manual-section">
-            <h3><i class="fa fa-university" style="color:var(--gold);margin-right:8px"></i>8. Financiamentos</h3>
-            <p>Controle emprÃ©stimos, financiamentos de veÃ­culos, imÃ³veis e qualquer dÃ­vida parcelada de longo prazo.</p>
-
-            <p style="margin-top:14px"><strong>Cadastrar um Financiamento</strong></p>
-            <ul>
-              <li>Clique em <strong>Novo Financiamento</strong></li>
-              <li>Preencha: <strong>descriÃ§Ã£o</strong>, <strong>valor total</strong>, <strong>taxa de juros</strong> (% a.m.), <strong>total de parcelas</strong>, <strong>parcelas jÃ¡ pagas</strong>, <strong>dia de vencimento</strong> e <strong>data de inÃ­cio</strong></li>
-              <li>Vincule a um banco para rastreabilidade</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Acompanhamento</strong></p>
-            <ul>
-              <li>O card de cada financiamento mostra: valor da parcela, parcelas restantes, saldo devedor e percentual quitado</li>
-              <li>A barra de progresso vai de vermelho (inÃ­cio) a verde (quitado)</li>
-              <li>A seÃ§Ã£o <strong>PrÃ³ximas Parcelas</strong> lista os vencimentos dos prÃ³ximos 3 meses</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Atualizar parcelas pagas</strong></p>
-            <ul>
-              <li>Edite o financiamento e atualize o campo <strong>Parcelas Pagas</strong> apÃ³s cada pagamento</li>
-              <li>Quando todas as parcelas estiverem pagas, o status muda para <span style="color:var(--teal)">Quitado</span></li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>IntegraÃ§Ã£o com o Dashboard</strong></p>
-            <ul>
-              <li>Marque <em>Incluir financiamentos no saldo</em> no grÃ¡fico de Fluxo de Caixa para visualizar o impacto das parcelas no saldo mensal</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 9. Investimentos -->
-        <div class="card" id="man-invest">
-          <div class="manual-section">
-            <h3><i class="fa fa-chart-pie" style="color:var(--gold);margin-right:8px"></i>9. Investimentos</h3>
-            <p>Gerencie seu portfÃ³lio de investimentos, registre movimentaÃ§Ãµes e acompanhe a evoluÃ§Ã£o do patrimÃ´nio.</p>
-
-            <p style="margin-top:14px"><strong>Cadastrar um Investimento</strong></p>
-            <ul>
-              <li>Clique em <strong>Novo Investimento</strong></li>
-              <li>Informe: <strong>nome</strong> (ex: CDB Nubank), <strong>tipo</strong> (Renda Fixa, AÃ§Ãµes, FII, etc.), <strong>valor aportado inicial</strong>, <strong>valor atual</strong>, <strong>rentabilidade esperada</strong> (% a.a.), <strong>banco custodiante</strong>, <strong>data de aplicaÃ§Ã£o</strong> e <strong>data de vencimento</strong> (se houver)</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Registrar MovimentaÃ§Ãµes</strong></p>
-            <ul>
-              <li>Clique em <strong>Registrar</strong> na seÃ§Ã£o MovimentaÃ§Ãµes</li>
-              <li><code>Aporte</code> â nova aplicaÃ§Ã£o de capital no investimento</li>
-              <li><code>Resgate</code> â retirada parcial ou total do investimento</li>
-              <li><code>Rendimento</code> â juros, dividendos ou valorizaÃ§Ã£o registrada</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>GrÃ¡ficos</strong></p>
-            <ul>
-              <li><strong>DistribuiÃ§Ã£o por Tipo</strong> â pizza com proporÃ§Ã£o de cada tipo de investimento no patrimÃ´nio</li>
-              <li><strong>DistribuiÃ§Ã£o por Ativo</strong> â pizza individual por investimento cadastrado</li>
-              <li><strong>EvoluÃ§Ã£o Mensal</strong> â histÃ³rico do patrimÃ´nio total mÃªs a mÃªs</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Indicadores do Painel</strong></p>
-            <ul>
-              <li><strong>Total Aportado</strong> â soma de todo o capital investido</li>
-              <li><strong>PatrimÃ´nio Atual</strong> â valor de mercado total da carteira</li>
-              <li><strong>Resultado Total</strong> â ganho ou perda em relaÃ§Ã£o ao aportado</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>EvoluÃ§Ã£o no Dashboard</strong></p>
-            <ul>
-              <li>O grÃ¡fico <em>EvoluÃ§Ã£o dos Investimentos</em> no Dashboard mostra os Ãºltimos 12 meses</li>
-              <li>Linha dourada = patrimÃ´nio total | Linha azul tracejada = principal investido | Barras = variaÃ§Ã£o mensal</li>
-              <li>A diferenÃ§a visual entre as duas linhas representa o rendimento acumulado</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 10. Metas -->
-        <div class="card" id="man-metas">
-          <div class="manual-section">
-            <h3><i class="fa fa-bullseye" style="color:var(--gold);margin-right:8px"></i>10. Metas Financeiras</h3>
-            <p>Defina objetivos de poupanÃ§a, metas de investimento e limites de gasto por categoria.</p>
-
-            <p style="margin-top:14px"><strong>Tipos de Meta</strong></p>
-            <ul>
-              <li><code>PoupanÃ§a</code> â acompanhe o progresso em direÃ§Ã£o a um valor alvo (ex: Reserva de EmergÃªncia: R$ 20.000)</li>
-              <li><code>Investimento</code> â objetivo de patrimÃ´nio investido (ex: Carteira de AÃ§Ãµes: R$ 50.000)</li>
-              <li><code>Limite de Gasto</code> â teto mensal para um centro de custo (ex: AlimentaÃ§Ã£o: R$ 800/mÃªs)</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Como criar uma Meta</strong></p>
-            <ul>
-              <li>Clique em <strong>Nova Meta</strong></li>
-              <li>Selecione o <strong>tipo</strong>, informe o <strong>nome</strong>, o <strong>valor alvo</strong> e o <strong>prazo</strong></li>
-              <li>Para metas de poupanÃ§a, atualize o <strong>valor atual</strong> periodicamente</li>
-              <li>Para limites de gasto, vincule ao <strong>centro de custo</strong> desejado</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Alertas AutomÃ¡ticos</strong></p>
-            <ul>
-              <li>Limites de gasto acima de <strong>70%</strong> aparecem no card de alertas do Dashboard</li>
-              <li>Ao atingir <strong>90%</strong>, o sistema dispara uma notificaÃ§Ã£o do navegador</li>
-              <li>Metas com prazo vencido ficam marcadas em vermelho</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 11. Faturas -->
-        <div class="card" id="man-faturas">
-          <div class="manual-section">
-            <h3><i class="fa fa-file-invoice-dollar" style="color:var(--gold);margin-right:8px"></i>11. Faturas</h3>
-            <p>VisÃ£o consolidada de todas as faturas dos cartÃµes de crÃ©dito organizadas por mÃªs.</p>
-
-            <p style="margin-top:14px"><strong>Como navegar</strong></p>
-            <ul>
-              <li>Cada bloco representa um <strong>mÃªs</strong> com o total da fatura</li>
-              <li>Clique no bloco para <strong>expandir</strong> e ver todos os itens daquele mÃªs</li>
-              <li>Cada item mostra: descriÃ§Ã£o, cartÃ£o, valor e informaÃ§Ãµes de parcelas</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>CÃ³digo de cores</strong></p>
-            <ul>
-              <li><span style="color:var(--teal)">â</span> <strong>Verde</strong> â mÃªs com fatura dentro do esperado</li>
-              <li><span style="color:var(--gold)">â</span> <strong>Dourado</strong> â mÃªs atual ou com atenÃ§Ã£o</li>
-              <li><span style="color:var(--red)">â</span> <strong>Vermelho</strong> â mÃªs com fatura elevada</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Dica</strong></p>
-            <ul>
-              <li>Use esta tela para conferir o detalhamento antes do vencimento e identificar compras inesperadas</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 12. Configuracao -->
-        <div class="card" id="man-config">
-          <div class="manual-section">
-            <h3><i class="fa fa-cog" style="color:var(--gold);margin-right:8px"></i>12. ConfiguraÃ§Ã£o e Backup</h3>
-            <p>Gerencie os dados do sistema, faÃ§a backups e restaure informaÃ§Ãµes quando necessÃ¡rio.</p>
-
-            <p style="margin-top:14px"><strong>Exportar Backup (JSON)</strong></p>
-            <ul>
-              <li>Clique em <strong>Exportar Dados</strong> para baixar um arquivo <code>.json</code> com todos os dados</li>
-              <li>Guarde este arquivo em local seguro (Google Drive, e-mail, pen drive)</li>
-              <li>Recomenda-se fazer backup <strong>semanalmente</strong> ou apÃ³s lanÃ§amentos importantes</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Importar Backup</strong></p>
-            <ul>
-              <li>Clique em <strong>Importar Dados</strong> e selecione o arquivo <code>.json</code> do backup</li>
-              <li><strong>AtenÃ§Ã£o:</strong> a importaÃ§Ã£o <strong>substitui</strong> todos os dados atuais. FaÃ§a um backup antes de importar.</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Limpar Dados</strong></p>
-            <ul>
-              <li>Esta opÃ§Ã£o apaga <strong>todos</strong> os dados do sistema de forma irreversÃ­vel</li>
-              <li>Use apenas para reiniciar o sistema do zero</li>
-              <li>FaÃ§a backup antes de prosseguir</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Por que fazer backup?</strong></p>
-            <ul>
-              <li>Os dados ficam no <code>localStorage</code> do navegador e sÃ£o apagados se o cache for limpo</li>
-              <li>Mudar de navegador ou dispositivo requer importar o backup manualmente</li>
-              <li>AtualizaÃ§Ãµes do navegador raramente, mas podem limpar o armazenamento local</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 13. Notificacoes -->
-        <div class="card" id="man-notif">
-          <div class="manual-section">
-            <h3><i class="fa fa-bell" style="color:var(--gold);margin-right:8px"></i>13. NotificaÃ§Ãµes</h3>
-            <p>O sistema utiliza a API de NotificaÃ§Ãµes do navegador para alertar sobre compromissos e eventos financeiros importantes.</p>
-
-            <p style="margin-top:14px"><strong>Habilitar NotificaÃ§Ãµes</strong></p>
-            <ul>
-              <li>Ao fazer login, o sistema solicita permissÃ£o automaticamente</li>
-              <li>Clique em <strong>Permitir</strong> na janela do navegador para ativar</li>
-              <li>Se recusou, acesse as configuraÃ§Ãµes do navegador e habilite notificaÃ§Ãµes para este site</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Compromissos do Dia (ao fazer login)</strong></p>
-            <ul>
-              <li><strong>Faturas de cartÃ£o</strong> com vencimento no dia atual</li>
-              <li><strong>Parcelas de financiamento</strong> com dia de vencimento igual ao dia atual</li>
-              <li><strong>TÃ­tulos de investimento</strong> com data de vencimento no dia atual</li>
-              <li><strong>Recorrentes pendentes</strong> que ainda nÃ£o foram lanÃ§ados no mÃªs atual</li>
-              <li>Um <strong>toast</strong> na tela resume o total de compromissos mesmo sem permissÃ£o de notificaÃ§Ã£o</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Alertas de Limite de CartÃ£o</strong></p>
-            <ul>
-              <li>Quando o uso de qualquer meta de limite de gasto atinge <strong>90%</strong>, uma notificaÃ§Ã£o Ã© disparada</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Alerta de Fatura PrÃ³xima</strong></p>
-            <ul>
-              <li>Faturas com vencimento em atÃ© <strong>3 dias</strong> geram notificaÃ§Ã£o ao entrar no sistema</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 14. Dicas -->
-        <div class="card" id="man-dicas">
-          <div class="manual-section">
-            <h3><i class="fa fa-lightbulb" style="color:var(--gold);margin-right:8px"></i>14. Dicas e Boas PrÃ¡ticas</h3>
-
-            <p style="margin-top:4px"><strong>ConfiguraÃ§Ã£o inicial recomendada</strong></p>
-            <ul>
-              <li>1Âº Cadastre seus bancos e contas</li>
-              <li>2Âº Crie os centros de custo relevantes para sua realidade</li>
-              <li>3Âº Cadastre as formas de pagamento que utiliza</li>
-              <li>4Âº Adicione seus cartÃµes de crÃ©dito com limite e datas corretas</li>
-              <li>5Âº Configure os recorrentes (assinaturas, salÃ¡rio, aluguel)</li>
-              <li>6Âº Cadastre financiamentos ativos</li>
-              <li>7Âº Registre seus investimentos</li>
-              <li>8Âº Defina metas financeiras e limites de gasto</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Rotina diÃ¡ria</strong></p>
-            <ul>
-              <li>Lance receitas e despesas assim que ocorrerem para manter o saldo preciso</li>
-              <li>Confira o Dashboard no inÃ­cio de cada semana</li>
-              <li>Verifique as faturas antes do fechamento do cartÃ£o</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Rotina mensal</strong></p>
-            <ul>
-              <li>Confira os recorrentes pendentes e lance os que nÃ£o foram gerados automaticamente</li>
-              <li>Atualize o valor atual dos investimentos</li>
-              <li>Atualize as parcelas pagas dos financiamentos</li>
-              <li>Exporte o backup do mÃªs</li>
-              <li>Revise as metas e ajuste os valores se necessÃ¡rio</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Dicas de performance</strong></p>
-            <ul>
-              <li>Use centros de custo bem definidos para que os grÃ¡ficos sejam mais informativos</li>
-              <li>Sempre informe a data correta nos lanÃ§amentos para que o fluxo de caixa seja preciso</li>
-              <li>Para compras parceladas no cartÃ£o, informe o nÃºmero correto de parcelas â o sistema distribui automaticamente</li>
-              <li>Ative notificaÃ§Ãµes do navegador para nÃ£o perder vencimentos</li>
-              <li>Acesse pelo mesmo navegador sempre para manter o histÃ³rico consistente</li>
-            </ul>
-
-            <p style="margin-top:14px"><strong>Atalhos Ãºteis</strong></p>
-            <ul>
-              <li>Pressione <code>Enter</code> na tela de login para acessar rapidamente</li>
-              <li>Use os filtros de data nos LanÃ§amentos para gerar mini-relatÃ³rios por perÃ­odo</li>
-              <li>Clique nos cabeÃ§alhos das tabelas para ordenar por qualquer coluna</li>
-            </ul>
-          </div>
-        </div>
-
       </section>
 
 
@@ -2326,7 +1654,7 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
 
         <!-- Stats patrimônio -->
-        <div class="stats-grid stats-grid-3" id="investStats"></div>
+        <div class="stats-grid" id="investStats" style="grid-template-columns:repeat(3,1fr)"></div>
 
         <!-- Cards de investimentos -->
         <div id="investGrid" class="invest-grid"></div>
@@ -2387,7 +1715,7 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
 
         <!-- Resumo de Metas -->
-        <div class="stats-grid stats-grid-3" id="metasStats"></div>
+        <div class="stats-grid" id="metasStats" style="grid-template-columns:repeat(3,1fr)"></div>
 
         <!-- Grade de Metas -->
         <div class="meta-grid" id="metasGrid">
@@ -3144,27 +2472,10 @@ function toast(msg, type='ok') {
 ══════════════════════════════════════════ */
 let currentUser = null;
 
-async function hashSenha(s) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-
-async function migrarSenhasPlain() {
-  let changed = false;
-  for (const u of usuarios) {
-    if (u.pass && u.pass.length < 60) {
-      u.pass = await hashSenha(u.pass);
-      changed = true;
-    }
-  }
-  if (changed) saveAll();
-}
-
-async function doLogin() {
+function doLogin() {
   const u = document.getElementById('lUser').value.trim();
   const p = document.getElementById('lPass').value;
-  const ph = await hashSenha(p);
-  const ok = usuarios.find(x => x.user===u && (x.pass===ph || x.pass===p));
+  const ok = usuarios.find(x => x.user===u && x.pass===p);
   if (!ok) { toast('Usuário ou senha inválidos.','err'); return; }
   currentUser = ok;
   document.getElementById('loginScreen').style.display='none';
@@ -3179,16 +2490,11 @@ async function doLogin() {
   gerarRecorrentesAutoAoLogin();
   pedirPermissaoNotificacao();
   setTimeout(verificarAlertas, 2000);
-  setTimeout(notificarCompromissosHoje, 3000);
-  document.getElementById('fabBtn').style.display = 'flex';
-  autoBackupCheck();
-  migrarSenhasPlain();
-  setTimeout(renderLog, 500);
 }
 
 document.addEventListener('keydown', e => {
   if (e.key==='Enter') {
-    if (!document.getElementById('loginScreen').style.display || document.getElementById('loginScreen').style.display!=='none') doLogin().catch(()=>{});
+    if (!document.getElementById('loginScreen').style.display || document.getElementById('loginScreen').style.display!=='none') doLogin();
   }
 });
 
@@ -3202,8 +2508,6 @@ function switchTab(id, btn) {
   if (btn) btn.classList.add('active');
   else document.querySelector(`[data-tab="${id}"]`)?.classList.add('active');
   if (id==='dashboard')  renderDashboard();
-  if (id==='relatorios') { populateRelFiltros(); renderRelatorio(); }
-  if (id==='config')     renderLog();
   if (id==='config')     renderSysInfo();
   if (id==='metas')      { renderMetas(); renderLimitesCC(); }
   if (id==='recorrentes'){ renderRecorrentes(); verificarRecorrentesPendentes(); }
@@ -3236,7 +2540,6 @@ function closeModal(id) { document.getElementById(id).classList.remove('on'); }
    RENDER ALL
 ══════════════════════════════════════════ */
 function renderAll() {
-  populateRelFiltros();
   renderFinanciamentos();
   renderInvestimentos();
   renderBancos(); renderCC(); renderFormas();
@@ -3796,7 +3099,6 @@ function saveLanc() {
     saveAll(); renderInvestimentos();
   }
 
-  addLog((editId?'Editado: ':'Novo: ') + (desc||tipo) + ' ' + fmtBRL(parseMoney(valor)));
   closeModal('modalLanc');
   if (nParcelas <= 1 || !cartaoId) toast(editId?'Lançamento atualizado!':'Lançamento registrado!');
 }
@@ -3868,7 +3170,7 @@ function renderLancamentos() {
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.desc||''}">${l.desc||'—'}</td>
       <td>
         <button class="btn btn-ghost btn-icon btn-edit" onclick="openModalLanc('${l.id}')"><i class="fa fa-pencil-alt"></i></button>
-        <button class="btn btn-ghost btn-icon btn-dup btn-sm" onclick="dupLanc('${l.id}')" title="Duplicar"><i class="fa fa-copy"></i></button><button class="btn btn-ghost btn-icon btn-danger" onclick="delLanc('${l.id}')"><i class="fa fa-trash"></i></button>
+        <button class="btn btn-ghost btn-icon btn-danger" onclick="delLanc('${l.id}')"><i class="fa fa-trash"></i></button>
       </td>
     </tr>`;
   }).join('');
@@ -3903,9 +3205,7 @@ function renderLancamentos() {
 }
 
 function delLanc(id) {
-  const ld = lancamentos.find(l=>l.id===id);
   if (!confirm('Excluir este lançamento?')) return;
-  addLog('Excluído: ' + (ld?.desc||ld?.tipo||'') + ' ' + fmtBRL(parseMoney(ld?.valor||'0')));
   lancamentos = lancamentos.filter(x=>x.id!==id);
   saveAll(); renderLancamentos(); renderCartoes(); renderDashboard(); toast('Lançamento excluído.');
 }
@@ -3919,13 +3219,11 @@ function addUser() {
   const pf = document.getElementById('inPerfil').value;
   if (!u||!p) { toast('Preencha usuário e senha.','err'); return; }
   if (usuarios.find(x=>x.user===u)) { toast('Usuário já existe.','err'); return; }
-  hashSenha(p).then(ph => {
-    usuarios.push({user:u,pass:ph,perfil:pf});
-    saveAll(); renderUsers();
-    document.getElementById('inUser').value='';
-    document.getElementById('inSenha').value='';
-    toast('Usuário cadastrado!');
-  });
+  usuarios.push({user:u,pass:p,perfil:pf});
+  saveAll(); renderUsers();
+  document.getElementById('inUser').value='';
+  document.getElementById('inSenha').value='';
+  toast('Usuário cadastrado!');
 }
 
 function renderUsers() {
@@ -4810,7 +4108,6 @@ function renderDashboard() {
   renderAlertFaturas();
   renderComparativoDash();
   renderPrevisaoDash();
-  renderBancoSaldo();
   renderAlertaLimiteCCDash();
 }
 
@@ -4827,42 +4124,22 @@ function buildDashInvestChart() {
     meses.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
   }
 
-  // Para cada investimento, calcula o patrimonio e o principal em cada mes:
-  // - Se tem movimentacoes: usa aportado_inicial + aportes + rends - resgates acumulados ate o mes
-  // - Se nao tem movimentacoes: usa inv.aportado (principal) e inv.atual (patrimonio) a partir da data de inicio
-  const patrimonioMesReal = meses.map(ym => {
+  // Patrimônio acumulado até o fim de cada mês
+  const patrimonioMes = meses.map(ym => {
     const toDate = ym + '-31';
     let total = 0;
     investimentos.forEach(inv => {
-      const dataInicio = inv.data || '0000-00-00';
-      if (dataInicio > toDate) return; // investimento ainda nao existia neste mes
       const movs     = movsInvest.filter(m => m.investId === inv.id && m.data <= toDate);
       const aportes  = movs.filter(m => m.tipo === 'Aporte').reduce((s, m) => s + m.valor, 0);
       const resgates = movs.filter(m => m.tipo === 'Resgate').reduce((s, m) => s + m.valor, 0);
       const rends    = movs.filter(m => m.tipo === 'Rendimento').reduce((s, m) => s + m.valor, 0);
-      // valor base = aportado inicial cadastrado + movimentacoes posteriores
-      total += (inv.aportado || 0) + aportes - resgates + rends;
+      total += aportes - resgates + rends;
     });
     return total;
   });
 
-  // Principal investido por mes: valor base aportado + aportes adicionais - resgates (sem rendimentos)
-  const principalMes = meses.map(ym => {
-    const toDate = ym + '-31';
-    let total = 0;
-    investimentos.forEach(inv => {
-      const dataInicio = inv.data || '0000-00-00';
-      if (dataInicio > toDate) return;
-      const movs     = movsInvest.filter(m => m.investId === inv.id && m.data <= toDate);
-      const aportes  = movs.filter(m => m.tipo === 'Aporte').reduce((s, m) => s + m.valor, 0);
-      const resgates = movs.filter(m => m.tipo === 'Resgate').reduce((s, m) => s + m.valor, 0);
-      total += (inv.aportado || 0) + aportes - resgates;
-    });
-    return total;
-  });
-
-  // Variacao mensal do patrimonio
-  const deltaMes = patrimonioMesReal.map((v, i) => i === 0 ? 0 : v - patrimonioMesReal[i - 1]);
+  // Variação mensal (delta entre meses consecutivos)
+  const deltaMes = patrimonioMes.map((v, i) => i === 0 ? 0 : v - patrimonioMes[i - 1]);
 
   // Esconder card se não há dados
   if (!investimentos.length) {
@@ -4872,27 +4149,16 @@ function buildDashInvestChart() {
   if (card) card.style.display = '';
 
   // Mini-stats no título
-  const patrimonioAtual  = patrimonioMesReal[patrimonioMesReal.length - 1];
-  const patrimonioAnterior = patrimonioMesReal[0];
-  const principalAtual   = principalMes[principalMes.length - 1];
-  const rendimentoAtual  = patrimonioAtual - principalAtual;
+  const patrimonioAtual = patrimonioMes[patrimonioMes.length - 1];
+  const patrimonioAnterior = patrimonioMes[0];
   const rendTotal = patrimonioAtual - patrimonioAnterior;
   const rendPct   = patrimonioAnterior > 0 ? ((rendTotal / patrimonioAnterior) * 100).toFixed(1) : '—';
-  const rentabPct = principalAtual > 0 ? ((rendimentoAtual / principalAtual) * 100).toFixed(1) : '—';
   const statsEl   = document.getElementById('dashInvestStats');
   if (statsEl) {
     statsEl.innerHTML = `
       <span style="font-size:12px;font-family:var(--mono);color:var(--text2)">
         Patrimônio atual:
         <strong style="color:var(--gold)">${fmtBRL(patrimonioAtual)}</strong>
-      </span>
-      <span style="font-size:12px;font-family:var(--mono);color:var(--text2)">
-        Principal investido:
-        <strong style="color:var(--blue)">${fmtBRL(principalAtual)}</strong>
-      </span>
-      <span style="font-size:12px;font-family:var(--mono);color:var(--text2)">
-        Rendimento:
-        <strong style="color:${rendimentoAtual >= 0 ? 'var(--teal)' : 'var(--red)'}">${rendimentoAtual >= 0 ? '+' : ''}${fmtBRL(rendimentoAtual)} (${rentabPct}%)</strong>
       </span>
       <span style="font-size:12px;font-family:var(--mono);color:var(--text2)">
         Var. 12m:
@@ -4915,7 +4181,7 @@ function buildDashInvestChart() {
         {
           type: 'line',
           label: 'Patrimônio Acumulado',
-          data: patrimonioMesReal,
+          data: patrimonioMes,
           borderColor: '#c9a84c',
           backgroundColor: 'rgba(201,168,76,.10)',
           borderWidth: 2,
@@ -4927,21 +4193,6 @@ function buildDashInvestChart() {
           yAxisID: 'y'
         },
         {
-          type: 'line',
-          label: 'Principal Investido',
-          data: principalMes,
-          borderColor: '#4a8fff',
-          backgroundColor: 'rgba(74,143,255,.0)',
-          borderWidth: 2,
-          borderDash: [5, 4],
-          tension: .4,
-          pointRadius: 3,
-          pointBackgroundColor: '#4a8fff',
-          fill: false,
-          order: 2,
-          yAxisID: 'y'
-        },
-        {
           type: 'bar',
           label: 'Variação Mensal',
           data: deltaMes,
@@ -4949,7 +4200,7 @@ function buildDashInvestChart() {
           borderColor:      deltaMes.map(v => v >= 0 ? '#3eb89a' : '#e05252'),
           borderWidth: 1,
           borderRadius: 4,
-          order: 3,
+          order: 2,
           yAxisID: 'y2'
         }
       ]
@@ -5191,26 +4442,7 @@ function renderSysInfo() {
   `;
 }
 
-/* =============================================
-   BACKUP AUTOMATICO
-============================================= */
-function autoBackupCheck() {
-  const ultimo = localStorage.getItem('nmc_ultimo_backup');
-  if (!ultimo) { localStorage.setItem('nmc_ultimo_backup', new Date().toISOString()); return; }
-  const dias = Math.floor((Date.now() - new Date(ultimo).getTime()) / 86400000);
-  if (dias >= 7) {
-    showToast('💾 ' + dias + ' dias sem backup! Exporte seus dados em Configuração.', 'inf');
-  }
-  // Auto-backup no localStorage (rotativo, 3 versões)
-  try {
-    const slot = 'nmc_autobackup_' + (Math.floor(Date.now()/86400000) % 3);
-    const dados = JSON.stringify({bancos,centros,formas,cartoes,lancamentos,usuarios,financiamentos,investimentos,movsInvest,metas,recorrentes,ts:new Date().toISOString()});
-    localStorage.setItem(slot, dados);
-  } catch(e) {}
-}
-
 function exportData() {
-  localStorage.setItem('nmc_ultimo_backup', new Date().toISOString());
   const obj = {bancos,centros,formas,cartoes,lancamentos,usuarios,financiamentos,investimentos,movsInvest};
   const blob = new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
   const a = document.createElement('a');
@@ -5241,21 +4473,6 @@ function importData() {
     } catch { toast('Arquivo inválido.','err'); }
   };
   reader.readAsText(file);
-}
-
-function exportCSV() {
-  const rows = [['Data','Tipo','Banco','Centro de Custo','Forma Pgto','Valor','Descrição','Cartão']];
-  lancamentos.forEach(l => {
-    const cart = l.cartaoId ? (cartoes.find(c=>c.id===l.cartaoId)?.nome||'') : '';
-    rows.push([l.data, l.tipo, l.banco||'', l.cc||'', l.forma||'', fmtBRL(parseMoney(l.valor)), (l.desc||'').replace(/,/g,';'), cart]);
-  });
-  const csv = rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
-');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
-  a.download = 'nmc_lancamentos_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  toast('CSV exportado!');
 }
 
 function clearData() {
@@ -5910,369 +5127,8 @@ function verificarAlertas() {
   });
 }
 
-/* =============================================
-   COMPROMISSOS DO DIA - notificacao ao login
-============================================= */
-function notificarCompromissosHoje() {
-  if (!('Notification' in window)) return;
-
-  const hoje     = new Date();
-  const diaHoje  = hoje.getDate();
-  const ym       = nowYM();
-  const dataHoje = hoje.toISOString().slice(0, 10);
-
-  const compromissos = [];
-
-  // 1. Faturas de cartão de crédito com vencimento hoje
-  cartoes.forEach(c => {
-    if (!c.venc) return;
-    if (parseInt(c.venc) !== diaHoje) return;
-    const total = lancamentos
-      .filter(l => l.cartaoId === c.id && l.data.slice(0, 7) === ym)
-      .reduce((s, l) => s + parseMoney(l.valor), 0);
-    if (total > 0) {
-      compromissos.push({
-        titulo: '💳 Fatura vence HOJE — ' + c.nome,
-        corpo:  'Valor: ' + fmtBRL(total)
-      });
-    }
-  });
-
-  // 2. Parcelas de financiamentos com vencimento hoje
-  financiamentos.forEach(f => {
-    if (!f.diaVenc) return;
-    if (parseInt(f.diaVenc) !== diaHoje) return;
-    const pagas     = f.pagas || 0;
-    const restantes = f.parcelas - pagas;
-    if (restantes <= 0) return;
-    const vlrParcela = f.total / f.parcelas;
-    compromissos.push({
-      titulo: '🏦 Parcela vence HOJE — ' + f.desc,
-      corpo:  restantes + ' parcela(s) restante(s) · ' + fmtBRL(vlrParcela) + '/mês'
-    });
-  });
-
-  // 3. Títulos de investimento com vencimento hoje
-  investimentos.forEach(inv => {
-    if (!inv.venc) return;
-    if (inv.venc !== dataHoje) return;
-    compromissos.push({
-      titulo: '📈 Título vence HOJE — ' + inv.nome,
-      corpo:  'Valor atual: ' + fmtBRL(inv.atual || inv.aportado)
-    });
-  });
-
-  // 4. Recorrentes ativos com lançamento pendente no mês atual
-  recorrentes.filter(r => r.ativo === 'sim' && !r.cartaoId).forEach(r => {
-    const jaLancado = lancamentos.some(l => l.recorrenteId === r.id && l.data.slice(0, 7) === ym);
-    if (!jaLancado) {
-      compromissos.push({
-        titulo: '🔁 Recorrente pendente — ' + r.desc,
-        corpo:  r.tipo + ' · ' + fmtBRL(r.valor)
-      });
-    }
-  });
-
-  if (!compromissos.length) return;
-
-  // Dispara notificações
-  if (Notification.permission === 'granted') {
-    _dispararCompromissos(compromissos);
-  } else if (Notification.permission === 'default') {
-    Notification.requestPermission().then(perm => {
-      if (perm === 'granted') _dispararCompromissos(compromissos);
-    });
-  }
-
-  // Toast resumido na interface
-  showToast('📅 ' + compromissos.length + ' compromisso(s) para hoje', 'inf');
-}
-
-function _dispararCompromissos(lista) {
-  lista.forEach((item, i) => {
-    setTimeout(() => {
-      new Notification(item.titulo, { body: item.corpo, icon: '' });
-    }, i * 1200);
-  });
-}
-
-
-/* =============================================
-   FAB - LANCAMENTO RAPIDO
-============================================= */
-let fabOpen = false;
-function toggleFab() {
-  fabOpen = !fabOpen;
-  document.getElementById('fabMenu').classList.toggle('open', fabOpen);
-  document.getElementById('fabIcon').className = fabOpen ? 'fa fa-times' : 'fa fa-plus';
-}
-function closeFab() {
-  fabOpen = false;
-  document.getElementById('fabMenu').classList.remove('open');
-  document.getElementById('fabIcon').className = 'fa fa-plus';
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('#fabBtn') && !e.target.closest('#fabMenu')) closeFab();
-});
-
-/* =============================================
-   BUSCA GLOBAL
-============================================= */
-function abrirBusca() {
-  document.getElementById('searchOverlay').classList.add('on');
-  setTimeout(() => document.getElementById('searchInput').focus(), 80);
-}
-function fecharBusca() {
-  document.getElementById('searchOverlay').classList.remove('on');
-  document.getElementById('searchInput').value = '';
-  document.getElementById('searchResults').innerHTML = '<div class="search-empty">Digite para buscar...</div>';
-}
-function closeSearch(e) {
-  if (e.target === document.getElementById('searchOverlay')) fecharBusca();
-}
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); abrirBusca(); }
-  if (e.key === 'Escape') fecharBusca();
-});
-function runSearch(q) {
-  const el = document.getElementById('searchResults');
-  q = q.trim().toLowerCase();
-  if (q.length < 2) { el.innerHTML = '<div class="search-empty">Digite pelo menos 2 caracteres...</div>'; return; }
-  const results = [];
-
-  lancamentos.filter(l => (l.desc||'').toLowerCase().includes(q) || (l.cc||'').toLowerCase().includes(q) || (l.banco||'').toLowerCase().includes(q))
-    .slice(0,8).forEach(l => results.push({
-      icon: l.tipo==='Receita' ? '\u2191' : '\u2193',
-      iconBg: l.tipo==='Receita' ? 'rgba(62,184,154,.2)' : 'rgba(224,82,82,.2)',
-      iconColor: l.tipo==='Receita' ? 'var(--teal)' : 'var(--red)',
-      title: l.desc || l.tipo,
-      sub: fmtDate(l.data) + ' \u00b7 ' + fmtBRL(parseMoney(l.valor)) + (l.cc ? ' \u00b7 ' + l.cc : ''),
-      action: "fecharBusca();switchTab('lancamentos')"
-    }));
-
-  investimentos.filter(i => (i.nome||'').toLowerCase().includes(q))
-    .slice(0,4).forEach(i => results.push({
-      icon: '\u25cf', iconBg: 'rgba(201,168,76,.2)', iconColor: 'var(--gold)',
-      title: i.nome, sub: i.tipo + ' \u00b7 ' + fmtBRL(i.atual||i.aportado),
-      action: "fecharBusca();switchTab('investimentos')"
-    }));
-
-  metas.filter(m => (m.nome||'').toLowerCase().includes(q))
-    .slice(0,3).forEach(m => results.push({
-      icon: '\u25ce', iconBg: 'rgba(74,143,255,.2)', iconColor: 'var(--blue)',
-      title: m.nome, sub: 'Meta \u00b7 ' + fmtBRL(m.alvo),
-      action: "fecharBusca();switchTab('metas')"
-    }));
-
-  financiamentos.filter(f => (f.desc||'').toLowerCase().includes(q))
-    .slice(0,3).forEach(f => results.push({
-      icon: '\u25a0', iconBg: 'rgba(224,82,82,.15)', iconColor: 'var(--red)',
-      title: f.desc, sub: 'Financiamento \u00b7 ' + f.parcelas + 'x',
-      action: "fecharBusca();switchTab('financiamentos')"
-    }));
-
-  if (!results.length) { el.innerHTML = '<div class="search-empty">Nenhum resultado para "' + q + '"</div>'; return; }
-  el.innerHTML = results.map(r =>
-    '<div class="search-result-item" onclick="' + r.action + '">' +
-    '<div class="search-result-icon" style="background:' + r.iconBg + ';color:' + r.iconColor + '">' + r.icon + '</div>' +
-    '<div><div class="search-result-title">' + r.title + '</div><div class="search-result-sub">' + r.sub + '</div></div>' +
-    '</div>'
-  ).join('');
-}
-
-/* =============================================
-   SALDO POR BANCO
-============================================= */
-function renderBancoSaldo() {
-  const card = document.getElementById('bancosaldocard');
-  const grid = document.getElementById('bancoSaldoGrid');
-  if (!card || !grid) return;
-  if (!bancos.length) { card.style.display = 'none'; return; }
-  card.style.display = '';
-  const saldos = {};
-  bancos.forEach(b => saldos[b.nome] = 0);
-  saldos['Sem banco'] = 0;
-  lancamentos.forEach(l => {
-    if (l.tipo === 'Investimento') return;
-    const key = l.banco || 'Sem banco';
-    if (!(key in saldos)) saldos[key] = 0;
-    const v = parseMoney(l.valor);
-    saldos[key] += l.tipo === 'Receita' ? v : -v;
-  });
-  grid.innerHTML = Object.entries(saldos)
-    .filter(([k]) => k !== 'Sem banco' || saldos['Sem banco'] !== 0)
-    .map(([nome, val]) =>
-      '<div class="banco-saldo-card">' +
-      '<div class="banco-saldo-nome">' + nome + '</div>' +
-      '<div class="banco-saldo-val" style="color:' + (val>=0?'var(--teal)':'var(--red)') + '">' +
-      (val>=0?'+':'') + fmtBRL(val) + '</div></div>'
-    ).join('');
-}
-
-/* =============================================
-   DUPLICAR LANCAMENTO
-============================================= */
-function dupLanc(id) {
-  const l = lancamentos.find(x => x.id === id);
-  if (!l) return;
-  const novo = Object.assign({}, l, { id: uid(), data: new Date().toISOString().slice(0,10) });
-  lancamentos.push(novo);
-  saveAll(); renderLancamentos(); renderDashboard();
-  addLog('Lançamento duplicado: ' + (novo.desc||novo.tipo) + ' ' + fmtBRL(parseMoney(novo.valor)));
-  toast('Lançamento duplicado!', 'ok');
-}
-
-/* =============================================
-   LOG DE ALTERACOES
-============================================= */
-let auditLog = JSON.parse(localStorage.getItem('nmc_auditlog') || '[]');
-function addLog(msg) {
-  auditLog.unshift({ ts: new Date().toISOString(), msg });
-  if (auditLog.length > 200) auditLog = auditLog.slice(0, 200);
-  localStorage.setItem('nmc_auditlog', JSON.stringify(auditLog));
-}
-function renderLog() {
-  const el = document.getElementById('auditLogBody');
-  if (!el) return;
-  if (!auditLog.length) { el.innerHTML = '<div class="search-empty" style="padding:20px">Nenhuma alteração registrada.</div>'; return; }
-  el.innerHTML = auditLog.slice(0,100).map(e =>
-    '<div class="log-item"><span class="log-ts">' + fmtDate(e.ts.slice(0,10)) + ' ' + e.ts.slice(11,16) + '</span><span class="log-msg">' + e.msg + '</span></div>'
-  ).join('');
-}
-
-
-/* =============================================
-   RELATORIOS - DRE E EXPORTACAO
-============================================= */
-function populateRelFiltros() {
-  const meses = [];
-  const hoje = new Date();
-  for (let i = 23; i >= 0; i--) {
-    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    const ym = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-    const label = d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-    meses.push({ym, label: label.charAt(0).toUpperCase()+label.slice(1)});
-  }
-  ['relMesI','relMesF'].forEach((id,idx) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = meses.map(m => `<option value="${m.ym}">${m.label}</option>`).join('');
-    if (idx === 0) el.value = meses[meses.length-3]?.ym || meses[0].ym;
-    else el.value = meses[meses.length-1].ym;
-  });
-}
-
-function renderRelatorio() {
-  const el = document.getElementById('relatorioBody');
-  if (!el) return;
-  const mesI = document.getElementById('relMesI')?.value || '';
-  const mesF = document.getElementById('relMesF')?.value || '';
-  if (!mesI || !mesF) return;
-  const [yi,mi] = mesI.split('-').map(Number);
-  const [yf,mf] = mesF.split('-').map(Number);
-  const meses = [];
-  let d = new Date(yi, mi-1, 1);
-  const fim = new Date(yf, mf-1, 1);
-  while (d <= fim) {
-    meses.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
-    d = new Date(d.getFullYear(), d.getMonth()+1, 1);
-  }
-  const rows = meses.map(ym => {
-    const ls = lancamentos.filter(l => l.data.slice(0,7) === ym);
-    const rec  = ls.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
-    const desp = ls.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+parseMoney(l.valor),0);
-    const ccRec={}, ccDesp={};
-    ls.forEach(l => {
-      const cc = l.cc || 'Sem categoria';
-      if (l.tipo==='Receita') ccRec[cc]  = (ccRec[cc]||0)  + parseMoney(l.valor);
-      if (l.tipo==='Despesa') ccDesp[cc] = (ccDesp[cc]||0) + parseMoney(l.valor);
-    });
-    return { ym, rec, desp, saldo: rec-desp, ccRec, ccDesp };
-  });
-  const totRec   = rows.reduce((s,r)=>s+r.rec,0);
-  const totDesp  = rows.reduce((s,r)=>s+r.desp,0);
-  const totSaldo = totRec - totDesp;
-  const allCCRec  = [...new Set(rows.flatMap(r=>Object.keys(r.ccRec)))].sort();
-  const allCCDesp = [...new Set(rows.flatMap(r=>Object.keys(r.ccDesp)))].sort();
-
-  el.innerHTML = `
-    <div class="stats-grid stats-grid-3" style="margin-bottom:20px">
-      <div class="stat-card pos"><div class="stat-label">Total Receitas</div><div class="stat-val pos">${fmtBRL(totRec)}</div><div class="stat-hint">${meses.length} meses</div></div>
-      <div class="stat-card neg"><div class="stat-label">Total Despesas</div><div class="stat-val neg">${fmtBRL(totDesp)}</div></div>
-      <div class="stat-card ${totSaldo>=0?'pos':'neg'}"><div class="stat-label">Resultado</div><div class="stat-val ${totSaldo>=0?'pos':'neg'}">${fmtBRL(totSaldo)}</div><div class="stat-hint">${totRec>0?((totSaldo/totRec)*100).toFixed(1)+'% margem':''}</div></div>
-    </div>
-    <div class="card" style="padding:0;margin-bottom:20px">
-      <div class="card-title" style="padding:16px 20px 0"><i class="fa fa-table" style="color:var(--gold)"></i> DRE Mensal</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Ms</th><th>Receitas</th><th>Despesas</th><th>Resultado</th><th>Margem</th></tr></thead>
-        <tbody>
-          ${rows.map(r=>`<tr>
-            <td style="font-family:var(--mono);font-size:12px">${r.ym}</td>
-            <td class="td-mono td-type-r">+${fmtBRL(r.rec)}</td>
-            <td class="td-mono td-type-d">-${fmtBRL(r.desp)}</td>
-            <td class="td-mono ${r.saldo>=0?'td-type-r':'td-type-d'}">${r.saldo>=0?'+':''}${fmtBRL(r.saldo)}</td>
-            <td class="td-mono" style="color:var(--text3)">${r.rec>0?((r.saldo/r.rec)*100).toFixed(1)+'%':'—'}</td>
-          </tr>`).join('')}
-          <tr style="border-top:2px solid var(--border2)">
-            <td style="font-family:var(--mono);font-size:12px;color:var(--text);font-weight:600">TOTAL</td>
-            <td class="td-mono td-type-r">+${fmtBRL(totRec)}</td>
-            <td class="td-mono td-type-d">-${fmtBRL(totDesp)}</td>
-            <td class="td-mono ${totSaldo>=0?'td-type-r':'td-type-d'}">${totSaldo>=0?'+':''}${fmtBRL(totSaldo)}</td>
-            <td class="td-mono" style="color:var(--text3)">${totRec>0?((totSaldo/totRec)*100).toFixed(1)+'%':'—'}</td>
-          </tr>
-        </tbody>
-      </table></div>
-    </div>
-    ${allCCRec.length?`<div class="card" style="padding:0;margin-bottom:20px">
-      <div class="card-title" style="padding:16px 20px 0"><i class="fa fa-arrow-up" style="color:var(--teal)"></i> Receitas por Categoria</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Categoria</th>${meses.map(m=>`<th>${m.slice(5)}</th>`).join('')}<th>Total</th></tr></thead>
-        <tbody>${allCCRec.map(cc=>{const tot=rows.reduce((s,r)=>s+(r.ccRec[cc]||0),0);return`<tr><td>${cc}</td>${rows.map(r=>`<td class="td-mono" style="font-size:11px;color:var(--teal)">${r.ccRec[cc]?fmtBRL(r.ccRec[cc]):'-'}</td>`).join('')}<td class="td-mono td-type-r">${fmtBRL(tot)}</td></tr>`;}).join('')}</tbody>
-      </table></div></div>`:''}
-    ${allCCDesp.length?`<div class="card" style="padding:0">
-      <div class="card-title" style="padding:16px 20px 0"><i class="fa fa-arrow-down" style="color:var(--red)"></i> Despesas por Categoria</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Categoria</th>${meses.map(m=>`<th>${m.slice(5)}</th>`).join('')}<th>Total</th></tr></thead>
-        <tbody>${allCCDesp.map(cc=>{const tot=rows.reduce((s,r)=>s+(r.ccDesp[cc]||0),0);return`<tr><td>${cc}</td>${rows.map(r=>`<td class="td-mono" style="font-size:11px;color:var(--red)">${r.ccDesp[cc]?fmtBRL(r.ccDesp[cc]):'-'}</td>`).join('')}<td class="td-mono td-type-d">${fmtBRL(tot)}</td></tr>`;}).join('')}</tbody>
-      </table></div></div>`:''}
-  `;
-}
-
-function exportRelCSV() {
-  const mesI = document.getElementById('relMesI')?.value||'';
-  const mesF = document.getElementById('relMesF')?.value||'';
-  if (!mesI||!mesF){toast('Gere o relatório antes.','err');return;}
-  const [yi,mi]=mesI.split('-').map(Number);
-  const [yf,mf]=mesF.split('-').map(Number);
-  const meses=[];let d=new Date(yi,mi-1,1);
-  while(d<=new Date(yf,mf-1,1)){meses.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));d=new Date(d.getFullYear(),d.getMonth()+1,1);}
-  const rows=[['Mes','Receitas','Despesas','Resultado']];
-  meses.forEach(ym=>{
-    const ls=lancamentos.filter(l=>l.data.slice(0,7)===ym);
-    const rec=ls.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
-    const desp=ls.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+parseMoney(l.valor),0);
-    rows.push([ym,rec.toFixed(2),desp.toFixed(2),(rec-desp).toFixed(2)]);
-  });
-  const csv=rows.map(r=>r.map(v=>'"'+v+'"').join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download='nmc_dre_'+mesI+'_'+mesF+'.csv';a.click();
-  toast('DRE exportado!');
-}
-
-
 // Pre-fill login
 document.getElementById('lUser').value = 'admin';
-</script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js")
-      .then(reg => console.log("SW registrado:", reg.scope))
-      .catch(err => console.log("SW erro:", err));
-  });
-}
 </script>
 </body>
 </html>
