@@ -3957,18 +3957,30 @@ function renderAlertFaturas(meses) {
     const labelCap  = labelFull.charAt(0).toUpperCase() + labelFull.slice(1);
 
     cartoes.forEach(c => {
-      // Soma lancamentos parcelados ja registrados para este cartao neste mes
-      const totalLanc = getFaturasDoMes(c.id, ym).reduce((s,l) => {
+      // Soma debitos (Despesa) e subtrai creditos (Receita) para obter valor liquido a pagar
+      const itens = getFaturasDoMes(c.id, ym);
+      const totalDebito  = itens.filter(l => l.tipo === 'Despesa').reduce((s,l) => {
         const v = typeof l.valor === 'number' ? l.valor : parseMoney(l.valor);
         return s + v;
       }, 0);
-      if (!totalLanc) return;
+      const totalCredito = itens.filter(l => l.tipo === 'Receita').reduce((s,l) => {
+        const v = typeof l.valor === 'number' ? l.valor : parseMoney(l.valor);
+        return s + v;
+      }, 0);
+      const totalLiquidо = totalDebito - totalCredito;
+      if (!totalDebito && !totalCredito) return;
       const vencDia = c.venc ? String(c.venc).padStart(2,'0') : '--';
+      const corVal = totalLiquidо <= 0 ? 'var(--teal)' : 'var(--gold)';
+      let extraInfo = '';
+      if (totalCredito > 0) {
+        extraInfo = '<span class="af-mes" style="color:var(--teal);font-size:11px">crédito: -' + fmtBRL(totalCredito) + '</span>';
+      }
       rows += '<div class="af-row">'
             + '<span class="af-cart">' + c.nome + '</span>'
             + '<span class="af-mes">' + labelCap + '</span>'
             + '<span class="af-mes" style="color:var(--text3)">venc. ' + vencDia + '/' + mo + '/' + y + '</span>'
-            + '<span class="af-val">' + fmtBRL(totalLanc) + '</span>'
+            + extraInfo
+            + '<span class="af-val" style="color:' + corVal + '">' + fmtBRL(Math.max(0, totalLiquidо)) + '</span>'
             + '</div>';
     });
   });
