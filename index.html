@@ -3844,12 +3844,14 @@ function clearLancFilter() {
 
 function renderLancamentos() {
   const tb = document.getElementById('tblLancBody'); if (!tb) return;
-  const busca = document.getElementById('fLancBusca').value.toLowerCase();
-  const tipo  = document.getElementById('fLancTipo').value;
-  const banco = document.getElementById('fLancBanco').value;
-  const cc    = document.getElementById('fLancCC').value;
-  const dtI   = document.getElementById('fLancDtI').value;
-  const dtF   = document.getElementById('fLancDtF').value;
+  const busca  = document.getElementById('fLancBusca').value.toLowerCase();
+  const tipo   = document.getElementById('fLancTipo').value;
+  const banco  = document.getElementById('fLancBanco').value;
+  const cc     = document.getElementById('fLancCC').value;
+  const dtI    = document.getElementById('fLancDtI').value;
+  const dtF    = document.getElementById('fLancDtF').value;
+  const status = (document.getElementById('fLancStatus')||{}).value || '';
+  const hoje   = new Date().toISOString().slice(0,10);
 
   let data = lancamentos.filter(l => {
     if (tipo  && l.tipo!==tipo)   return false;
@@ -3857,6 +3859,9 @@ function renderLancamentos() {
     if (cc    && l.cc!==cc)       return false;
     if (dtI   && l.data < dtI)    return false;
     if (dtF   && l.data > dtF)    return false;
+    if (status === 'pago'     && !l.pago) return false;
+    if (status === 'pendente' && (l.pago || l.data < hoje)) return false;
+    if (status === 'vencido'  && (l.pago || l.data >= hoje)) return false;
     if (busca) {
       const hay = `${l.tipo} ${l.banco} ${l.cc} ${l.forma} ${l.desc} ${fmtBRL(parseMoney(l.valor))}`.toLowerCase();
       if (!hay.includes(busca)) return false;
