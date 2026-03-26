@@ -3,10 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NMC Personal Finance System v19</title>
+<title>NMC Personal Finance System v20</title>
 
-<!-- PWA desativado — arquivo local -->
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#080b10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NMC Finance">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
 <!-- SEO / OG -->
 <meta name="description" content="NMC Personal Finance System — controle financeiro pessoal com criptografia AES-256">
@@ -463,10 +470,12 @@ body::before {
   min-height: 100vh;
   background: var(--bg);
   position: relative;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 /* ── SECTIONS ── */
-.section { display: none; padding: 30px 32px; animation: fadeUp .25s ease both; }
+.section { display: none; padding: 30px 32px; animation: fadeUp .25s ease both; max-width:100%; overflow-x:hidden; }
 .section.active { display: block; }
 
 /* ── PAGE HEADER ── */
@@ -584,14 +593,6 @@ tbody tr:last-child td { border-bottom: none; }
 .td-mono { font-family: var(--mono); font-size: 12px; }
 .td-type-r { color: var(--teal); font-weight: 500; font-family: var(--mono); }
 .td-type-d { color: var(--red);  font-weight: 500; font-family: var(--mono); }
-
-/* ── TABELA LANÇAMENTOS ── */
-#tblLanc { table-layout: auto; width: 100%; }
-#tblLanc th, #tblLanc td { white-space: nowrap; }
-#tblLanc td:nth-child(6) { white-space: normal; min-width: 120px; } /* descrição */
-@media (max-width: 960px) {
-  .card.tbl-mobile-hide { display: none !important; }
-}
 
 /* ── FILTER BAR ── */
 .filter-bar {
@@ -725,11 +726,6 @@ tbody tr:last-child td { border-bottom: none; }
 /* ── Mobile: table cards view ── */
 .tbl-card-mobile { display: none; }
 
-/* Prevenir overflow horizontal global */
-html, body { overflow-x: hidden; max-width: 100vw; }
-.main { overflow-x: hidden; }
-.section { overflow-x: hidden; }
-
 @media (max-width: 960px) {
   .topbar  { display: flex; }
   .layout  { grid-template-columns: 1fr; }
@@ -742,13 +738,13 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   }
   .sidebar.open { left: 0; box-shadow: 4px 0 24px rgba(0,0,0,.5); }
 
-  .main { min-height: calc(100vh - 53px); overflow-x: hidden; }
+  .main { min-height: calc(100vh - 53px); }
 
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .stat-card { padding: 16px 14px; }
   .stat-val { font-size: 18px; }
 
-  .section { padding: 16px 12px; padding-bottom: 32px; overflow-x: hidden; }
+  .section { padding: 18px 14px; padding-bottom: 32px; }
   .grid2, .grid3 { grid-template-columns: 1fr; }
 
   .page-hd {
@@ -757,20 +753,20 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   }
   .page-title { font-size: 24px; }
 
-  /* Filtros responsivos */
-  .filter-bar { gap: 8px; flex-wrap: wrap; }
-  .filter-field { flex: 1 1 140px; min-width: 0; }
+  /* Filters vertical on tablet */
+  .filter-bar { gap: 8px; }
+  .filter-field { flex: 1 1 140px; }
   .filter-bar input,
   .filter-bar select { min-width: 0; width: 100%; }
 
-  /* Cards grid */
+  /* Cards grid single column on tablet */
   #cartoesGrid { grid-template-columns: 1fr 1fr !important; }
 
-  /* Ocultar tabelas desktop, exibir cards mobile */
+  /* Hide desktop tables, show card list on mobile */
   .tbl-mobile-hide { display: none !important; }
   .tbl-card-mobile { display: block; }
 
-  /* Modal fullscreen no mobile */
+  /* Modal full screen on mobile */
   .modal {
     width: 100% !important;
     max-width: 100vw !important;
@@ -778,34 +774,14 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     border-radius: var(--r2) var(--r2) 0 0 !important;
     padding: 22px 18px !important;
     margin: auto 0 0 0 !important;
-    overflow-y: auto;
   }
   .modal-bg { align-items: flex-end !important; }
 
-  /* Dashboard filtros */
-  .dash-filters { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+  /* Dashboard selects row */
+  .dash-filters {
+    display: flex; flex-wrap: wrap; gap: 8px; width: 100%;
+  }
   .dash-filters select { flex: 1 1 140px; min-width: 0; }
-
-  /* Painel contas a pagar */
-  .cp-item { flex-wrap: wrap; }
-  .cp-btn-baixa { margin-top: 4px; }
-
-  /* Cards do relatório */
-  .rel-kpis { grid-template-columns: 1fr 1fr; }
-  .rel-header { padding: 18px 16px; }
-
-  /* Filtros de relatório */
-  #tab-relatorios .card > div { flex-direction: column; align-items: stretch !important; }
-
-  /* Abas de conciliação */
-  #tab-conciliacao > div[style*="flex"] { flex-direction: column; }
-
-  /* Overflow em tabelas dentro de cards */
-  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
-  .card { overflow: hidden; }
-
-  /* Painel de pendências de lançamentos */
-  #lancPendenciasBar > div { flex-direction: column; }
 }
 
 @media (max-width: 540px) {
@@ -813,54 +789,35 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .stat-val { font-size: 16px; }
   .stat-card { padding: 14px 12px; }
 
-  .section { padding: 12px 10px; }
+  .section { padding: 14px 12px; }
 
   .input-row.cols2,
   .input-row.cols3,
   .input-row.cols4 { grid-template-columns: 1fr; }
 
-  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-bar {
+    flex-direction: column; align-items: stretch;
+  }
   .filter-field { flex: none; width: 100%; }
   .filter-bar input,
-  .filter-bar select { width: 100%; }
+  .filter-bar select { width: 100%; flex: none; }
 
   #cartoesGrid { grid-template-columns: 1fr !important; }
 
   .chart-box canvas { max-height: 220px; }
-  .page-title { font-size: 20px; }
+
+  .page-title { font-size: 22px; }
+
   .btn-full-mobile { width: 100%; justify-content: center; }
 
-  /* Abas de conciliação empilhadas */
-  #tab-conciliacao > div[style*="display:flex"] { flex-direction: column !important; }
-  #concTabArqBtn, #concTabPdfBtn { width: 100%; }
-
-  /* Relatórios: KPIs em coluna única */
-  .rel-kpis { grid-template-columns: 1fr; }
-
-  /* Filtros de relatório em coluna */
-  #tab-relatorios .card > div { flex-direction: column !important; }
-  #tab-relatorios .filter-field { width: 100%; }
-  #tab-relatorios select, #tab-relatorios input[type="month"] { width: 100%; }
-
-  /* Painel contas a pagar simplificado */
-  .cp-item { gap: 8px; }
-  .cp-item-val { font-size: 13px; }
-
-  /* Comparativo */
-  .comparativo-grid { grid-template-columns: 1fr !important; }
-
-  /* Formulário modal compacto */
-  .modal { padding: 18px 14px !important; }
-  .modal-title { font-size: 16px; }
+  /* Compactar tabelas no mobile */
+  td, th { padding: 9px 10px; font-size: 12px; }
 }
 
 @media (max-width: 380px) {
   .stats-grid { grid-template-columns: 1fr; }
-  .section { padding: 10px 8px; }
-  .stat-val { font-size: 15px; }
-  .rel-kpis { grid-template-columns: 1fr; }
+  .section { padding: 12px 10px; }
 }
-
 
 /* ── DASH FILTERS ROW ── */
 .dash-filters {
@@ -909,6 +866,72 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 .financ-grid { display: grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-bottom:20px; }
 @media(max-width:900px){ .financ-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:540px){ .financ-grid { grid-template-columns:1fr; } }
+
+/* ── Cadastros — layout responsivo ── */
+.cad-form { display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;width:100%; }
+.cad-form .field { margin:0; }
+.cad-field-grow { flex:2 1 160px;min-width:0; }
+.cad-field-money { flex:1 1 110px;min-width:0; }
+.cad-field-tipo  { flex:1 1 100px;min-width:0; }
+.cad-btn-wrap { flex:0 0 auto;display:flex;align-items:flex-end; }
+.cad-col-money { width:100px;text-align:right;font-family:var(--mono); }
+@media(max-width:540px){
+  .cad-hide-sm { display:none; }
+  .cad-col-money { width:80px; }
+}
+@media(max-width:400px){
+  .cad-hide-xs { display:none; }
+  .cad-field-money,.cad-field-tipo { flex:1 1 100%; }
+  .cad-btn-wrap { flex:1 1 100%; }
+  .cad-btn-wrap .btn { width:100%;justify-content:center; }
+}
+
+/* ── Conciliação — totalmente responsiva ── */
+/* ── Conciliação — 100% responsiva, sem scroll lateral ── */
+#tab-conciliacao { max-width:100%; overflow-x:hidden; }
+#tab-conciliacao * { box-sizing:border-box; }
+#tab-conciliacao .card { max-width:100%; }
+.conc-tabs { display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;width:100%; }
+.conc-tab-btn { display:flex;align-items:center;gap:7px;padding:9px 12px;background:var(--card);border:2px solid var(--border);border-radius:var(--r2);color:var(--text2);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .18s;flex:1 1 0;min-width:0;max-width:100%;overflow:hidden; }
+.conc-tab-btn i { font-size:14px;flex-shrink:0; }
+.conc-tab-btn > div { overflow:hidden;min-width:0; }
+.conc-tab-sub { font-size:9px;opacity:.7;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.conc-tab-active { background:var(--gold-pale)!important;border-color:var(--gold)!important;color:var(--gold)!important; }
+.conc-card { margin-bottom:10px;padding:14px 16px;width:100%; }
+.conc-label { font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-family:var(--mono); }
+.conc-select { width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:13px;padding:9px 12px;outline:none;-webkit-appearance:none; }
+.conc-textarea { width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:11px;padding:10px 12px;outline:none;resize:vertical;line-height:1.6; }
+.conc-drop { display:block;border:2px dashed var(--border);border-radius:var(--r2);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);width:100%; }
+.conc-drop.over,.conc-drop:hover { border-color:var(--gold);background:var(--gold-pale); }
+.conc-bancos { display:flex;gap:6px;flex-wrap:wrap;width:100%; }
+.btn-banco-sel { display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--card);color:var(--text2);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap; }
+.btn-banco-sel.active { border-color:var(--gold);background:var(--gold-pale);color:var(--gold); }
+.banco-ico { width:20px;height:20px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0; }
+.conc-table { width:100%;border-collapse:collapse;table-layout:fixed; }
+.conc-table th,.conc-table td { padding:7px 8px;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.conc-table thead th { background:var(--card2);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);font-weight:400; }
+.conc-table tbody tr { border-bottom:1px solid rgba(42,42,42,.5); }
+.conc-table tbody tr:hover { background:rgba(255,255,255,.02); }
+.conc-resultado-wrap { overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%; }
+@media(max-width:600px){
+  .conc-tab-btn { padding:8px 9px;font-size:10px;gap:5px; }
+  .conc-tab-btn i { font-size:12px; }
+  .btn-banco-sel { padding:5px 8px;font-size:10px;gap:5px; }
+  .banco-ico { width:18px;height:18px;font-size:7px; }
+}
+@media(max-width:400px){
+  .conc-tab-btn { padding:6px 7px;font-size:9px; }
+  .btn-banco-sel { padding:5px 6px;font-size:9px; }
+}
+
+/* ── Conciliação PDF responsiva ── */
+@media(max-width:700px){
+  #concPainelPdf .grid2 { grid-template-columns:1fr; }
+}
+@media(max-width:480px){
+  .btn-banco-sel { flex:1 1 100%; }
+  #concPainelPdf .card { padding:14px 12px; }
+}
 
 .financ-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r2); padding:18px 20px; position:relative; overflow:hidden; }
 .financ-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--red),#f59e0b); }
@@ -1333,19 +1356,22 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         </div>
         <div id="lancPendenciasBar" style="margin-bottom:14px"></div>
 
-        <div class="card tbl-mobile-hide" style="padding:0;overflow:hidden">
-          <div class="tbl-wrap" style="max-height:60vh;overflow-y:auto;overflow-x:auto">
-            <table id="tblLanc" style="min-width:600px">
+        <div class="card tbl-mobile-hide" style="padding:0">
+          <div class="tbl-wrap">
+            <table id="tblLanc">
               <thead>
                 <tr>
-                  <th onclick="sortLanc('tipo')" style="width:80px">Tipo <i class="fa fa-sort sort-icon"></i></th>
-                  <th onclick="sortLanc('data')" style="width:85px">Data <i class="fa fa-sort sort-icon"></i></th>
-                  <th onclick="sortLanc('banco')">Conta <i class="fa fa-sort sort-icon"></i></th>
-                  <th onclick="sortLanc('cc')">Categoria <i class="fa fa-sort sort-icon"></i></th>
-                  <th onclick="sortLanc('valor')" style="width:110px">Valor <i class="fa fa-sort sort-icon"></i></th>
+                  <th onclick="sortLanc('tipo')">Tipo <i class="fa fa-sort sort-icon"></i></th>
+                  <th onclick="sortLanc('data')">Data <i class="fa fa-sort sort-icon"></i></th>
+                  <th onclick="sortLanc('banco')">Conta Corrente <i class="fa fa-sort sort-icon"></i></th>
+                  <th onclick="sortLanc('cc')">Centro de Custo <i class="fa fa-sort sort-icon"></i></th>
+                  <th onclick="sortLanc('forma')">Forma Pgto <i class="fa fa-sort sort-icon"></i></th>
+                  <th>Parcelas</th>
+                  <th>Periodicidade</th>
+                  <th onclick="sortLanc('valor')">Valor <i class="fa fa-sort sort-icon"></i></th>
                   <th>Descrição</th>
-                  <th style="width:100px">Status</th>
-                  <th style="width:100px">Ações</th>
+                  <th>Status</th>
+                  <th style="width:110px">Ações</th>
                 </tr>
               </thead>
               <tbody id="tblLancBody"></tbody>
@@ -1359,93 +1385,86 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <!-- ──────────── CADASTROS ──────────── -->
       <section class="section" id="tab-cadastros">
         <div class="page-hd">
-          <div style="display:flex;align-items:center;gap:12px">
-            
-            <div>
-              <div class="page-title">Cadastros</div>
-              <div class="page-sub">Bancos, centros de custo e formas de pagamento</div>
-            </div>
+          <div>
+            <div class="page-title">Cadastros</div>
+            <div class="page-sub">Bancos, centros de custo e formas de pagamento</div>
           </div>
         </div>
 
-        <div class="grid2">
-          <!-- Bancos -->
-          <div class="card">
-            <div class="card-title"><i class="fa fa-university" style="color:var(--gold)"></i> Bancos / Contas</div>
-            <div class="input-row cols3">
-              <div class="field">
-                <label>Nome do Banco / Conta</label>
-                <input id="inBanco" placeholder="Ex: Nubank, Itaú CC...">
-              </div>
-              <div class="field">
-                <label>Saldo Inicial (R$)</label>
-                <input id="inBancoSaldo" placeholder="R$ 0,00" oninput="maskMoney(this)">
-              </div>
-              <div class="field">
-                <label>Limite Cheque Especial (R$)</label>
-                <input id="inBancoCheque" placeholder="R$ 0,00" oninput="maskMoney(this)">
-              </div>
+        <!-- Bancos -->
+        <div class="card">
+          <div class="card-title"><i class="fa fa-university" style="color:var(--gold)"></i> Bancos / Contas</div>
+          <div class="cad-form">
+            <div class="field cad-field-grow">
+              <label>Nome do Banco / Conta</label>
+              <input id="inBanco" placeholder="Ex: Nubank, Itaú CC...">
             </div>
-            <button class="btn btn-gold btn-sm" onclick="addBanco()">
-              <i class="fa fa-plus"></i> Adicionar
-            </button>
-            <div class="hr"></div>
-            <div class="tbl-wrap">
-              <table>
-                <thead><tr><th>Banco</th><th>Saldo Atual</th><th>Cheque Esp.</th><th>Disponível</th><th style="width:80px">Ações</th></tr></thead>
-                <tbody id="tblBancosBody"></tbody>
-              </table>
+            <div class="field cad-field-money">
+              <label>Saldo Inicial</label>
+              <input id="inBancoSaldo" placeholder="R$ 0,00" oninput="maskMoney(this)">
+            </div>
+            <div class="field cad-field-money">
+              <label>Cheque Especial</label>
+              <input id="inBancoCheque" placeholder="R$ 0,00" oninput="maskMoney(this)">
+            </div>
+            <div class="cad-btn-wrap">
+              <button class="btn btn-gold btn-sm" onclick="addBanco()"><i class="fa fa-plus"></i> Adicionar</button>
             </div>
           </div>
+          <div class="hr"></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Banco / Conta</th><th class="cad-col-money">Saldo</th><th class="cad-col-money cad-hide-xs">Cheque Esp.</th><th class="cad-col-money cad-hide-sm">Disponível</th><th style="width:72px">Ações</th></tr></thead>
+              <tbody id="tblBancosBody"></tbody>
+            </table>
+          </div>
+        </div>
 
-          <!-- Centros de Custo -->
-          <div class="card">
-            <div class="card-title"><i class="fa fa-tags" style="color:var(--gold)"></i> Centros de Custo</div>
-            <div class="input-row cols2">
-              <div class="field">
-                <label>Nome</label>
-                <input id="inCC" placeholder="Ex: Alimentação...">
-              </div>
-              <div class="field">
-                <label>Tipo</label>
-                <select id="inCCTipo">
-                  <option value="Receita">Receita</option>
-                  <option value="Despesa">Despesa</option>
-                  <option value="Ambos">Ambos</option>
-                </select>
-              </div>
+        <!-- Centros de Custo -->
+        <div class="card">
+          <div class="card-title"><i class="fa fa-tags" style="color:var(--gold)"></i> Centros de Custo</div>
+          <div class="cad-form">
+            <div class="field cad-field-grow">
+              <label>Nome</label>
+              <input id="inCC" placeholder="Ex: Alimentação, Moradia...">
             </div>
-            <button class="btn btn-gold btn-sm" onclick="addCC()">
-              <i class="fa fa-plus"></i> Adicionar
-            </button>
-            <div class="hr"></div>
-            <div class="tbl-wrap">
-              <table>
-                <thead><tr><th>Centro de Custo</th><th>Tipo</th><th style="width:80px">Ações</th></tr></thead>
-                <tbody id="tblCCBody"></tbody>
-              </table>
+            <div class="field cad-field-tipo">
+              <label>Tipo</label>
+              <select id="inCCTipo">
+                <option value="Receita">Receita</option>
+                <option value="Despesa">Despesa</option>
+                <option value="Ambos">Ambos</option>
+              </select>
             </div>
+            <div class="cad-btn-wrap">
+              <button class="btn btn-gold btn-sm" onclick="addCC()"><i class="fa fa-plus"></i> Adicionar</button>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Centro de Custo</th><th style="width:90px">Tipo</th><th style="width:72px">Ações</th></tr></thead>
+              <tbody id="tblCCBody"></tbody>
+            </table>
           </div>
         </div>
 
         <!-- Formas de Pagamento -->
         <div class="card">
           <div class="card-title"><i class="fa fa-money-bill-wave" style="color:var(--gold)"></i> Formas de Pagamento</div>
-          <div class="input-row cols2" style="max-width:420px">
-            <div class="field">
+          <div class="cad-form">
+            <div class="field cad-field-grow">
               <label>Nome</label>
-              <input id="inForma" placeholder="Ex: PIX, Boleto...">
+              <input id="inForma" placeholder="Ex: PIX, Boleto, Dinheiro...">
             </div>
-            <div style="display:flex;align-items:flex-end;padding-bottom:0">
-              <button class="btn btn-gold btn-sm" onclick="addForma()" style="margin-bottom:0">
-                <i class="fa fa-plus"></i> Adicionar
-              </button>
+            <div class="cad-btn-wrap">
+              <button class="btn btn-gold btn-sm" onclick="addForma()"><i class="fa fa-plus"></i> Adicionar</button>
             </div>
           </div>
           <div class="hr"></div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>Forma de Pagamento</th><th style="width:80px">Ações</th></tr></thead>
+              <thead><tr><th>Forma de Pagamento</th><th style="width:72px">Ações</th></tr></thead>
               <tbody id="tblFormaBody"></tbody>
             </table>
           </div>
@@ -1644,15 +1663,71 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             <p style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.7">
               Apagar todos os dados do sistema. Um backup automático será gerado antes da exclusão. Esta ação é irreversível.
             </p>
-            <button class="btn btn-danger" onclick="clearData()">
+            <button class="btn btn-danger" onclick="openModalClearData()">
               <i class="fa fa-trash"></i> Limpar Todos os Dados
             </button>
           </div>
 
           <!-- Informações do Sistema -->
           <div class="card">
-            <div class="card-title"><i class="fa fa-info-circle" style="color:var(--text3)"></i> Informações do Sistema</div>
+            <div class="card-title"><i class="fa fa-info-circle" style="color:var(--text3)"></i> Estatísticas dos Dados</div>
             <div id="sysInfo" style="font-family:var(--mono);font-size:12px;color:var(--text2);line-height:2.1"></div>
+          </div>
+
+          <!-- Ficha Técnica -->
+          <div class="card" style="background:linear-gradient(135deg,rgba(201,168,76,.06) 0%,var(--card) 100%);border-color:rgba(201,168,76,.25)">
+            <div class="card-title" style="color:var(--gold)"><i class="fa fa-award" style="color:var(--gold)"></i> Ficha Técnica</div>
+            <div style="display:flex;flex-direction:column;gap:0">
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Produto</span>
+                <span style="font-size:12px;color:var(--text);font-weight:600">NMC Personal Finance System</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Versão</span>
+                <span style="font-size:12px;color:var(--gold);font-family:var(--mono);font-weight:600">v20.0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Desenvolvedor</span>
+                <span style="font-size:12px;color:var(--text)">Nobrega Mall Consultant</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Segmento</span>
+                <span style="font-size:12px;color:var(--text)">Consultoria Financeira e Tecnologia</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Plataforma</span>
+                <span style="font-size:12px;color:var(--text)">Web PWA — Android / iOS / Desktop</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Tecnologias</span>
+                <span style="font-size:12px;color:var(--text)">HTML5 · CSS3 · JavaScript · AES-256 · Chart.js · PDF.js</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Armazenamento</span>
+                <span style="font-size:12px;color:var(--text)">Local (localStorage) — 100% offline</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Criptografia</span>
+                <span style="font-size:12px;color:var(--text)">AES-256-CBC + PBKDF2 (senha do usuário)</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Bancos suportados</span>
+                <span style="font-size:12px;color:var(--text)">Itaú · Bradesco · Caixa Econômica · Nubank (PDF/OFX/CSV)</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">OCR / IA</span>
+                <span style="font-size:12px;color:var(--text)">Claude Sonnet (Anthropic) — PDFs escaneados</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;flex-wrap:wrap;gap:4px">
+                <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Ano</span>
+                <span style="font-size:12px;color:var(--text)">2025 — 2026</span>
+              </div>
+            </div>
+            <div style="margin-top:18px;padding:14px 16px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.18);border-radius:var(--r);font-size:11px;color:var(--text3);line-height:1.8;font-family:var(--mono)">
+              © 2025–2026 Nobrega Mall Consultant. Todos os direitos reservados.<br>
+              Software proprietário de uso exclusivo do cliente licenciado.<br>
+              Nenhum dado é enviado para servidores externos. Privacidade total.
+            </div>
           </div>
 
         </div>
@@ -1661,267 +1736,232 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <!-- ──────────── MANUAL ──────────── -->
       <section class="section" id="tab-manual">
         <div class="page-hd">
-          <div style="display:flex;align-items:center;gap:12px">
-            
-            <div>
-              <div class="page-title">Manual do Sistema</div>
-              <div class="page-sub">Guia de uso completo</div>
-            </div>
+          <div>
+            <div class="page-title">Manual do Sistema</div>
+            <div class="page-sub">Guia completo de uso — NMC Personal Finance v20</div>
           </div>
         </div>
         <div class="card">
 
-          <!-- ── INTRODUÇÃO ── -->
+          <!-- INTRODUÇÃO -->
           <div class="manual-section">
             <h3>🏠 O que é o NMC Personal Finance System?</h3>
-            <p>O <strong>NMC Personal Finance System</strong> é um aplicativo completo de controle financeiro pessoal instalado diretamente no seu celular ou tablet Android, <strong>sem precisar de internet</strong> para funcionar. Todos os seus dados ficam salvos no próprio dispositivo, com total privacidade.</p>
-            <p style="margin-top:10px">Com ele você pode registrar todas as suas receitas (dinheiro que entra) e despesas (dinheiro que sai), controlar cartões de crédito, acompanhar investimentos, pagar contas parceladas e muito mais — tudo em um só lugar.</p>
+            <p>O <strong>NMC Personal Finance System</strong> é um aplicativo completo de controle financeiro pessoal, desenvolvido pela <strong>Nobrega Mall Consultant</strong>. Funciona diretamente no navegador do seu celular ou tablet — sem precisar de internet para operar. Todos os dados ficam salvos no próprio dispositivo com criptografia AES‑256.</p>
+            <p style="margin-top:10px">Com ele você registra receitas e despesas, controla cartões de crédito, acompanha financiamentos, gerencia investimentos, define metas financeiras e concilia extratos bancários — tudo em um só lugar.</p>
           </div>
           <div class="hr"></div>
 
-          <!-- ── INSTALAÇÃO ── -->
-          <div class="manual-section">
-            <h3>📲 Como Instalar o Aplicativo (APK)</h3>
-            <p>O NMC Personal Finance System é distribuído como um arquivo <strong>APK</strong> para dispositivos Android. Siga os passos abaixo para instalar:</p>
-            <ul>
-              <li><strong>Passo 1 — Receba o arquivo APK:</strong> O arquivo será enviado pelo desenvolvedor via e-mail, WhatsApp, Google Drive ou outro meio combinado.</li>
-              <li><strong>Passo 2 — Permita fontes desconhecidas:</strong> Como o app não está na Play Store, você precisa autorizar a instalação. Vá em <em>Configurações do celular → Segurança → Fontes desconhecidas</em> (ou <em>Instalar apps desconhecidos</em>, dependendo do Android) e ative a permissão.</li>
-              <li><strong>Passo 3 — Abra o arquivo APK:</strong> Localize o arquivo baixado na pasta <em>Downloads</em> do seu celular e toque nele para iniciar a instalação.</li>
-              <li><strong>Passo 4 — Conclua a instalação:</strong> Toque em <strong>Instalar</strong> e aguarde. Após concluir, toque em <strong>Abrir</strong> para acessar o app.</li>
-              <li><strong>Passo 5 — Atualizações:</strong> Quando houver uma nova versão, repita o mesmo processo. Os seus dados serão preservados.</li>
-            </ul>
-            <p style="margin-top:8px">⚠️ <strong>Requisito:</strong> Android 6.0 ou superior. O app não requer conexão com a internet para funcionar.</p>
-          </div>
+          <!-- PRIMEIRO ACESSO -->
           <div class="manual-section">
             <h3>🔐 Primeiro Acesso — Login</h3>
-            <p>Ao abrir o sistema, você verá uma tela de login. Para entrar pela primeira vez, use:</p>
+            <p>Na primeira vez que abrir o sistema, será solicitado um <strong>nome de usuário</strong> e uma <strong>senha</strong>. Guarde bem essas informações — elas criptografam todos os seus dados. Se esquecer a senha, os dados não poderão ser recuperados (exceto via backup exportado).</p>
             <ul>
-              <li><strong>Usuário:</strong> <code>admin</code></li>
-              <li><strong>Senha:</strong> <code>1234</code></li>
+              <li>O usuário padrão inicial é <code>admin</code> com senha definida por você</li>
+              <li>Você pode criar outros usuários em <strong>Usuários</strong> no menu</li>
+              <li>Cada usuário tem seus próprios dados criptografados</li>
             </ul>
-            <p style="margin-top:8px">⚠️ <strong>Recomendamos fortemente</strong> que você altere a senha do admin logo após o primeiro acesso. Para isso, vá em <strong>Usuários</strong> no menu lateral e clique no ícone de chave 🔑 ao lado do seu usuário.</p>
-            <p style="margin-top:8px">Você também pode criar outros usuários para que familiares acessem o sistema com senhas separadas. Existem dois perfis: <strong>Admin</strong> (acesso total) e <strong>Viewer</strong> (somente visualização).</p>
           </div>
           <div class="hr"></div>
 
-          <!-- ── CONFIGURAÇÃO INICIAL ── -->
+          <!-- CONFIGURAÇÃO INICIAL -->
           <div class="manual-section">
             <h3>⚙️ Configuração Inicial — Por onde começar?</h3>
-            <p>Antes de lançar receitas e despesas, configure os cadastros básicos. Acesse o menu <strong>Cadastros</strong> e siga esta ordem:</p>
+            <p>Antes de lançar qualquer movimentação, configure as bases do sistema na aba <strong>Cadastros</strong>:</p>
             <ul>
-              <li><strong>1. Bancos / Contas:</strong> Cadastre suas contas bancárias (ex: "Nubank Conta Corrente", "Bradesco Poupança"). Informe o saldo atual da conta no campo <em>Saldo Inicial</em> e, se sua conta tiver cheque especial, informe o limite no campo correspondente.</li>
-              <li><strong>2. Centros de Custo:</strong> São as categorias das suas movimentações. Exemplos de Despesa: Alimentação, Moradia, Saúde, Transporte. Exemplos de Receita: Salário, Freelance. Você pode criar quantos quiser.</li>
-              <li><strong>3. Formas de Pagamento:</strong> Como você paga suas contas. Exemplos: PIX, Boleto, Cartão de Crédito, Dinheiro, Débito Automático. O sistema já vem com as mais comuns cadastradas.</li>
+              <li><strong>1. Bancos / Contas:</strong> Cadastre suas contas (ex: "Nubank CC", "Itaú Poupança"). Informe o <em>saldo atual</em> da conta no campo <strong>Saldo Inicial</strong> — esse valor é a base do cálculo de saldo. Se sua conta tiver cheque especial, informe o limite.</li>
+              <li><strong>2. Centros de Custo:</strong> Crie categorias para classificar seus lançamentos (ex: Alimentação, Moradia, Saúde, Salário). Defina o tipo: Receita, Despesa ou Ambos.</li>
+              <li><strong>3. Formas de Pagamento:</strong> Cadastre as formas que usa (PIX, Débito, Boleto, Dinheiro etc.).</li>
             </ul>
           </div>
           <div class="hr"></div>
 
-          <!-- ── CARTÕES ── -->
-          <div class="manual-section">
-            <h3>💳 Cadastrando Cartões de Crédito e Débito</h3>
-            <p>Acesse <strong>Cartões</strong> no menu lateral. Clique em <strong>Novo Cartão</strong> e preencha:</p>
-            <ul>
-              <li><strong>Nome do Cartão:</strong> Um nome para identificar (ex: "Nubank Visa")</li>
-              <li><strong>Tipo:</strong> Crédito ou Débito</li>
-              <li><strong>Banco vinculado:</strong> A conta bancária a que este cartão pertence</li>
-              <li><strong>Limite (crédito):</strong> O limite total disponível no cartão</li>
-              <li><strong>Dia de Fechamento (crédito):</strong> O dia do mês em que a fatura fecha. Compras feitas após este dia vão para a próxima fatura.</li>
-              <li><strong>Dia de Vencimento (crédito):</strong> O dia em que você paga a fatura</li>
-            </ul>
-            <p style="margin-top:8px">O sistema calcula automaticamente quanto você já usou do limite e quanto ainda tem disponível.</p>
-          </div>
-          <div class="hr"></div>
-
-          <!-- ── LANÇAMENTOS ── -->
+          <!-- LANÇAMENTOS -->
           <div class="manual-section">
             <h3>📝 Como Lançar Receitas e Despesas</h3>
-            <p>Acesse <strong>Lançamentos</strong> no menu e clique em <strong>Novo Lançamento</strong>. Preencha os campos:</p>
+            <p>Acesse a aba <strong>Lançamentos</strong> e clique em <strong>+ Novo Lançamento</strong>. Preencha:</p>
             <ul>
-              <li><strong>Tipo:</strong> Escolha <em>Receita</em> (dinheiro que entrou) ou <em>Despesa</em> (dinheiro que saiu)</li>
-              <li><strong>Data:</strong> A data em que a transação ocorreu ou vencerá</li>
-              <li><strong>Valor:</strong> O valor em reais</li>
+              <li><strong>Tipo:</strong> Receita (dinheiro que entra) ou Despesa (dinheiro que sai)</li>
+              <li><strong>Data:</strong> Data da movimentação</li>
               <li><strong>Banco / Conta:</strong> De qual conta saiu ou entrou o dinheiro</li>
-              <li><strong>Centro de Custo:</strong> A categoria (ex: Alimentação, Salário)</li>
-              <li><strong>Forma de Pagamento:</strong> Como foi pago (PIX, Boleto, etc.)</li>
-              <li><strong>Descrição:</strong> Uma observação opcional (ex: "Mercado Extra", "Salário março")</li>
+              <li><strong>Centro de Custo:</strong> Categoria do lançamento</li>
+              <li><strong>Forma de Pagamento:</strong> Como foi pago</li>
+              <li><strong>Valor:</strong> Digite o valor (ex: 1.500,00)</li>
+              <li><strong>Descrição:</strong> Texto livre para identificar o lançamento</li>
+              <li><strong>Pago / Pendente:</strong> Marque se já foi efetivado ou é um agendamento futuro</li>
             </ul>
-            <p style="margin-top:8px"><strong>💳 Pagamento com Cartão de Crédito:</strong> Ao selecionar "Cartão" como forma de pagamento, aparecerá um campo para escolher qual cartão foi usado. Se foi parcelado, informe o número de parcelas — o sistema distribui automaticamente as parcelas nos meses corretos da fatura.</p>
-            <p style="margin-top:8px"><strong>🔄 Transferência entre contas:</strong> Selecione o tipo <em>Transferência</em>. Escolha a conta de origem e a conta de destino. O sistema lança automaticamente a saída em uma conta e a entrada na outra com um único cadastro.</p>
+            <p style="margin-top:8px">💡 <strong>Compra parcelada no cartão:</strong> Selecione o cartão e informe o número de parcelas — o sistema gera todas as parcelas automaticamente nas datas corretas.</p>
+            <p style="margin-top:8px">💡 <strong>Transferência entre contas:</strong> Selecione o tipo "Transferência" e informe a conta destino — o sistema cria um lançamento de saída e outro de entrada automaticamente.</p>
           </div>
           <div class="hr"></div>
 
-          <!-- ── RECORRENTES ── -->
+          <!-- FILTROS E PESQUISA -->
           <div class="manual-section">
-            <h3>🔄 Lançamentos Recorrentes (Contas Fixas)</h3>
-            <p>São contas que se repetem todo mês, como aluguel, plano de saúde, Netflix, etc. Acesse <strong>Recorrentes</strong> no menu e clique em <strong>Novo Recorrente</strong>.</p>
+            <h3>🔍 Filtros e Pesquisa de Lançamentos</h3>
+            <p>Na aba Lançamentos, use a barra de filtros para localizar rapidamente qualquer movimentação:</p>
             <ul>
-              <li>Configure uma vez e o sistema lança automaticamente todo mês</li>
-              <li>Você pode pausar (desativar) um recorrente sem excluí-lo</li>
-              <li>Funciona também para receitas fixas, como salário</li>
-              <li>Recorrentes com cartão de crédito também são suportados</li>
-              <li>Cada ciclo dura 12 meses. Ao final, o sistema pergunta se deseja renovar</li>
+              <li><strong>Busca por texto:</strong> Digite descrição, valor ou categoria</li>
+              <li><strong>Tipo:</strong> Filtre por Receita, Despesa, Financiamento ou Transferência</li>
+              <li><strong>Banco:</strong> Visualize apenas uma conta</li>
+              <li><strong>Centro de Custo:</strong> Filtre por categoria</li>
+              <li><strong>Período:</strong> Defina data início e fim</li>
+              <li><strong>Status:</strong> Veja apenas pagos ou pendentes</li>
             </ul>
           </div>
           <div class="hr"></div>
 
-          <!-- ── FINANCIAMENTOS ── -->
+          <!-- CARTÕES -->
+          <div class="manual-section">
+            <h3>💳 Cartões de Crédito</h3>
+            <p>Cadastre seus cartões em <strong>Cartões</strong> informando nome, banco vinculado, limite, dia de fechamento e dia de vencimento da fatura.</p>
+            <ul>
+              <li>Ao lançar uma despesa, selecione o cartão no campo correspondente</li>
+              <li>Compras parceladas: informe o número de parcelas — o sistema agenda todas</li>
+              <li>Em <strong>Faturas</strong> no dashboard você vê o total de cada fatura por mês</li>
+              <li>O saldo disponível do cartão é atualizado automaticamente</li>
+            </ul>
+          </div>
+          <div class="hr"></div>
+
+          <!-- RECORRENTES -->
+          <div class="manual-section">
+            <h3>🔄 Lançamentos Recorrentes</h3>
+            <p>Para despesas e receitas que se repetem mensalmente (aluguel, salário, planos, assinaturas), use a aba <strong>Recorrentes</strong>:</p>
+            <ul>
+              <li>Cadastre uma vez e o sistema lembra todo mês</li>
+              <li>Um alerta aparece no dashboard quando houver recorrentes pendentes no mês atual</li>
+              <li>Ao clicar em <strong>Lançar</strong>, um lançamento é criado automaticamente com os dados cadastrados</li>
+              <li>É possível pausar ou encerrar um recorrente a qualquer momento</li>
+            </ul>
+          </div>
+          <div class="hr"></div>
+
+          <!-- FINANCIAMENTOS -->
           <div class="manual-section">
             <h3>🏦 Financiamentos e Empréstimos</h3>
-            <p>Acesse <strong>Financiamentos</strong> para controlar empréstimos, financiamentos de carro, imóvel ou qualquer dívida parcelada.</p>
+            <p>Na aba <strong>Financiamentos</strong>, cadastre qualquer tipo de dívida parcelada (financiamento de carro, empréstimo pessoal, consórcio etc.):</p>
             <ul>
-              <li>Cadastre o valor total financiado, número de parcelas, taxa de juros e data da 1ª parcela</li>
-              <li>O sistema calcula o valor da parcela mensal automaticamente</li>
-              <li>Você pode simular uma <strong>quitação antecipada</strong> para ver quanto economizaria em juros</li>
-              <li>As próximas 3 parcelas são exibidas em destaque no painel</li>
+              <li><strong>Valor Total Financiado:</strong> Capital tomado emprestado (PV)</li>
+              <li><strong>Taxa de Juros:</strong> % ao mês (deixe 0 para parcelamento sem juros)</li>
+              <li><strong>Nº de Parcelas:</strong> Total de prestações</li>
+              <li><strong>Parcelas Já Pagas:</strong> Se o financiamento já existe, informe quantas já foram quitadas</li>
+              <li><strong>Data da 1ª Parcela:</strong> Data de vencimento da primeira prestação</li>
+            </ul>
+            <p style="margin-top:8px">O sistema usa a <strong>Tabela Price</strong> para calcular a parcela: <code>PMT = PV × [i×(1+i)^n] / [(1+i)^n − 1]</code>. O preview aparece em tempo real antes de salvar.</p>
+            <p style="margin-top:8px">Ao salvar, as <strong>parcelas restantes</strong> são lançadas automaticamente em Lançamentos com as datas corretas. Acesse o botão <strong>Parcelas</strong> no card do financiamento para:</p>
+            <ul>
+              <li>Ver todas as parcelas com status (Paga / Próxima / Futura)</li>
+              <li>Lançar a próxima individualmente ou todas de uma vez</li>
+              <li>Ajustar o valor das parcelas futuras (ex: reajuste por índice)</li>
+              <li>Simular a quitação antecipada com desconto de juros futuros</li>
             </ul>
           </div>
           <div class="hr"></div>
 
-          <!-- ── INVESTIMENTOS ── -->
+          <!-- INVESTIMENTOS -->
           <div class="manual-section">
             <h3>📈 Investimentos e Patrimônio</h3>
-            <p>Acesse <strong>Investimentos</strong> para acompanhar tudo o que você tem investido.</p>
+            <p>Na aba <strong>Investimentos</strong>, cadastre seus ativos financeiros (CDB, Tesouro Direto, ações, fundos, poupança etc.):</p>
             <ul>
-              <li>Cadastre cada investimento com nome, tipo (CDB, Poupança, Ações, etc.), valor aplicado e rentabilidade esperada</li>
-              <li>Registre <strong>Aportes</strong> (novos depósitos), <strong>Resgates</strong> (retiradas) e <strong>Rendimentos</strong> (juros recebidos) para cada investimento</li>
-              <li>O sistema calcula automaticamente o patrimônio total, o ganho/perda de cada investimento e a rentabilidade acumulada</li>
-              <li>O gráfico de <strong>Evolução Patrimonial</strong> mostra como seu patrimônio cresceu nos últimos 12 meses</li>
+              <li>Informe nome, tipo, banco, valor aportado, valor atual e rentabilidade</li>
+              <li>Ao cadastrar com banco e data, um lançamento de aporte é criado automaticamente</li>
+              <li>Use o botão <strong>+ Movimentação</strong> para registrar aportes, resgates e rendimentos</li>
+              <li>Cada movimentação gera um lançamento vinculado em Lançamentos</li>
+              <li>O dashboard exibe o total aportado, patrimônio atual e rentabilidade geral</li>
             </ul>
           </div>
           <div class="hr"></div>
 
-          <!-- ── METAS ── -->
+          <!-- METAS -->
           <div class="manual-section">
             <h3>🎯 Metas Financeiras</h3>
-            <p>Acesse <strong>Metas</strong> para definir objetivos financeiros e acompanhar o progresso.</p>
+            <p>Defina objetivos financeiros na aba <strong>Metas</strong>. Para cada meta informe:</p>
             <ul>
-              <li>Crie metas como "Viagem para Europa", "Reserva de emergência", "Comprar um carro"</li>
-              <li>Defina o valor alvo e o prazo. A barra de progresso mostra quanto falta</li>
-              <li>Use o tipo <strong>Limite de Gasto</strong> para criar um teto mensal por categoria (ex: gastar no máximo R$800 em Alimentação). O sistema alerta quando você se aproxima do limite</li>
+              <li>Descrição (ex: "Reserva de emergência", "Viagem para Europa")</li>
+              <li>Valor alvo e valor já acumulado</li>
+              <li>Data limite para atingir o objetivo</li>
             </ul>
+            <p style="margin-top:8px">O sistema calcula o percentual de progresso e o valor mensal necessário para atingir a meta no prazo. Você também pode definir <strong>limites de gasto por Centro de Custo</strong> — um alerta aparece no dashboard quando o limite for ultrapassado.</p>
           </div>
           <div class="hr"></div>
 
-          <!-- ── DASHBOARD ── -->
+          <!-- DASHBOARD -->
           <div class="manual-section">
             <h3>📊 Dashboard — Visão Geral das Finanças</h3>
-            <p>O <strong>Dashboard</strong> é a tela principal do sistema, onde você vê um resumo completo da situação financeira. Use os filtros no topo para escolher o <strong>mês</strong> e a <strong>conta bancária</strong> que deseja analisar.</p>
+            <p>O <strong>Dashboard</strong> é a tela inicial com todos os indicadores importantes. Use o filtro no topo para selecionar o período (mês, ano ou próximos 6 meses) e a conta bancária:</p>
             <ul>
-              <li><strong>Cards de resumo:</strong> Total de receitas, total de despesas, saldo do período e saldo total de todas as contas</li>
-              <li><strong>Alertas:</strong> Se houver contas vencendo em breve ou cheque especial em uso, aparecerão em vermelho no topo</li>
-              <li><strong>Gráfico de Fluxo de Caixa:</strong> Barras mostrando receitas (verde) e despesas (vermelho) ao longo dos meses, com uma linha de saldo</li>
-              <li><strong>Gráficos de Centro de Custo:</strong> Pizza mostrando em quais categorias você mais gasta e mais recebe</li>
-              <li><strong>Faturas dos Cartões:</strong> Um resumo de quanto você deve pagar nos próximos 3 meses em cada cartão</li>
-              <li><strong>Previsão dos próximos 3 meses:</strong> Baseado nos lançamentos recorrentes, quanto entrará e sairá</li>
-              <li><strong>Comparativo mês a mês:</strong> Compara receitas, despesas e saldo do mês atual com o mês anterior</li>
+              <li><strong>Saldo Total Hoje:</strong> Soma dos saldos de todas as contas considerando apenas lançamentos <em>pagos</em> até hoje. Representa seu dinheiro real disponível agora.</li>
+              <li><strong>Saldo do Período:</strong> Receitas menos Despesas do período selecionado. Inclui lançamentos futuros agendados até o final do filtro — mostra como suas finanças vão ficar.</li>
+              <li><strong>Total Receitas / Despesas:</strong> Totais do período selecionado</li>
+              <li><strong>Gráfico de Fluxo:</strong> Evolução diária de entradas e saídas</li>
+              <li><strong>Faturas dos Cartões:</strong> Alertas de faturas próximas do vencimento</li>
+              <li><strong>Comparativo mensal:</strong> Comparação com o mês anterior</li>
             </ul>
           </div>
           <div class="hr"></div>
 
-          <!-- ── FATURAS ── -->
+          <!-- RELATÓRIOS -->
           <div class="manual-section">
-            <h3>💳 Faturas dos Cartões de Crédito</h3>
-            <p>Acesse <strong>Cartões</strong> e role para baixo para ver a seção <em>Faturas Projetadas</em>. Ali você verá, mês a mês, todos os lançamentos feitos no cartão e o total de cada fatura futura. Muito útil para se planejar e não ser surpreendido.</p>
+            <h3>📋 Relatórios</h3>
+            <p>Na aba <strong>Relatórios</strong>, gere e exporte análises em PDF:</p>
+            <ul>
+              <li><strong>Fluxo de Caixa Mensal:</strong> Movimentações dia a dia com totais</li>
+              <li><strong>Movimentação Bancária por Conta:</strong> Extrato de cada banco</li>
+              <li><strong>Movimentação por Cartão:</strong> Gastos por cartão de crédito</li>
+              <li><strong>Despesas por Categoria:</strong> Ranking de gastos por centro de custo</li>
+              <li><strong>Receitas vs Despesas:</strong> Comparativo em período personalizado</li>
+              <li><strong>Contas a Vencer / Em Atraso:</strong> Inadimplências e próximos vencimentos</li>
+              <li><strong>Posição de Investimentos:</strong> Carteira consolidada</li>
+            </ul>
           </div>
           <div class="hr"></div>
 
-          <!-- ── CONCILIAÇÃO ── -->
+          <!-- CONCILIAÇÃO -->
           <div class="manual-section">
             <h3>⚖️ Conciliação Bancária</h3>
-            <p>A conciliação serve para <strong>comparar o extrato do seu banco com os lançamentos do sistema</strong> e identificar se falta algum registro.</p>
-            <ul>
-              <li>Acesse <strong>Conciliação Bancária</strong> no menu e clique em <strong>Iniciar Conciliação</strong></li>
-              <li>Selecione a conta e importe o arquivo de extrato (<code>.OFX</code>, <code>.QFX</code> ou <code>.CSV</code>) — baixado direto do site do seu banco</li>
-              <li>O sistema compara cada transação do extrato com seus lançamentos</li>
-              <li>Para cada diferença encontrada, o sistema mostra o item e pergunta se você quer lançá-lo. Você pode aprovar ou pular cada um</li>
-            </ul>
-            <p style="margin-top:8px">💡 <strong>Como exportar o extrato do banco:</strong> Na maioria dos bancos, acesse o internet banking, vá em "Extrato" e procure a opção "Exportar" ou "Baixar". Escolha o formato OFX ou CSV.</p>
+            <p>A conciliação compara o extrato do banco com seus lançamentos e identifica divergências. Acesse a aba <strong>Conciliação Bancária</strong>:</p>
+            <p style="margin-top:8px"><strong>OFX / QFX / CSV</strong> — Baixe o extrato no internet banking do seu banco (procure por "Exportar extrato") e importe aqui. O sistema compara automaticamente e apresenta as diferenças uma a uma para você confirmar ou pular.</p>
+            <p style="margin-top:8px"><strong>PDF / Texto</strong> — Selecione o banco (Itaú, Bradesco, Caixa ou Nubank), faça upload do PDF ou cole o texto copiado. O sistema extrai as transações com o parser específico de cada banco. PDFs escaneados da Caixa usam OCR via IA automaticamente.</p>
+            <p style="margin-top:8px">Após processar, uma tabela mostra todas as transações com status <strong>OK</strong> (já lançadas) ou <strong>Novo</strong> (não encontradas). Clique em <strong>Iniciar Conciliação</strong> para confirmar os novos lançamentos — o sistema usa tolerância de ±3 dias na comparação de datas.</p>
           </div>
           <div class="hr"></div>
 
-          <!-- ── BACKUP ── -->
+          <!-- BACKUP -->
           <div class="manual-section">
             <h3>💾 Backup e Segurança dos Dados</h3>
-            <p>Seus dados ficam salvos na memória interna do seu dispositivo. Isso significa que se você desinstalar o aplicativo ou trocar de celular sem fazer backup, os dados <strong>podem ser perdidos</strong>. Por isso, o backup é muito importante!</p>
             <ul>
-              <li>Acesse <strong>Configuração</strong> e clique em <strong>Exportar Backup</strong>. Um arquivo <code>.json</code> será gerado — guarde-o em local seguro (Google Drive, WhatsApp para si mesmo, e-mail ou cartão de memória)</li>
-              <li>Para restaurar, clique em <strong>Importar Backup</strong> e selecione o arquivo salvo</li>
-              <li>Use o <strong>Backup Automático</strong> para que o app salve o arquivo sozinho a cada dia, semana ou mês</li>
-              <li>Se precisar apagar tudo e começar do zero, use <strong>Limpar Todos os Dados</strong>. O app pedirá confirmação digitando a palavra <code>APAGAR</code> e fará um backup automático antes de apagar</li>
+              <li>Em <strong>Configurações → Backup Manual</strong>, exporte um arquivo JSON com todos os dados</li>
+              <li>Ative o <strong>Backup Automático</strong> (diário, semanal ou mensal) para nunca perder dados</li>
+              <li>Para restaurar, clique em <strong>Importar Backup</strong> e selecione o arquivo JSON</li>
+              <li>Faça backup antes de limpar dados ou trocar de dispositivo</li>
+              <li>Se precisar apagar tudo, use <strong>Configurações → Limpar Todos os Dados</strong> — confirme no modal e a página recarregará limpa</li>
             </ul>
           </div>
           <div class="hr"></div>
 
-          <!-- ── CRIPTOGRAFIA ── -->
+          <!-- CRIPTOGRAFIA -->
           <div class="manual-section">
-            <h3>🔒 Proteção e Criptografia dos Dados</h3>
-            <p>O NMC Personal Finance System foi desenvolvido com segurança de nível bancário para proteger suas informações financeiras. Mesmo que outra pessoa tenha acesso físico ao seu celular ou ao arquivo de backup, <strong>não conseguirá ler seus dados sem conhecer sua senha</strong>.</p>
-
-            <p style="margin-top:12px"><strong>Como funciona a proteção em camadas:</strong></p>
+            <h3>🔒 Proteção e Criptografia</h3>
+            <p>Todos os dados são cifrados com <strong>AES‑256</strong> usando sua senha pessoal como chave. Sem a senha correta, os dados aparecem como texto embaralhado ilegível. A criptografia acontece localmente no dispositivo — nenhum dado é enviado para servidores externos.</p>
             <ul>
-              <li>
-                <strong>🔑 Senhas nunca ficam visíveis:</strong> Sua senha não é armazenada em texto no aparelho. Ela passa por um processo chamado <em>hash SHA-256</em>, que a transforma em um código embaralhado irreconhecível. Mesmo o desenvolvedor do app não consegue saber qual é a sua senha.
-              </li>
-              <li>
-                <strong>🛡️ Dados cifrados com AES-256:</strong> Todos os seus lançamentos, contas, cartões, investimentos e demais informações são criptografados usando o padrão <em>AES-256</em> — o mesmo utilizado por bancos, governos e aplicativos de pagamento no mundo todo. Sem a sua senha, os dados aparecem como um texto embaralhado sem nenhum sentido.
-              </li>
-              <li>
-                <strong>⚙️ Chave derivada com PBKDF2:</strong> A chave de criptografia que protege seus dados não é a senha diretamente — ela é calculada a partir da sua senha usando um processo chamado <em>PBKDF2 com 100.000 iterações</em>. Isso significa que, mesmo que alguém tente adivinhar sua senha testando milhares de combinações, o processo seria extremamente lento, inviabilizando qualquer ataque.
-              </li>
-              <li>
-                <strong>📱 Dados só ficam legíveis após o login:</strong> As informações financeiras ficam criptografadas o tempo todo na memória do celular. Elas só são decifradas temporariamente enquanto o app está aberto e você está logado. Ao fechar o app, tudo volta a ser cifrado.
-              </li>
-              <li>
-                <strong>🔄 Troca de senha recriptografa tudo:</strong> Se você alterar sua senha, o app automaticamente recriptografa todos os seus dados com a nova chave. Os dados antigos com a senha anterior deixam de existir.
-              </li>
+              <li>Nunca compartilhe sua senha</li>
+              <li>Se trocar de dispositivo, exporte o backup e importe no novo — use a mesma senha</li>
+              <li>O sistema não possui mecanismo de recuperação de senha — guarde-a em local seguro</li>
             </ul>
-
-            <p style="margin-top:12px;padding:12px 14px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:6px;font-size:13px;line-height:1.7">
-              ⚠️ <strong>Atenção importante:</strong> Por causa da criptografia, <strong>se você esquecer sua senha, não há como recuperar os dados</strong>. Não existe "esqueci minha senha" — isso faz parte da proteção. Por isso, guarde bem sua senha e faça backups regulares.
-            </p>
           </div>
           <div class="hr"></div>
 
-          <!-- ── ALERTAS ── -->
-          <div class="manual-section">
-            <h3>🔔 Alertas e Notificações</h3>
-            <p>O sistema pode te avisar sobre situações importantes:</p>
-            <ul>
-              <li><strong>Contas vencendo nos próximos 3 dias:</strong> Aparece um card vermelho no Dashboard e, se você permitir notificações do app, uma notificação na tela do celular</li>
-              <li><strong>Cheque especial em uso:</strong> Sempre que o saldo de uma conta ficar negativo, um alerta aparece automaticamente</li>
-              <li><strong>Limite de categoria próximo:</strong> Quando você atingir 90% do limite de gastos de uma categoria, um alerta será exibido</li>
-            </ul>
-            <p style="margin-top:8px">Você pode ativar ou desativar os alertas de vencimento em <strong>Configuração → Configurar Alertas</strong>.</p>
-          </div>
-          <div class="hr"></div>
-
-          <!-- ── DICAS ── -->
+          <!-- DICAS -->
           <div class="manual-section">
             <h3>💡 Dicas de Uso</h3>
             <ul>
-              <li><strong>Comece simples:</strong> Cadastre 1 ou 2 bancos, algumas categorias básicas e vá lançando as movimentações do mês atual.</li>
-              <li><strong>Faça backup toda semana:</strong> Leva menos de 5 segundos e evita perder meses de dados.</li>
-              <li><strong>Use os Recorrentes:</strong> Cadastre suas contas fixas como recorrentes e economize tempo todo mês.</li>
-              <li><strong>Saldo inicial:</strong> Ao cadastrar um banco, informe o saldo atual da conta para que o sistema calcule corretamente o saldo total.</li>
-              <li><strong>Cartão e parcelamento:</strong> Sempre que comprar parcelado no cartão, informe o número de parcelas no lançamento. Assim o sistema mostrará corretamente o que você deve nos próximos meses.</li>
-              <li><strong>Metas de limite:</strong> Use metas do tipo "Limite de Gasto" para controlar categorias onde você costuma gastar demais.</li>
-              <li><strong>Senha forte:</strong> Use uma senha com letras, números e símbolos para garantir a máxima proteção dos seus dados criptografados.</li>
-            </ul>
-          </div>
-          <div class="hr"></div>
-
-          <!-- ── DÚVIDAS ── -->
-          <div class="manual-section">
-            <h3>❓ Perguntas Frequentes</h3>
-            <ul>
-              <li><strong>Meus dados ficam na nuvem?</strong> Não. Tudo fica salvo na memória do seu celular, criptografado. Ninguém mais tem acesso — nem o desenvolvedor.</li>
-              <li><strong>Se alguém pegar meu celular, consegue ver meus dados?</strong> Não. Sem conhecer sua senha, os dados aparecem como texto embaralhado ilegível. A criptografia AES-256 garante isso.</li>
-              <li><strong>E se eu esquecer a senha?</strong> Infelizmente não há como recuperar. A criptografia é projetada justamente para isso — sem a senha, os dados não podem ser acessados. Guarde bem sua senha!</li>
-              <li><strong>Funciona no iPhone?</strong> O app é um APK para Android. Para iOS, consulte o desenvolvedor sobre uma versão específica.</li>
-              <li><strong>Se eu fechar o app, perco os dados?</strong> Não, os dados ficam salvos automaticamente. Só são perdidos se você desinstalar o app ou trocar de celular sem fazer backup.</li>
-              <li><strong>Posso ter mais de uma conta bancária?</strong> Sim, sem limite. Cadastre quantas contas quiser em Cadastros → Bancos.</li>
-              <li><strong>Como faço para ver só um banco no Dashboard?</strong> Use o filtro "Banco" no topo do Dashboard para selecionar a conta desejada.</li>
-              <li><strong>O que fazer se lançar algo errado?</strong> Na aba Lançamentos, toque no ícone de lápis ✏️ ao lado do lançamento para editar, ou no ícone de lixeira 🗑️ para excluir.</li>
+              <li>Use <strong>Ctrl+K</strong> (desktop) para abrir a busca global rápida</li>
+              <li>Lance despesas pendentes com antecedência para planejar o mês</li>
+              <li>Revise o dashboard toda semana para acompanhar as metas</li>
+              <li>Faça a conciliação bancária mensalmente para garantir que nada foi esquecido</li>
+              <li>Use centros de custo consistentes — isso torna os relatórios muito mais úteis</li>
+              <li>O botão <strong>Duplicar</strong> no lançamento facilita registrar despesas similares rapidamente</li>
+              <li>Lançamentos recorrentes poupam tempo com contas mensais fixas</li>
+              <li>Sempre exporte um backup antes de atualizar o aplicativo</li>
             </ul>
           </div>
 
@@ -2042,165 +2082,189 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
       <!-- ──────────── CONCILIAÇÃO BANCÁRIA ──────────── -->
       <section class="section" id="tab-conciliacao">
-        <div class="page-hd">
+
+        <div class="page-hd" style="flex-wrap:wrap;gap:10px">
           <div>
             <div class="page-title">Conciliação Bancária</div>
             <div class="page-sub">Compare extratos bancários com seus lançamentos</div>
           </div>
-          <button class="btn btn-gold" onclick="abrirConciliacao()">
-            <i class="fa fa-play"></i> Iniciar Conciliação OFX/CSV
+          <button class="btn btn-gold" onclick="abrirConciliacao()" style="white-space:nowrap">
+            <i class="fa fa-play"></i> OFX/CSV
           </button>
         </div>
 
         <!-- Seletor de modo -->
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px">
-          <button id="concTabArqBtn" onclick="concSwitchTab('arq')"
-            style="display:flex;align-items:center;gap:10px;padding:14px 22px;background:var(--gold-pale);border:2px solid var(--gold);border-radius:var(--r2);color:var(--gold);font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer">
-            <i class="fa fa-file-alt" style="font-size:16px"></i>
-            <div style="text-align:left"><div>OFX / QFX / CSV</div><div style="font-size:10px;opacity:.7;font-weight:400;margin-top:2px">Arquivo exportado pelo banco</div></div>
+        <div class="conc-tabs">
+          <button id="concTabArqBtn" onclick="concSwitchTab('arq')" class="conc-tab-btn conc-tab-active">
+            <i class="fa fa-file-alt"></i>
+            <div><div>OFX / QFX / CSV</div><div class="conc-tab-sub">Arquivo do banco</div></div>
           </button>
-          <button id="concTabPdfBtn" onclick="concSwitchTab('pdf')"
-            style="display:flex;align-items:center;gap:10px;padding:14px 22px;background:var(--card);border:2px solid var(--border);border-radius:var(--r2);color:var(--text2);font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer">
-            <i class="fa fa-file-pdf" style="font-size:16px;color:var(--red)"></i>
-            <div style="text-align:left"><div>PDF / Texto</div><div style="font-size:10px;opacity:.7;font-weight:400;margin-top:2px">Upload do extrato PDF</div></div>
+          <button id="concTabPdfBtn" onclick="concSwitchTab('pdf')" class="conc-tab-btn">
+            <i class="fa fa-file-pdf" style="color:var(--red)"></i>
+            <div><div>PDF / Texto</div><div class="conc-tab-sub">Upload do extrato</div></div>
           </button>
         </div>
 
         <!-- Painel OFX/CSV -->
-        <div id="concPainelArq">
-        <div class="grid2">
-          <div class="card">
-            <div class="card-title"><i class="fa fa-balance-scale" style="color:var(--blue)"></i> Como funciona</div>
-            <div style="font-size:13px;color:var(--text2);line-height:1.9">
-              <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-                <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">1.</span>
-                <span>Exporte o extrato da sua conta bancária no formato <b>.OFX</b>, <b>.QFX</b> ou <b>.CSV</b>.</span>
+        <div id="concPainelArq" style="max-width:100%;overflow-x:hidden">
+          <div class="grid2">
+            <div class="card">
+              <div class="card-title"><i class="fa fa-balance-scale" style="color:var(--blue)"></i> Como funciona</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.9">
+                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:22px">1.</span>
+                  <span>Exporte o extrato no formato <b>.OFX</b>, <b>.QFX</b> ou <b>.CSV</b>.</span>
+                </div>
+                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:22px">2.</span>
+                  <span>Clique em <b>OFX/CSV</b>, selecione a conta e importe o arquivo.</span>
+                </div>
+                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:22px">3.</span>
+                  <span>O sistema compara cada transação com seus lançamentos.</span>
+                </div>
+                <div style="display:flex;gap:10px;padding:8px 0">
+                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:22px">4.</span>
+                  <span>As diferenças são apresentadas <b>uma a uma</b> para aprovar ou pular.</span>
+                </div>
               </div>
-              <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-                <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">2.</span>
-                <span>Clique em <b>Iniciar Conciliação</b>, selecione a conta e importe o arquivo.</span>
+            </div>
+            <div class="card">
+              <div class="card-title"><i class="fa fa-file-alt" style="color:var(--teal)"></i> Formatos Suportados</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+                <div style="background:var(--card2);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px">
+                  <span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--gold);min-width:40px">.OFX</span>
+                  <span style="font-size:12px;color:var(--text2)">Open Financial Exchange — padrão dos bancos brasileiros</span>
+                </div>
+                <div style="background:var(--card2);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px">
+                  <span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--gold);min-width:40px">.QFX</span>
+                  <span style="font-size:12px;color:var(--text2)">Quicken Financial Exchange — variante do OFX</span>
+                </div>
+                <div style="background:var(--card2);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px">
+                  <span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--gold);min-width:40px">.CSV</span>
+                  <span style="font-size:12px;color:var(--text2)">Planilha: data, descrição, valor</span>
+                </div>
               </div>
-              <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-                <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">3.</span>
-                <span>O sistema compara cada transação com seus lançamentos existentes.</span>
-              </div>
-              <div style="display:flex;gap:10px;padding:8px 0">
-                <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">4.</span>
-                <span>As diferenças são apresentadas <b>uma a uma</b> para você aprovar ou pular.</span>
+              <div style="margin-top:14px">
+                <button class="btn btn-gold btn-full" onclick="abrirConciliacao()">
+                  <i class="fa fa-balance-scale"></i> Iniciar Conciliação Agora
+                </button>
               </div>
             </div>
           </div>
-
-          <div class="card">
-            <div class="card-title"><i class="fa fa-file-alt" style="color:var(--teal)"></i> Formatos Suportados</div>
-            <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
-              <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px">
-                <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--gold);min-width:50px">.OFX</span>
-                <span style="font-size:13px;color:var(--text2)">Open Financial Exchange — padrão da maioria dos bancos brasileiros</span>
-              </div>
-              <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px">
-                <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--gold);min-width:50px">.QFX</span>
-                <span style="font-size:13px;color:var(--text2)">Quicken Financial Exchange — variante do OFX</span>
-              </div>
-              <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px">
-                <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--gold);min-width:50px">.CSV</span>
-                <span style="font-size:13px;color:var(--text2)">Planilha com colunas: data, descrição, valor (exportada pelo banco)</span>
-              </div>
-            </div>
-            <div style="margin-top:18px">
-              <button class="btn btn-gold btn-full" onclick="abrirConciliacao()">
-                <i class="fa fa-balance-scale"></i> Iniciar Conciliação Agora
-              </button>
-            </div>
-          </div>
-        </div>
-
         </div><!-- /concPainelArq -->
 
         <!-- Painel PDF/Texto -->
-        <div id="concPainelPdf" style="display:none">
-          <div class="grid2">
-            <div class="card">
-              <div class="card-title"><i class="fa fa-file-pdf" style="color:var(--red)"></i> Como usar o extrato PDF</div>
-              <div style="font-size:13px;color:var(--text2);line-height:1.9">
-                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">1.</span>
-                  <span>Selecione a conta bancária correspondente ao extrato.</span>
-                </div>
-                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">2.</span>
-                  <span>Clique em <b>Selecionar PDF</b> para anexar o arquivo, <b>ou</b> cole o texto copiado do PDF no campo alternativo.</span>
-                </div>
-                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">3.</span>
-                  <span>Clique em <b>Processar Extrato</b>. O sistema extrai as transações automaticamente.</span>
-                </div>
-                <div style="display:flex;gap:10px;padding:8px 0">
-                  <span style="color:var(--gold);font-family:var(--mono);font-weight:600;min-width:24px">4.</span>
-                  <span>Para cada transação não encontrada no sistema, confirme ou pule o lançamento.</span>
-                </div>
-              </div>
-              <div style="margin-top:14px;padding:12px 14px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:var(--r);font-size:12px;color:var(--text3);line-height:1.7">
-                💡 Funciona com extratos de qualquer banco em formato de texto. PDFs escaneados (imagens) não são suportados.
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title"><i class="fa fa-cogs" style="color:var(--gold)"></i> Processar Extrato</div>
-              <div class="field">
-                <label>Conta Bancária *</label>
-                <select id="concPdfBanco" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;padding:11px 14px;outline:none;-webkit-appearance:none">
-                  <option value="">— selecione —</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Arquivo PDF do Extrato</label>
-                <input type="file" id="concPdfArquivo" accept=".pdf,application/pdf" style="display:none" onchange="concPdfHandleFile(this.files[0])">
-                <label for="concPdfArquivo" id="concPdfDropArea"
-                  style="display:block;border:2px dashed var(--border);border-radius:var(--r2);padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)"
-                  ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
-                  ondragleave="this.style.borderColor='var(--border)'"
-                  ondrop="event.preventDefault();this.style.borderColor='var(--border)';concPdfHandleFile(event.dataTransfer.files[0])">
-                  <i class="fa fa-cloud-upload-alt" style="font-size:28px;color:var(--text3);margin-bottom:8px;display:block"></i>
-                  <div style="font-size:13px;color:var(--text2);margin-bottom:4px;font-weight:500">Clique aqui para selecionar o PDF</div>
-                  <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">ou arraste e solte o arquivo</div>
-                </label>
-                <div id="concPdfNomeArquivo" style="margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--teal);display:none">
-                  <i class="fa fa-file-pdf" style="color:var(--red)"></i>
-                  <span id="concPdfNomeSpan"></span>
-                  <button onclick="concPdfLimparArquivo()" style="background:none;border:none;color:var(--text3);cursor:pointer;margin-left:8px;font-size:11px"><i class="fa fa-times"></i> remover</button>
-                </div>
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;margin:4px 0 12px">
-                <div style="flex:1;height:1px;background:var(--border)"></div>
-                <span style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase">ou cole o texto</span>
-                <div style="flex:1;height:1px;background:var(--border)"></div>
-              </div>
-              <div class="field">
-                <label>Texto do Extrato (alternativo ao PDF)</label>
-                <textarea id="concPdfTexto" rows="5" placeholder="Cole aqui o texto copiado do PDF do extrato bancário..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:11.5px;padding:11px 14px;outline:none;resize:vertical;line-height:1.7"></textarea>
-              </div>
-              <button class="btn btn-gold btn-full" onclick="conciliarPDF()" id="concPdfBtn">
-                <i class="fa fa-search"></i> Processar Extrato
+        <div id="concPainelPdf" style="display:none;max-width:100%;overflow-x:hidden">
+
+          <!-- Banco do extrato -->
+          <div class="card conc-card">
+            <div class="conc-label">Banco do extrato</div>
+            <div class="conc-bancos">
+              <button type="button" class="btn-banco-sel active" data-banco="itau" onclick="concSelBanco(this)">
+                <span class="banco-ico" style="background:#ec7000">IT</span>Itaú
               </button>
-              <div id="concPdfStatus" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text3);min-height:18px"></div>
+              <button type="button" class="btn-banco-sel" data-banco="bradesco" onclick="concSelBanco(this)">
+                <span class="banco-ico" style="background:#cc092f">BD</span>Bradesco
+              </button>
+              <button type="button" class="btn-banco-sel" data-banco="caixa" onclick="concSelBanco(this)">
+                <span class="banco-ico" style="background:#006ba6">CE</span>Caixa
+              </button>
+              <button type="button" class="btn-banco-sel" data-banco="nubank" onclick="concSelBanco(this)">
+                <span class="banco-ico" style="background:#820ad1">NU</span>Nubank
+              </button>
             </div>
           </div>
+
+          <!-- Conta no sistema -->
+          <div class="card conc-card">
+            <div class="conc-label">Conta no sistema *</div>
+            <select id="concPdfBanco" class="conc-select">
+              <option value="">— selecione —</option>
+            </select>
+          </div>
+
+          <!-- Upload PDF -->
+          <div class="card conc-card">
+            <div class="conc-label">Arquivo PDF</div>
+            <input type="file" id="concPdfArquivo" accept=".pdf,application/pdf" style="display:none" onchange="concPdfHandleFile(this.files[0])">
+            <label for="concPdfArquivo" id="concPdfDropArea" class="conc-drop"
+              ondragover="event.preventDefault();this.classList.add('over')"
+              ondragleave="this.classList.remove('over')"
+              ondrop="event.preventDefault();this.classList.remove('over');concPdfHandleFile(event.dataTransfer.files[0])">
+              <i class="fa fa-cloud-upload-alt" style="font-size:22px;color:var(--text3);margin-bottom:4px;display:block"></i>
+              <div style="font-size:12px;color:var(--text2);font-weight:500">Clique para selecionar</div>
+              <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">ou arraste o PDF</div>
+            </label>
+            <div id="concPdfNomeArquivo" style="margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--teal);display:none">
+              <i class="fa fa-file-pdf" style="color:var(--red)"></i>
+              <span id="concPdfNomeSpan"></span>
+              <button onclick="concPdfLimparArquivo()" style="background:none;border:none;color:var(--text3);cursor:pointer;margin-left:6px;font-size:10px"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+
+          <!-- Texto alternativo -->
+          <div class="card conc-card">
+            <div class="conc-label">Ou cole o texto do extrato</div>
+            <textarea id="concPdfTexto" rows="3" placeholder="Cole aqui o texto copiado do PDF..." class="conc-textarea"></textarea>
+          </div>
+
+          <!-- Processar -->
+          <button class="btn btn-gold btn-full" onclick="conciliarPDF()" id="concPdfBtn" style="margin-bottom:6px">
+            <i class="fa fa-search"></i> Processar Extrato
+          </button>
+          <div id="concPdfStatus" style="font-family:var(--mono);font-size:11px;color:var(--text3);min-height:16px;margin-bottom:14px;word-break:break-word"></div>
+
+          <!-- Resultado da leitura -->
+          <div id="concPdfResultado" style="display:none">
+            <div class="card" style="padding:0">
+              <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+                  <div class="card-title" style="margin:0;padding:0;border:none;font-size:14px"><i class="fa fa-list-alt" style="color:var(--gold)"></i> Transações Extraídas</div>
+                  <button class="btn btn-gold btn-sm" onclick="concIniciarFila()"><i class="fa fa-play"></i> Iniciar</button>
+                </div>
+                <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;word-break:break-word" id="concPdfResumo"></div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="btn btn-ghost btn-sm" onclick="concFiltrarResultado('all')" id="concFiltAll">Todos</button>
+                  <button class="btn btn-ghost btn-sm" onclick="concFiltrarResultado('novo')" id="concFiltNovo" style="color:var(--red)">Novos</button>
+                  <button class="btn btn-ghost btn-sm" onclick="concFiltrarResultado('ok')" id="concFiltOk" style="color:var(--teal)">OK</button>
+                </div>
+              </div>
+              <div class="conc-resultado-wrap">
+                <table class="conc-table">
+                  <thead>
+                    <tr>
+                      <th style="width:80px">Data</th>
+                      <th>Descrição</th>
+                      <th style="width:52px;text-align:center">Tipo</th>
+                      <th style="width:90px;text-align:right">Valor</th>
+                      <th style="width:48px;text-align:center">✓</th>
+                    </tr>
+                  </thead>
+                  <tbody id="concPdfTabelaBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
         </div><!-- /concPainelPdf -->
 
         <!-- Histórico de conciliações -->
-        <div class="card" style="margin-top:20px">
-          <div class="card-title"><i class="fa fa-history" style="color:var(--text3)"></i> Lançamentos Importados via Conciliação</div>
+        <div class="card" style="margin-top:20px;padding:0">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+            <div class="card-title" style="margin:0;padding:0;border:none"><i class="fa fa-history" style="color:var(--text3)"></i> Importados via Conciliação</div>
+          </div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>Data</th><th>Banco</th><th>Descrição</th><th>Valor</th><th>Centro de Custo</th></tr></thead>
+              <thead><tr><th>Data</th><th>Banco</th><th>Descrição</th><th>Valor</th><th>Categoria</th></tr></thead>
               <tbody id="tblConciliadosBody">
                 <tr><td colspan="5"><div class="empty"><i class="fa fa-balance-scale"></i>Nenhum lançamento importado via conciliação ainda.</div></td></tr>
               </tbody>
             </table>
           </div>
         </div>
-      </section>
 
+      </section>
 
       <!-- ──────────── METAS ──────────── -->
       <section class="section" id="tab-metas">
@@ -2604,14 +2668,14 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
 <!-- Modal PDF Conciliação Item a Item -->
 <div class="modal-bg" id="modalConcPdfItem">
-  <div class="modal" style="width:500px">
-    <div class="modal-title"><i class="fa fa-file-pdf" style="color:var(--red)"></i> Conciliação PDF — Confirmar Lançamento</div>
+  <div class="modal" style="width:min(500px,96vw)">
+    <div class="modal-title" style="font-size:clamp(16px,4vw,22px)"><i class="fa fa-file-pdf" style="color:var(--red)"></i> Conciliação PDF</div>
     <div id="concPdfItemInfo"></div>
-    <div class="field"><label>Descrição</label><input id="concPdfItemDesc" placeholder="Descrição do lançamento"></div>
-    <div class="field"><label>Centro de Custo (opcional)</label><select id="concPdfItemCC"><option value="">— selecione —</option></select></div>
-    <div class="modal-footer" style="justify-content:space-between">
-      <button class="btn btn-ghost btn-sm" onclick="concPdfItemCancelar()"><i class="fa fa-times"></i> Cancelar tudo</button>
-      <div style="display:flex;gap:8px">
+    <div class="field"><label>Descrição</label><input id="concPdfItemDesc" placeholder="Descrição do lançamento" style="width:100%"></div>
+    <div class="field"><label>Centro de Custo (opcional)</label><select id="concPdfItemCC" style="width:100%"><option value="">— selecione —</option></select></div>
+    <div class="modal-footer" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="concPdfItemCancelar()"><i class="fa fa-times"></i> Cancelar</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-outline" onclick="concPdfItemPular()"><i class="fa fa-forward"></i> Pular</button>
         <button class="btn btn-gold" onclick="concPdfItemLancar()"><i class="fa fa-check"></i> Lançar</button>
       </div>
@@ -2669,17 +2733,17 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     <div class="input-row cols2">
       <div class="field">
         <label>Valor Total Financiado *</label>
-        <input id="mFinancTotal" placeholder="R$ 0,00" oninput="maskMoney(this)">
+        <input id="mFinancTotal" placeholder="R$ 0,00" oninput="maskMoney(this);financCalcPreview()">
       </div>
       <div class="field">
         <label>Taxa de Juros (% ao mês)</label>
-        <input id="mFinancJuros" type="number" step="0.01" placeholder="Ex: 1.5">
+        <input id="mFinancJuros" type="number" step="0.01" placeholder="Ex: 1.5" oninput="financCalcPreview()">
       </div>
     </div>
     <div class="input-row cols3">
       <div class="field">
         <label>Nº de Parcelas *</label>
-        <input id="mFinancParcelas" type="number" min="1" placeholder="Ex: 48">
+        <input id="mFinancParcelas" type="number" min="1" placeholder="Ex: 48" oninput="financCalcPreview()">
       </div>
       <div class="field">
         <label>Parcelas Já Pagas</label>
@@ -2702,9 +2766,77 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         </select>
       </div>
     </div>
+    <!-- Preview do cálculo -->
+    <div id="financPreview" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;font-family:var(--mono);font-size:12px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <span style="color:var(--text3)">Parcela estimada</span>
+        <span id="financPreviewParcela" style="color:var(--gold);font-size:15px;font-weight:600"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:5px">
+        <span style="color:var(--text3)">Total a pagar</span>
+        <span id="financPreviewTotal" style="color:var(--text2)"></span>
+      </div>
+      <div id="financPreviewJurosRow" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:4px">
+        <span style="color:var(--text3)">Total de juros</span>
+        <span id="financPreviewJurosVal" style="color:var(--red)"></span>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalFinanc')">Cancelar</button>
       <button class="btn btn-gold" onclick="saveFinanc()"><i class="fa fa-save"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Parcelas Financiamento -->
+<div class="modal-bg" id="modalParcelas">
+  <div class="modal" style="width:min(680px,96vw)">
+    <button class="modal-close" onclick="closeModal('modalParcelas')"><i class="fa fa-times"></i></button>
+    <div class="modal-title"><i class="fa fa-list-ol" style="color:var(--gold)"></i> Parcelas do Financiamento</div>
+    <div id="modalParcelasInfo" style="background:var(--card2);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2);font-family:var(--mono)"></div>
+
+    <!-- Ações rápidas -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn btn-gold btn-sm" onclick="parcLancarProxima()"><i class="fa fa-check"></i> Lançar próxima</button>
+      <button class="btn btn-outline btn-sm" onclick="parcLancarTodas()"><i class="fa fa-check-double"></i> Lançar todas restantes</button>
+      <button class="btn btn-ghost btn-sm" onclick="parcAjustarFuturas()"><i class="fa fa-edit"></i> Ajustar valor futuras</button>
+    </div>
+
+    <!-- Painel de ajuste (oculto por padrão) -->
+    <div id="parcAjustePanel" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:10px">Ajustar parcelas futuras</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div class="field" style="flex:1;min-width:140px;margin:0">
+          <label>Novo valor da parcela</label>
+          <input id="parcAjusteValor" placeholder="R$ 0,00" oninput="maskMoney(this)" style="width:100%">
+        </div>
+        <div class="field" style="flex:1;min-width:140px;margin:0">
+          <label>Novo descritivo (opcional)</label>
+          <input id="parcAjusteDesc" placeholder="Deixe vazio para manter" style="width:100%">
+        </div>
+        <button class="btn btn-gold btn-sm" onclick="parcSalvarAjuste()" style="white-space:nowrap"><i class="fa fa-save"></i> Aplicar</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('parcAjustePanel').style.display='none'"><i class="fa fa-times"></i></button>
+      </div>
+    </div>
+
+    <!-- Lista de parcelas -->
+    <div style="overflow-x:auto;max-height:55vh;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;min-width:340px">
+        <thead>
+          <tr>
+            <th style="width:44px;text-align:center">#</th>
+            <th style="width:90px">Vencimento</th>
+            <th>Descrição</th>
+            <th style="width:100px;text-align:right">Valor</th>
+            <th style="width:72px;text-align:center">Status</th>
+            <th style="width:60px;text-align:center">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="modalParcelasBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalParcelas')">Fechar</button>
     </div>
   </div>
 </div>
@@ -3405,10 +3537,24 @@ function addBanco() {
   toast('Banco cadastrado!');
 }
 
-function getSaldoBanco(nomeBanco) {
+function getSaldoBanco(nomeBanco, atéData) {
+  // atéData: se informado, só considera lançamentos até essa data (inclusive)
+  // sem atéData: considera apenas lançamentos pagos até hoje (saldo real)
   const b = bancos.find(x=>x.nome===nomeBanco);
   const saldoIni = b ? (b.saldoInicial||0) : 0;
-  const movs = lancamentos.filter(l=>l.banco===nomeBanco && l.tipo!=='Investimento');
+  const hoje = new Date().toISOString().slice(0,10);
+  const corte = atéData || hoje;
+  const movs = lancamentos.filter(l => {
+    if (l.banco !== nomeBanco) return false;
+    if (l.tipo === 'Investimento') return false;
+    if (atéData) {
+      // Modo período: todos os lançamentos até a data de corte (pagos ou não)
+      return l.data <= corte;
+    } else {
+      // Modo "hoje": apenas lançamentos pagos com data até hoje
+      return l.data <= hoje && (l.pago !== false);
+    }
+  });
   const entradas = movs.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
   const saidas   = movs.filter(l=>l.tipo==='Despesa'||l.tipo==='Financiamento').reduce((s,l)=>s+parseMoney(l.valor),0);
   return saldoIni + entradas - saidas;
@@ -3711,27 +3857,6 @@ function delCartao(id) {
 ══════════════════════════════════════════ */
 function openModalLanc(id) {
   refreshSelects();
-
-  // Lançamento virtual (recorrente/financiamento previsto) → abrir como novo lançamento pré-preenchido
-  if (id && id.startsWith('virt_')) {
-    const ymAtual = new Date().toISOString().slice(0,7);
-    const virt = renderLancamentosGetVirtuais(ymAtual).find(v=>v.id===id);
-    if (!virt) { toast('Lançamento previsto não encontrado.','err'); return; }
-    document.getElementById('lancEditId').value = '';
-    document.getElementById('modalLancTitle').textContent = 'Lançar Previsto — ' + (virt._origem||'');
-    document.getElementById('mLancTipo').value  = virt.tipo;
-    document.getElementById('mLancData').value  = virt.data;
-    document.getElementById('mLancValor').value = fmtBRL(virt.valor);
-    document.getElementById('mLancDesc').value  = virt.desc;
-    const selB = document.getElementById('mLancBanco');
-    if (selB && virt.banco) selB.value = virt.banco;
-    const selCC = document.getElementById('mLancCC');
-    if (selCC && virt.cc) selCC.value = virt.cc;
-    onTipoChange();
-    openModal('modalLanc');
-    return;
-  }
-
   document.getElementById('lancEditId').value = id||'';
   document.getElementById('modalLancTitle').textContent = id ? 'Editar Lançamento' : 'Novo Lançamento';
 
@@ -3916,69 +4041,7 @@ function renderLancamentos() {
   const status = (document.getElementById('fLancStatus')||{}).value || '';
   const hoje   = new Date().toISOString().slice(0,10);
 
-  // Gerar virtuais de recorrentes e financiamentos para exibição
-  function gerarVirtuaisParaMes(ym) {
-    const virtuais = [];
-    // Recorrentes ativos
-    recorrentes.filter(r => r.ativo !== 'nao').forEach(r => {
-      const [y, m] = ym.split('-').map(Number);
-      const diaReal = Math.min(r.dia || 1, new Date(y, m, 0).getDate());
-      const data = `${ym}-${String(diaReal).padStart(2,'0')}`;
-      // Só adiciona se não há lançamento real já gerado para este recorrente neste mês
-      const jaExiste = lancamentos.some(l => l.recorrenteId === r.id && l.data && l.data.startsWith(ym));
-      if (!jaExiste) {
-        virtuais.push({
-          id: 'virt_rec_' + r.id + '_' + ym,
-          tipo: r.tipo, data, banco: r.banco||'', cc: r.cc||'',
-          forma: r.forma||'', desc: r.desc, valor: r.valor,
-          parcelas: '1', period: 'Mensal', pago: false,
-          _virtual: true, _origem: 'Recorrente'
-        });
-      }
-    });
-    // Financiamentos — calcular qual parcela vence no mês ym
-    financiamentos.forEach(f => {
-      if (!f.dataInicio || !f.parcelaMensal) return;
-      const totalPagas = getPagasFinanc(f);
-      if (totalPagas >= f.parcelas) return; // quitado
-
-      // Iterar parcelas não pagas e ver qual cai no mês ym
-      for (let p = totalPagas; p < f.parcelas; p++) {
-        const d = new Date(f.dataInicio + 'T12:00:00');
-        d.setMonth(d.getMonth() + p);
-        const data = d.toISOString().slice(0,10);
-        if (!data.startsWith(ym)) continue; // só parcelas deste mês
-
-        // Verificar se já existe lançamento real desta parcela
-        // (financiamentos lançados via modal usam financId OU financiamentoId)
-        const jaExiste = lancamentos.some(l =>
-          (l.financId === f.id || l.financiamentoId === f.id) &&
-          l.data && l.data.startsWith(ym)
-        );
-        if (!jaExiste) {
-          virtuais.push({
-            id: 'virt_fin_' + f.id + '_' + ym + '_' + p,
-            tipo: 'Despesa', data,
-            banco: f.banco||'', cc: '', forma: '',
-            desc: `${f.desc} — Parcela ${p+1}/${f.parcelas}`,
-            valor: f.parcelaMensal,
-            parcelas: String(f.parcelas), parcelaNum: p+1,
-            period: 'Mensal', pago: false,
-            _virtual: true, _origem: 'Financiamento',
-            _financId: f.id
-          });
-        }
-        break; // apenas uma parcela por mês por financiamento
-      }
-    });
-    return virtuais;
-  }
-
-  // Determinar o mês de referência para virtuais (da data filtrada ou mês atual)
-  const ymRef = dtI ? dtI.slice(0,7) : hoje.slice(0,7);
-  const virtuais = gerarVirtuaisParaMes(ymRef);
-
-  let data = [...lancamentos, ...virtuais].filter(l => {
+  let data = lancamentos.filter(l => {
     if (tipo  && l.tipo!==tipo)   return false;
     if (banco && l.banco!==banco) return false;
     if (cc    && l.cc!==cc)       return false;
@@ -4029,7 +4092,7 @@ function renderLancamentos() {
   }
 
   if (!data.length) {
-    tb.innerHTML=`<tr><td colspan="8"><div class="empty"><i class="fa fa-exchange-alt"></i>Nenhum lançamento encontrado.</div></td></tr>`;
+    tb.innerHTML=`<tr><td colspan="11"><div class="empty"><i class="fa fa-exchange-alt"></i>Nenhum lançamento encontrado.</div></td></tr>`;
     return;
   }
 
@@ -4043,75 +4106,54 @@ function renderLancamentos() {
       : vencido ? `<span class="badge-lanc vencido"><i class="fa fa-exclamation-circle"></i> Vencido</span>`
       : l.tipo==='Despesa' ? `<span class="badge-lanc pendente"><i class="fa fa-clock"></i> Pendente</span>`
       : `<span style="color:var(--text3);font-size:11px">—</span>`;
-    const podeBaixa = (l.tipo==='Despesa'||l.tipo==='Receita');
-    const btnBaixa = podeBaixa && !l.pago
+    const btnBaixa = !l.pago&&(l.tipo==='Despesa'||l.tipo==='Receita')
       ? `<button class="btn btn-ghost btn-icon" style="color:var(--teal)" title="Dar baixa" onclick="baixaRapida('${l.id}')"><i class="fa fa-check"></i></button>`
-      : podeBaixa && l.pago
-        ? `<button class="btn btn-ghost btn-icon" style="color:#f59e0b" title="Desfazer baixa" onclick="desfazerBaixa('${l.id}')"><i class="fa fa-undo"></i></button>`
-        : '';
-    const origem = l._origem ? `<span style="font-family:var(--mono);font-size:9px;color:var(--text3);padding:1px 6px;border:1px solid var(--border);border-radius:4px">${l._origem}</span> ` : '';
-    return `<tr style="${vencido?'background:rgba(224,82,82,.03)':''}${l.pago?';opacity:.72':''}">
-      <td><span class="${isRec?'td-type-r':'td-type-d'}">${l.tipo}${l._origem?`<br><span style="font-size:9px;opacity:.6">${l._origem}</span>`:''}</span></td>
-      <td class="td-mono" style="white-space:nowrap">${fmtDate(l.data)}</td>
-      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.banco||''}">${l.banco||'—'}</td>
-      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.cc||''}">${l.cc||'—'}</td>
-      <td class="td-mono ${isRec?'td-type-r':'td-type-d'}" style="white-space:nowrap">${isRec?'+':'-'}${fmtBRL(parseMoney(l.valor))}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(l.desc||'')+' | '+formaExib+(l.parcelas&&l.parcelas!='1'?' | '+l.parcelas+'×':'')+' | '+(l.period||'')}">${origem}${l.desc||'—'}</td>
+      : l.pago ? `<button class="btn btn-ghost btn-icon" style="color:#f59e0b" title="Desfazer baixa" onclick="desfazerBaixa('${l.id}')"><i class="fa fa-undo"></i></button>` : '';
+    return `<tr style="${vencido?'background:rgba(224,82,82,.03)':''}${l.pago?';opacity:.7':''}">
+      <td><span class="${isRec?'td-type-r':'td-type-d'}">${l.tipo}</span></td>
+      <td class="td-mono">${fmtDate(l.data)}</td>
+      <td>${l.banco||'—'}</td>
+      <td>${l.cc||'—'}</td>
+      <td>${formaExib}</td>
+      <td class="td-mono">${l.parcelaNum ? l.parcelaNum+'/'+l.parcelas : (l.parcelas||'1')+(l.parcelas&&l.parcelas!='1'?'×':'')}</td>
+      <td>${l.period||'Único'}</td>
+      <td class="td-mono ${isRec?'td-type-r':'td-type-d'}">${isRec?'+':'-'}${fmtBRL(parseMoney(l.valor))}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.desc||''}">${l.desc||'—'}</td>
       <td>${sBadge}</td>
-      <td style="white-space:nowrap">${btnBaixa}${!l._virtual?`<button class="btn btn-ghost btn-icon btn-edit" title="Editar" onclick="openModalLanc('${l.id}')"><i class="fa fa-pencil-alt"></i></button>`:'<button class="btn btn-ghost btn-icon" style="opacity:.3" title="Lançamento previsto — edite o recorrente/financiamento" disabled><i class="fa fa-pencil-alt"></i></button>'}<button class="btn btn-ghost btn-icon btn-danger" title="${l._virtual?'Não é possível excluir previsto':'Excluir'}" onclick="delLanc('${l.id}')"><i class="fa fa-trash"></i></button></td>
+      <td>${btnBaixa}<button class="btn btn-ghost btn-icon btn-edit" onclick="openModalLanc('${l.id}')"><i class="fa fa-pencil-alt"></i></button><button class="btn btn-ghost btn-icon btn-danger" onclick="delLanc('${l.id}')"><i class="fa fa-trash"></i></button></td>
     </tr>`;
   }).join('');
 
-  // Mobile card list - com status e botões de baixa
+  // Mobile card list
   const ml = document.getElementById('lancMobileList');
   if (ml) {
     if (!data.length) { ml.innerHTML=''; return; }
     ml.innerHTML = data.map(l => {
-      const isRec      = l.tipo==='Receita';
+      const isRec = l.tipo==='Receita';
       const cartaoNome = l.cartaoId ? (cartoes.find(c=>c.id===l.cartaoId)?.nome||'') : '';
       const formaExib  = cartaoNome ? `${l.forma} (${cartaoNome})` : (l.forma||'—');
-      const vencido    = !l.pago && l.data < hoje && l.tipo==='Despesa';
-      const borderClr  = vencido ? 'rgba(224,82,82,.5)' : l.pago ? 'rgba(62,184,154,.3)' : 'var(--border)';
-      const statusBadge = l.pago
-        ? `<span style="background:var(--teal-pale);color:var(--teal);font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:99px"><i class="fa fa-check-circle"></i> Pago</span>`
-        : vencido
-          ? `<span style="background:var(--red-pale);color:var(--red);font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:99px"><i class="fa fa-exclamation-circle"></i> Vencido</span>`
-          : l.tipo==='Despesa'
-            ? `<span style="background:rgba(245,158,11,.12);color:#f59e0b;font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:99px"><i class="fa fa-clock"></i> Pendente</span>`
-            : '';
-      const podeBaixaM = (l.tipo==='Despesa'||l.tipo==='Receita');
-      const btnBaixa = podeBaixaM && !l.pago
-        ? `<button style="background:var(--teal-pale);border:1px solid rgba(62,184,154,.3);border-radius:99px;color:var(--teal);font-family:var(--mono);font-size:10px;padding:5px 12px;cursor:pointer" onclick="baixaRapida('${l.id}')"><i class="fa fa-check"></i> Dar baixa</button>`
-        : podeBaixaM && l.pago
-          ? `<button style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:99px;color:#f59e0b;font-family:var(--mono);font-size:10px;padding:5px 12px;cursor:pointer" onclick="desfazerBaixa('${l.id}')"><i class="fa fa-undo"></i> Desfazer</button>`
-          : '';
-      const origemTag = l._origem ? `<span style="font-family:var(--mono);font-size:9px;color:var(--gold);padding:1px 6px;border:1px solid rgba(201,168,76,.3);border-radius:4px;margin-right:4px">${l._origem}</span>` : '';
-      return `<div style="background:var(--card);border:1px solid ${borderClr};border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;opacity:${l.pago?'.75':'1'}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
-          <div>
-            <div style="font-family:var(--mono);font-size:17px;font-weight:600;color:${isRec?'var(--teal)':'var(--red)'};margin-bottom:4px">${isRec?'+':'-'}${fmtBRL(parseMoney(l.valor))}</div>
-            ${statusBadge}
-          </div>
-          <div style="display:flex;gap:5px;flex-shrink:0">
-            <button class="btn btn-ghost btn-icon btn-edit" style="padding:6px 9px${l._virtual?';opacity:.4':''}" onclick="openModalLanc('${l.id}')"><i class="fa fa-pencil-alt"></i></button>
-            <button class="btn btn-ghost btn-icon btn-danger" style="padding:6px 9px" onclick="delLanc('${l.id}')"><i class="fa fa-trash"></i></button>
+      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;border-left:3px solid ${isRec?'var(--teal)':'var(--red)'}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-family:var(--mono);font-size:18px;font-weight:500;color:${isRec?'var(--teal)':'var(--red)'}">${isRec?'+':'-'}${fmtBRL(parseMoney(l.valor))}</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-icon btn-edit" style="padding:5px 8px" onclick="openModalLanc('${l.id}')"><i class="fa fa-pencil-alt"></i></button>
+            <button class="btn btn-ghost btn-icon btn-danger" style="padding:5px 8px" onclick="delLanc('${l.id}')"><i class="fa fa-trash"></i></button>
           </div>
         </div>
-        <div style="font-size:13px;color:var(--text);margin-bottom:8px;font-weight:500">${origemTag}${l.desc||'Sem descrição'}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:${btnBaixa?'10px':'0'}">
+        <div style="font-size:13px;color:var(--text);margin-bottom:4px;font-weight:500">${l.desc||'Sem descrição'}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--text3);font-family:var(--mono)">
           <span><i class="fa fa-calendar" style="width:12px;opacity:.5"></i> ${fmtDate(l.data)}</span>
           <span><i class="fa fa-university" style="width:12px;opacity:.5"></i> ${l.banco||'—'}</span>
           <span><i class="fa fa-tag" style="width:12px;opacity:.5"></i> ${l.cc||'—'}</span>
           <span><i class="fa fa-money-bill" style="width:12px;opacity:.5"></i> ${formaExib}</span>
           ${l.parcelas&&l.parcelas!='1'?`<span><i class="fa fa-th-list" style="width:12px;opacity:.5"></i> ${l.parcelas}× ${l.period}</span>`:''}
         </div>
-        ${btnBaixa?`<div>${btnBaixa}</div>`:''}
       </div>`;
     }).join('');
   }
 }
+
 function delLanc(id) {
-  if (id.startsWith('virt_')) { toast('Este é um lançamento previsto. Para remover, edite o recorrente ou financiamento correspondente.', 'inf'); return; }
   if (!confirm('Excluir este lançamento?')) return;
   lancamentos = lancamentos.filter(x=>x.id!==id);
   saveAll(); renderLancamentos(); renderCartoes(); renderDashboard(); toast('Lançamento excluído.');
@@ -4362,11 +4404,41 @@ function openModalFinanc(id) {
   openModal('modalFinanc');
 }
 
+function financCalcPreview() {
+  const total   = parseMoney(document.getElementById('mFinancTotal').value) || 0;
+  // replace comma with dot in case user types Brazilian format
+  const jurosRaw = (document.getElementById('mFinancJuros').value||'').replace(',','.');
+  const juros   = parseFloat(jurosRaw) || 0;
+  const parcelas = parseInt(document.getElementById('mFinancParcelas').value) || 0;
+  const prev = document.getElementById('financPreview');
+  if (!prev) return;
+  if (!total || !parcelas) { prev.style.display='none'; return; }
+  let pmt;
+  if (juros > 0) {
+    const i = juros / 100;
+    const fator = Math.pow(1 + i, parcelas);
+    pmt = total * (i * fator) / (fator - 1);
+  } else {
+    pmt = total / parcelas;
+  }
+  pmt = Math.round(pmt * 100) / 100;
+  const totalPago = pmt * parcelas;
+  const totalJuros = totalPago - total;
+  document.getElementById('financPreviewParcela').textContent = fmtBRL(pmt);
+  document.getElementById('financPreviewTotal').textContent   = fmtBRL(totalPago);
+  const jRow = document.getElementById('financPreviewJurosRow');
+  if (jRow) jRow.style.display = juros > 0 ? 'flex' : 'none';
+  const jVal = document.getElementById('financPreviewJurosVal');
+  if (jVal) jVal.textContent = fmtBRL(totalJuros);
+  prev.style.display = '';
+}
+
 function saveFinanc() {
   const editId = document.getElementById('financEditId').value;
   const desc   = document.getElementById('mFinancDesc').value.trim();
   const total  = parseMoney(document.getElementById('mFinancTotal').value);
-  const juros  = parseFloat(document.getElementById('mFinancJuros').value)||0;
+  const jurosRaw = (document.getElementById('mFinancJuros').value||'').replace(',','.');
+  const juros  = parseFloat(jurosRaw)||0;
   const parcelas = parseInt(document.getElementById('mFinancParcelas').value)||0;
   const pagas    = parseInt(document.getElementById('mFinancPagas').value)||0;
   const diaVenc  = document.getElementById('mFinancVenc').value;
@@ -4378,26 +4450,73 @@ function saveFinanc() {
   if (!parcelas){ toast('Informe o nº de parcelas.','err'); return; }
   if (!dataInicio){ toast('Informe a data da 1ª parcela.','err'); return; }
 
-  // Calcula parcela mensal (Price ou simples)
+  // ── Cálculo da parcela (Tabela Price) ──
+  // PV  = total (capital financiado)
+  // i   = taxa mensal decimal
+  // n   = nº de parcelas
+  // PMT = PV x [i x (1+i)^n] / [(1+i)^n - 1]
   let parcelaMensal;
   if (juros > 0) {
-    const i = juros/100;
-    parcelaMensal = total * (i * Math.pow(1+i, parcelas)) / (Math.pow(1+i, parcelas) - 1);
+    const i     = juros / 100;
+    const fator = Math.pow(1 + i, parcelas);
+    parcelaMensal = (total * i * fator) / (fator - 1);
   } else {
     parcelaMensal = total / parcelas;
   }
+  parcelaMensal = Math.round(Number(parcelaMensal) * 100) / 100;
+  if (!isFinite(parcelaMensal) || parcelaMensal <= 0) {
+    toast('Erro no calculo da parcela. Verifique os valores.','err'); return;
+  }
 
-  const obj = { id: editId||uid(), desc, total, juros, parcelas, pagas, diaVenc, dataInicio, banco, parcelaMensal };
+  // Soma meses sem bug de dia-31
+  function addMonths(dateStr, months) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m - 1 + months, 1);
+    const lastDay = new Date(dt.getFullYear(), dt.getMonth() + 1, 0).getDate();
+    const dia = Math.min(d, lastDay);
+    return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+  }
+
+  const financId = editId||uid();
+  const obj = { id: financId, desc, total: Number(total), juros: Number(juros), parcelas, pagas, diaVenc, dataInicio, banco, parcelaMensal };
 
   if (editId) {
     const idx = financiamentos.findIndex(f=>f.id===editId);
     if (idx>=0) financiamentos[idx] = obj;
+    lancamentos
+      .filter(l=>l.financId===editId && l.tipo==='Financiamento' && !l.pago)
+      .forEach(l=>{ l.valor=parcelaMensal; });
   } else {
     financiamentos.push(obj);
+    if (banco) {
+      const faltantes = parcelas - (pagas || 0);
+      for (let p = (pagas || 0) + 1; p <= parcelas; p++) {
+        const dataStr = addMonths(dataInicio, p - 1);
+        lancamentos.push({
+          id: uid(),
+          financId,
+          tipo: 'Financiamento',
+          data: dataStr,
+          banco,
+          cc: 'Financiamentos',
+          forma: 'Debito Automatico',
+          cartaoId: '',
+          parcelas: String(parcelas),
+          period: 'Mensal',
+          valor: parcelaMensal,
+          desc: desc+' ('+p+'/'+parcelas+')',
+          pago: false,
+          conciliado: false
+        });
+      }
+      toast('Financiamento cadastrado! '+faltantes+' parcela(s) restante(s) de '+fmtBRL(parcelaMensal)+' lancadas.');
+    } else {
+      toast('Financiamento cadastrado!');
+    }
   }
-  saveAll(); renderFinanciamentos();
+  saveAll(); renderFinanciamentos(); renderLancamentos(); renderDashboard();
   closeModal('modalFinanc');
-  toast(editId ? 'Financiamento atualizado!' : 'Financiamento cadastrado!');
+  if (editId) toast('Financiamento atualizado!');
 }
 
 function delFinanc(id) {
@@ -4417,8 +4536,8 @@ function pagarParcela(id) {
 }
 
 function getPagasFinanc(f) {
-  // count from lancamentos (more accurate than manual counter)
-  const fromLanc = lancamentos.filter(l=>l.financId===f.id && l.tipo==='Financiamento').length;
+  // count only PAID lancamentos (unpaid ones are future installments)
+  const fromLanc = lancamentos.filter(l=>l.financId===f.id && l.tipo==='Financiamento' && l.pago).length;
   return Math.max(f.pagas||0, fromLanc);
 }
 
@@ -4519,7 +4638,7 @@ function renderFinanciamentos() {
         <span>${pagasF} pagas</span><span>${restantes} restantes (${pct}%)</span>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${restantes > 0 ? `<button class="btn btn-gold btn-sm" onclick="openLancFinanc('${f.id}')"><i class="fa fa-check"></i> Lançar parcela</button>` : ''}
+        ${restantes > 0 ? `<button class="btn btn-gold btn-sm" onclick="openModalParcelas('${f.id}')"><i class="fa fa-list-ol"></i> Parcelas</button>` : ''}
         <button class="btn btn-outline btn-sm" onclick="simularQuitacao('${f.id}')"><i class="fa fa-calculator"></i> Simular quitação</button>
         <button class="btn btn-ghost btn-sm btn-edit" onclick="openModalFinanc('${f.id}')"><i class="fa fa-pencil-alt"></i></button>
         <button class="btn btn-ghost btn-sm btn-danger" onclick="delFinanc('${f.id}')"><i class="fa fa-trash"></i></button>
@@ -4651,17 +4770,50 @@ function saveInvest() {
 
   if (!nome)    { toast('Informe o nome.','err'); return; }
   if (!aportado){ toast('Informe o valor aplicado.','err'); return; }
+  // Guard against accidentally huge values (e.g. paste error)
+  if (aportado > 99999999) { toast('Valor muito alto. Verifique o valor aplicado.','err'); return; }
 
-  const obj = { id: editId||uid(), nome, tipo, aportado, atual, rentab, banco, data, venc, obs };
+  const invId = editId||uid();
+  const obj = { id: invId, nome, tipo, aportado, atual, rentab, banco, data, venc, obs };
   if (editId) {
     const idx = investimentos.findIndex(i=>i.id===editId);
     if (idx>=0) investimentos[idx] = obj;
+    // Update existing lancamento if it exists for this investment
+    const lancIdx = lancamentos.findIndex(l=>l.investId===editId&&l.tipo==='Investimento');
+    if (lancIdx>=0) {
+      lancamentos[lancIdx].valor = aportado;
+      lancamentos[lancIdx].desc  = `Investimento: ${nome}`;
+      lancamentos[lancIdx].data  = data||lancamentos[lancIdx].data;
+      lancamentos[lancIdx].banco = banco||lancamentos[lancIdx].banco;
+    }
   } else {
     investimentos.push(obj);
+    // Lançar o aporte como saída (Despesa tipo Investimento) na data informada
+    if (banco && data && aportado > 0) {
+      lancamentos.push({
+        id: uid(),
+        investId: invId,
+        tipo: 'Despesa',
+        data,
+        banco,
+        cc: 'Investimentos',
+        forma: 'Transferência',
+        cartaoId: '',
+        parcelas: '1',
+        period: 'Único',
+        valor: aportado,
+        desc: `Investimento: ${nome}`,
+        pago: true,
+        conciliado: false
+      });
+      toast('Investimento cadastrado e lançamento de aporte registrado!');
+    } else {
+      toast('Investimento cadastrado!');
+    }
   }
-  saveAll(); renderInvestimentos();
+  saveAll(); renderInvestimentos(); renderLancamentos(); renderDashboard();
   closeModal('modalInvest');
-  toast(editId ? 'Investimento atualizado!' : 'Investimento cadastrado!');
+  if (editId) toast('Investimento atualizado!');
 }
 
 function delInvest(id) {
@@ -4695,29 +4847,60 @@ function saveMovInvest() {
 
   if (!investId){ toast('Selecione o investimento.','err'); return; }
   if (!valor)   { toast('Informe o valor.','err'); return; }
+  if (valor > 99999999) { toast('Valor muito alto. Verifique o valor informado.','err'); return; }
   if (!data)    { toast('Informe a data.','err'); return; }
 
-  const obj = { id: editId||uid(), investId, tipo, valor, data, obs };
+  const movId = editId||uid();
+  const obj = { id: movId, investId, tipo, valor, data, obs };
   if (editId) {
     const idx = movsInvest.findIndex(m=>m.id===editId);
     if (idx>=0) movsInvest[idx] = obj;
+    // Update corresponding lancamento
+    const li = lancamentos.findIndex(l=>l.movInvestId===editId);
+    if (li>=0) { lancamentos[li].valor=valor; lancamentos[li].data=data; }
   } else {
     movsInvest.push(obj);
+    // Registrar em lançamentos
+    const inv = investimentos.find(i=>i.id===investId);
+    if (inv && inv.banco) {
+      const tipoLanc = tipo==='Resgate' ? 'Receita' : 'Despesa';
+      const descLanc = tipo==='Aporte'     ? `Aporte: ${inv.nome}`
+                     : tipo==='Resgate'    ? `Resgate: ${inv.nome}`
+                     : tipo==='Rendimento' ? `Rendimento: ${inv.nome}`
+                     : `${tipo}: ${inv.nome}`;
+      lancamentos.push({
+        id: uid(),
+        movInvestId: movId,
+        investId,
+        tipo: tipoLanc,
+        data,
+        banco: inv.banco,
+        cc: 'Investimentos',
+        forma: 'Transferência',
+        cartaoId: '',
+        parcelas: '1',
+        period: 'Único',
+        valor,
+        desc: descLanc,
+        pago: true,
+        conciliado: false
+      });
+    }
   }
 
   // Atualiza saldo atual do investimento
   const inv = investimentos.find(i=>i.id===investId);
   if (inv) {
-    const aportes   = movsInvest.filter(m=>m.investId===investId && m.tipo==='Aporte').reduce((s,m)=>s+m.valor,0);
-    const resgates  = movsInvest.filter(m=>m.investId===investId && m.tipo==='Resgate').reduce((s,m)=>s+m.valor,0);
+    const aportes     = movsInvest.filter(m=>m.investId===investId && m.tipo==='Aporte').reduce((s,m)=>s+m.valor,0);
+    const resgates    = movsInvest.filter(m=>m.investId===investId && m.tipo==='Resgate').reduce((s,m)=>s+m.valor,0);
     const rendimentos = movsInvest.filter(m=>m.investId===investId && m.tipo==='Rendimento').reduce((s,m)=>s+m.valor,0);
     inv.aportado = aportes;
     inv.atual    = aportes - resgates + rendimentos;
   }
 
-  saveAll(); renderInvestimentos();
+  saveAll(); renderInvestimentos(); renderLancamentos(); renderDashboard();
   closeModal('modalMovInvest');
-  toast(editId ? 'Movimentação atualizada!' : 'Movimentação registrada!');
+  toast(editId ? 'Movimentação atualizada!' : 'Movimentação registrada e lançamento criado!');
 }
 
 function delMovInvest(id) {
@@ -4927,6 +5110,168 @@ function openLancInvest(investId) {
   if (sel) sel.value = investId;
 }
 
+/* ══ MODAL PARCELAS ══ */
+let _parcelasFinancId = null;
+
+function openModalParcelas(financId) {
+  _parcelasFinancId = financId;
+  const f = financiamentos.find(x=>x.id===financId);
+  if (!f) return;
+  // Info header
+  const pagasF = getPagasFinanc(f);
+  const restantes = f.parcelas - pagasF;
+  document.getElementById('modalParcelasInfo').innerHTML =
+    `<b>${f.desc}</b> &nbsp;·&nbsp; ${f.parcelas}x de ${fmtBRL(f.parcelaMensal)}`+
+    (f.juros>0?` &nbsp;·&nbsp; ${f.juros}%/mês`:'')+
+    ` &nbsp;·&nbsp; <span style="color:var(--teal)">${pagasF} pagas</span>`+
+    ` &nbsp;·&nbsp; <span style="color:var(--red)">${restantes} restantes</span>`+
+    (f.banco?` &nbsp;·&nbsp; ${f.banco}`:'');
+  document.getElementById('parcAjustePanel').style.display='none';
+  document.getElementById('parcAjusteValor').value='';
+  document.getElementById('parcAjusteDesc').value='';
+  renderParcelasBody(f);
+  openModal('modalParcelas');
+}
+
+function renderParcelasBody(f) {
+  if (!f) f = financiamentos.find(x=>x.id===_parcelasFinancId);
+  if (!f) return;
+  const tbody = document.getElementById('modalParcelasBody');
+  const pagasF = getPagasFinanc(f);
+  const rows = [];
+  for (let p = 1; p <= f.parcelas; p++) {
+    // busca lançamento correspondente a esta parcela
+    const lanc = lancamentos.find(l =>
+      l.financId === f.id && l.tipo === 'Financiamento' &&
+      (l.desc.includes('('+p+'/'+f.parcelas+')') || l.desc.includes('('+p+'/'+f.parcelas+' ')));
+    const pago = lanc ? !!lanc.pago : (p <= (f.pagas||0));
+    const data = lanc ? lanc.data : addMonthsFinanc(f.dataInicio, p-1);
+    const valor = lanc ? parseMoney(lanc.valor) : f.parcelaMensal;
+    const desc  = lanc ? lanc.desc : f.desc+' ('+p+'/'+f.parcelas+')';
+    const corLinha = pago ? 'opacity:.5' : (p===pagasF+1?'background:rgba(201,168,76,.05)':'');
+    const badge = pago
+      ? '<span style="font-size:9px;background:rgba(62,184,154,.12);color:var(--teal);border:1px solid rgba(62,184,154,.3);border-radius:20px;padding:2px 7px;font-family:var(--mono)">Paga</span>'
+      : (p===pagasF+1
+        ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 7px;font-family:var(--mono)">Próxima</span>'
+        : '<span style="font-size:9px;background:rgba(224,82,82,.08);color:var(--red);border:1px solid rgba(224,82,82,.2);border-radius:20px;padding:2px 7px;font-family:var(--mono)">Futura</span>');
+    const fid = f.id;
+    const acaoBtns = pago
+      ? `<button title="Desmarcar" data-fid="${fid}" data-p="${p}" onclick="parcTogglePago(this.dataset.fid,+this.dataset.p,false)" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px"><i class="fa fa-undo"></i></button>`
+      : `<button title="Marcar paga" data-fid="${fid}" data-p="${p}" onclick="parcTogglePago(this.dataset.fid,+this.dataset.p,true)" style="background:none;border:none;color:var(--teal);cursor:pointer;font-size:13px"><i class="fa fa-check-circle"></i></button>`;
+    rows.push(`<tr style="${corLinha}">
+      <td style="text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3)">${p}</td>
+      <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${fmtDate(data)}</td>
+      <td style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${desc}">${desc}</td>
+      <td style="text-align:right;font-family:var(--mono);font-size:12px;color:${pago?'var(--text3)':'var(--text)'}">
+        ${pago?'':''}${fmtBRL(valor)}</td>
+      <td style="text-align:center">${badge}</td>
+      <td style="text-align:center">${acaoBtns}</td>
+    </tr>`);
+  }
+  tbody.innerHTML = rows.join('');
+}
+
+function addMonthsFinanc(dateStr, months) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1 + months, 1);
+  const lastDay = new Date(dt.getFullYear(), dt.getMonth() + 1, 0).getDate();
+  const dia = Math.min(d, lastDay);
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+}
+
+function parcTogglePago(financId, numParcela, marcarPago) {
+  const f = financiamentos.find(x=>x.id===financId);
+  if (!f) return;
+  const lanc = lancamentos.find(l =>
+    l.financId === financId && l.tipo === 'Financiamento' &&
+    (l.desc.includes('('+numParcela+'/'+f.parcelas+')') || l.desc.includes('('+numParcela+'/'+f.parcelas+' ')));
+  if (lanc) {
+    lanc.pago = marcarPago;
+  } else if (marcarPago) {
+    const data = addMonthsFinanc(f.dataInicio, numParcela - 1);
+    lancamentos.push({
+      id: uid(), financId, tipo: 'Financiamento', data,
+      banco: f.banco, cc: 'Financiamentos', forma: 'Debito Automatico',
+      cartaoId: '', parcelas: String(f.parcelas), period: 'Mensal',
+      valor: f.parcelaMensal, desc: f.desc+' ('+numParcela+'/'+f.parcelas+')',
+      pago: true, conciliado: false
+    });
+  }
+  saveAll(); renderLancamentos(); renderDashboard();
+  renderParcelasBody(f);
+  toast((marcarPago ? 'Parcela '+numParcela+' paga!' : 'Parcela '+numParcela+' desmarcada.'),'ok');
+}
+
+function parcLancarProxima() {
+  const f = financiamentos.find(x=>x.id===_parcelasFinancId);
+  if (!f) return;
+  const pagasF = getPagasFinanc(f);
+  if (pagasF >= f.parcelas) { toast('Todas as parcelas já foram pagas.','inf'); return; }
+  parcTogglePago(f.id, pagasF + 1, true);
+}
+
+function parcLancarTodas() {
+  const f = financiamentos.find(x=>x.id===_parcelasFinancId);
+  if (!f) return;
+  const pagasF = getPagasFinanc(f);
+  const restantes = f.parcelas - pagasF;
+  if (!restantes) { toast('Todas já pagas.','inf'); return; }
+  if (!confirm('Marcar todas as '+restantes+' parcela(s) restantes como pagas?')) return;
+  // Batch: marca todas sem render intermediário
+  for (let p = pagasF + 1; p <= f.parcelas; p++) {
+    const lanc = lancamentos.find(l =>
+      l.financId === f.id && l.tipo === 'Financiamento' &&
+      (l.desc.includes('('+p+'/'+f.parcelas+')') || l.desc.includes('('+p+'/'+f.parcelas+' ')));
+    if (lanc) {
+      lanc.pago = true;
+    } else {
+      const data = addMonthsFinanc(f.dataInicio, p - 1);
+      lancamentos.push({
+        id: uid(), financId: f.id, tipo: 'Financiamento', data,
+        banco: f.banco, cc: 'Financiamentos', forma: 'Debito Automatico',
+        cartaoId: '', parcelas: String(f.parcelas), period: 'Mensal',
+        valor: f.parcelaMensal, desc: f.desc+' ('+p+'/'+f.parcelas+')',
+        pago: true, conciliado: false
+      });
+    }
+  }
+  // Um único save + render no final
+  saveAll(); renderLancamentos(); renderDashboard();
+  renderParcelasBody(f);
+  toast(restantes+' parcela(s) marcadas como pagas!','ok');
+}
+
+function parcAjustarFuturas() {
+  const f = financiamentos.find(x=>x.id===_parcelasFinancId);
+  if (f) document.getElementById('parcAjusteValor').value = fmtBRL(f.parcelaMensal);
+  document.getElementById('parcAjustePanel').style.display = '';
+}
+
+function parcSalvarAjuste() {
+  const f = financiamentos.find(x=>x.id===_parcelasFinancId);
+  if (!f) return;
+  const novoValor = parseMoney(document.getElementById('parcAjusteValor').value);
+  const novoDesc  = document.getElementById('parcAjusteDesc').value.trim();
+  if (!novoValor) { toast('Informe o novo valor.','err'); return; }
+  const pagasF = getPagasFinanc(f);
+  // Atualiza lançamentos futuros existentes
+  let atualizados = 0;
+  lancamentos.forEach(l => {
+    if (l.financId === f.id && l.tipo === 'Financiamento' && !l.pago) {
+      l.valor = novoValor;
+      if (novoDesc) l.desc = novoDesc + l.desc.replace(/^[^(]*/,'');
+      atualizados++;
+    }
+  });
+  // Atualiza parcelaMensal do financiamento
+  f.parcelaMensal = novoValor;
+  saveAll(); renderFinanciamentos(); renderLancamentos(); renderDashboard();
+  document.getElementById('parcAjustePanel').style.display = 'none';
+  renderParcelasBody(f);
+  toast(atualizados+' parcela(s) futura(s) ajustada(s) para '+fmtBRL(novoValor)+'!');
+}
+
 function openLancFinanc(financId) {
   openModalLanc();
   document.getElementById('mLancTipo').value = 'Financiamento';
@@ -5002,39 +5347,54 @@ function renderDashboard() {
   const data = getDashData();
   const banco = document.getElementById('dashBanco')?.value || '';
 
+  // ── Receitas e Despesas do período selecionado ──
   const rec  = data.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
   const desp = data.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+parseMoney(l.valor),0);
   const saldo = rec - desp;
 
-  // Saldo Total Hoje: soma getSaldoBanco de todos os bancos (inclui saldo inicial + movs)
-  const saldoTotal = bancos.reduce((s,b) => s + getSaldoBanco(b.nome), 0);
-  // Se não há bancos, usa cálculo tradicional por lançamentos
-  const saldoTotalFinal = bancos.length ? saldoTotal :
-    lancamentos.filter(l => l.data <= new Date().toISOString().slice(0,10))
-      .reduce((s,l) => {
-        const v = typeof l.valor === 'number' ? l.valor : parseMoney(l.valor);
-        if (l.tipo==='Receita') return s+v;
-        if (l.tipo==='Despesa'||l.tipo==='Financiamento') return s-v;
-        return s;
-      }, 0);
+  // ── Saldo Total Hoje: saldoInicial + lançamentos PAGOS até hoje ──
+  const hoje = new Date().toISOString().slice(0,10);
+  const saldoHoje = bancos.length
+    ? bancos.filter(b=>!banco||b.nome===banco).reduce((s,b)=>s+getSaldoBanco(b.nome),0)
+    : lancamentos.filter(l=>l.data<=hoje && l.pago!==false && l.tipo!=='Investimento')
+        .reduce((s,l)=>{
+          const v=parseMoney(l.valor);
+          return l.tipo==='Receita'?s+v:(l.tipo==='Despesa'||l.tipo==='Financiamento')?s-v:s;
+        },0);
+
+  // ── Saldo do Período: como vai ficar ao final do filtro selecionado ──
+  // Determina a data final do filtro
+  const mes = document.getElementById('dashMes')?.value || nowYM();
+  let dataFimFiltro = hoje;
+  if (mes === '__ano__') {
+    dataFimFiltro = new Date().getFullYear()+'-12-31';
+  } else if (mes === '__6m__') {
+    const dt6m = new Date(); dt6m.setMonth(dt6m.getMonth()+6);
+    dataFimFiltro = dt6m.toISOString().slice(0,10);
+  } else {
+    // último dia do mês selecionado
+    const [y,m] = mes.split('-').map(Number);
+    dataFimFiltro = new Date(y, m, 0).toISOString().slice(0,10);
+  }
+  const saldoPeriodo = rec - desp; // receitas - despesas do período
 
   document.getElementById('dReceit').textContent = fmtBRL(rec);
   document.getElementById('dDesp').textContent   = fmtBRL(desp);
-  document.getElementById('dSaldo').textContent  = fmtBRL(saldo);
+  document.getElementById('dSaldo').textContent  = fmtBRL(saldoPeriodo);
   document.getElementById('dReceitQ').textContent = data.filter(l=>l.tipo==='Receita').length + ' lançamentos';
   document.getElementById('dDespQ').textContent   = data.filter(l=>l.tipo==='Despesa').length + ' lançamentos';
-  document.getElementById('dSaldoHint').textContent = saldo>=0 ? '▲ Positivo' : '▼ Negativo';
+  document.getElementById('dSaldoHint').textContent = (saldoPeriodo>=0?'▲ Positivo':'▼ Negativo')+' · até '+fmtDate(dataFimFiltro);
 
-  // Saldo total
+  // Saldo Total Hoje
   const stEl = document.getElementById('dSaldoTotal');
-  stEl.textContent = fmtBRL(saldoTotalFinal);
-  stEl.style.color = saldoTotalFinal >= 0 ? 'var(--gold)' : 'var(--red)';
+  stEl.textContent = fmtBRL(saldoHoje);
+  stEl.style.color = saldoHoje >= 0 ? 'var(--gold)' : 'var(--red)';
   document.getElementById('dSaldoTotalHint').textContent =
-    'todas as contas · até ' + fmtDate(new Date().toISOString().slice(0,10));
+    'lançamentos pagos até '+ fmtDate(hoje);
 
   // color saldo periodo
   const sdEl = document.getElementById('dSaldo');
-  sdEl.className = 'stat-val ' + (saldo>=0?'pos':'neg');
+  sdEl.className = 'stat-val ' + (saldoPeriodo>=0?'pos':'neg');
 
   buildFluxoChart(data);
   buildCCCharts(data);
@@ -5375,7 +5735,7 @@ function renderSysInfo() {
     Investimentos: ${investimentos.length}<br>
     Metas: ${metas.length}<br>
     Recorrentes: ${recorrentes.length}<br>
-    Versão: <span style="color:var(--gold)">v19</span><br>
+    Versão: <span style="color:var(--gold)">v20.0</span><br>
     Armazenamento: ${dataSize} KB<br>
     Último backup: <span style="color:${lastBk?'var(--teal)':'var(--red)'}">${lastBk ? new Date(lastBk).toLocaleString('pt-BR') : 'Nunca'}</span><br>
     Backup automático: <span style="color:${cfg.ativo?'var(--teal)':'var(--text3)'}">${cfg.ativo ? '✓ Ativo ('+cfg.intervalo+')' : 'Inativo'}</span>
@@ -5430,18 +5790,19 @@ function importData() {
   reader.readAsText(file);
 }
 
-function clearData() {
-  const codigo = 'APAGAR';
-  const digitado = prompt(`⚠️ ATENÇÃO: Esta ação apagará TODOS os dados permanentemente.\n\nDigite "${codigo}" para confirmar:`);
-  if (digitado !== codigo) { toast('Operação cancelada.','inf'); return; }
-  // Faz backup automático antes de limpar
-  exportData();
-  setTimeout(() => {
-    ['bancos','centroCustos','formasPagamento','cartoes','lancamentos','financiamentos','investimentos','movsInvest','metas','recorrentes','lastBackup','autoBackupInterval','autoBackupConfig','_usuarios'].forEach(k=>localStorage.removeItem(k));
-    bancos=[]; centros=[]; formas=[]; cartoes=[]; lancamentos=[]; financiamentos=[]; investimentos=[]; movsInvest=[]; metas=[]; recorrentes=[];
-    saveAll(); renderAll(); renderDashboard();
-    toast('Dados apagados. Um backup foi gerado automaticamente.','inf');
-  }, 1500);
+function openModalClearData() {
+  openModal('modalClearData');
+}
+
+function executarLimpeza() {
+  closeModal('modalClearData');
+  // Apaga todo o localStorage
+  try { localStorage.clear(); } catch(e) {}
+  // Reset variáveis em memória
+  bancos=[]; centros=[]; formas=[]; cartoes=[]; lancamentos=[];
+  financiamentos=[]; investimentos=[]; movsInvest=[]; metas=[]; recorrentes=[];
+  toast('Dados apagados. Recarregando...','inf');
+  setTimeout(()=>location.reload(), 800);
 }
 
 /* ══════════════════════════════════════════
@@ -6425,60 +6786,10 @@ agendarAutoBackup();
 <script>
 /* ══ BAIXA RÁPIDA ══ */
 function baixaRapida(id) {
-  // Item virtual (recorrente ou financiamento previsto) → criar lançamento real
-  if (id.startsWith('virt_')) {
-    // Encontrar o virtual no data atual via renderLancamentos não é possível aqui
-    // Recriar a busca nos virtuais do mês atual
-    const hoje2 = new Date().toISOString().slice(0,10);
-    const ymAtual = hoje2.slice(0,7);
-    const virtuaisAtual = renderLancamentosGetVirtuais(ymAtual);
-    const virt = virtuaisAtual.find(v => v.id === id);
-    if (!virt) { toast('Lançamento previsto não encontrado.','err'); return; }
-    const novoLanc = {
-      id: uid(), tipo: virt.tipo, data: virt.data, banco: virt.banco||'',
-      cc: virt.cc||'', forma: virt.forma||'', cartaoId: '',
-      parcelas: '1', period: virt.period||'Único',
-      valor: virt.valor, desc: virt.desc,
-      pago: true, dataPagamento: hoje2,
-      recorrenteId: id.startsWith('virt_rec_') ? id.replace('virt_rec_','').split('_')[0] : undefined,
-      financiamentoId: id.startsWith('virt_fin_') ? id.replace('virt_fin_','').split('_')[0] : undefined
-    };
-    lancamentos.push(novoLanc);
-    saveAll(); renderLancamentos(); renderDashboard(); renderContasPagarDash();
-    toast('✓ Baixa realizada e lançamento criado: ' + (virt.desc||''),'ok');
-    return;
-  }
   const l = lancamentos.find(x=>x.id===id); if(!l) return;
   l.pago=true; l.dataPagamento=new Date().toISOString().slice(0,10);
   saveAll(); renderLancamentos(); renderDashboard(); renderContasPagarDash();
   toast('✓ Baixa realizada: '+(l.desc||'Lançamento'),'ok');
-}
-
-// Retorna os virtuais para um mês (usado por baixaRapida)
-function renderLancamentosGetVirtuais(ym) {
-  const virtuais = [];
-  const [yN,mN] = ym.split('-').map(Number);
-  recorrentes.filter(r=>r.ativo!=='nao').forEach(r=>{
-    const diaReal=Math.min(r.dia||1,new Date(yN,mN,0).getDate());
-    const data=`${ym}-${String(diaReal).padStart(2,'0')}`;
-    const jaExiste=lancamentos.some(l=>l.recorrenteId===r.id&&l.data&&l.data.startsWith(ym));
-    if(!jaExiste) virtuais.push({id:'virt_rec_'+r.id+'_'+ym,tipo:r.tipo,data,banco:r.banco||'',cc:r.cc||'',forma:r.forma||'',desc:r.desc,valor:r.valor,parcelas:'1',period:'Mensal',pago:false,_virtual:true,_origem:'Recorrente'});
-  });
-  financiamentos.forEach(f=>{
-    if(!f.dataInicio||!f.parcelaMensal) return;
-    const totalPagas=getPagasFinanc(f);
-    if(totalPagas>=f.parcelas) return;
-    for(let p=totalPagas;p<f.parcelas;p++){
-      const d=new Date(f.dataInicio+'T12:00:00');
-      d.setMonth(d.getMonth()+p);
-      const data=d.toISOString().slice(0,10);
-      if(!data.startsWith(ym)) continue;
-      const jaExiste=lancamentos.some(l=>(l.financId===f.id||l.financiamentoId===f.id)&&l.data&&l.data.startsWith(ym));
-      if(!jaExiste) virtuais.push({id:'virt_fin_'+f.id+'_'+ym+'_'+p,tipo:'Despesa',data,banco:f.banco||'',cc:'',forma:'',desc:f.desc+' — Parcela '+(p+1)+'/'+f.parcelas,valor:f.parcelaMensal,parcelas:String(f.parcelas),parcelaNum:p+1,period:'Mensal',pago:false,_virtual:true,_origem:'Financiamento',_financId:f.id});
-      break;
-    }
-  });
-  return virtuais;
 }
 function desfazerBaixa(id) {
   const l = lancamentos.find(x=>x.id===id); if(!l) return;
@@ -6526,16 +6837,27 @@ function concSwitchTab(tab) {
   if(pA) pA.style.display=isArq?'':'none';
   if(pP) pP.style.display=isArq?'none':'';
   const bA=document.getElementById('concTabArqBtn'), bP=document.getElementById('concTabPdfBtn');
-  if(bA){bA.style.background=isArq?'var(--gold-pale)':'var(--card)';bA.style.borderColor=isArq?'var(--gold)':'var(--border)';bA.style.color=isArq?'var(--gold)':'var(--text2)';}
-  if(bP){bP.style.background=!isArq?'rgba(224,82,82,.08)':'var(--card)';bP.style.borderColor=!isArq?'rgba(224,82,82,.5)':'var(--border)';bP.style.color=!isArq?'var(--red)':'var(--text2)';}
+  if(bA){bA.className='conc-tab-btn'+(isArq?' conc-tab-active':'');}
+  if(bP){bP.className='conc-tab-btn'+(!isArq?' conc-tab-active':'');}
   if(!isArq){
     const sel=document.getElementById('concPdfBanco');
     if(sel){sel.innerHTML='<option value="">— selecione —</option>'+bancos.map(b=>`<option value="${b.nome}">${b.nome}</option>`).join('');}
   }
 }
 
-/* ══ CONCILIAÇÃO PDF - UPLOAD ══ */
+/* ══ CONCILIAÇÃO PDF ══ */
 let concPdfBase64=null, concPdfFila=[], concPdfFilaIdx=0, concPdfBancoAtivo='';
+let concBancoSel='itau'; // banco selecionado para parser
+
+function concSelBanco(btn) {
+  concBancoSel=btn.dataset.banco;
+  document.querySelectorAll('.btn-banco-sel').forEach(b=>{
+    const ativo=b===btn;
+    b.style.borderColor=ativo?'var(--gold)':'var(--border)';
+    b.style.background=ativo?'var(--gold-pale)':'var(--card)';
+    b.style.color=ativo?'var(--gold)':'var(--text2)';
+  });
+}
 
 function concPdfHandleFile(file) {
   if(!file) return;
@@ -6562,7 +6884,153 @@ function concPdfLimparArquivo() {
     drop.innerHTML='<i class="fa fa-cloud-upload-alt" style="font-size:28px;color:var(--text3);margin-bottom:8px;display:block"></i><div style="font-size:13px;color:var(--text2);margin-bottom:4px;font-weight:500">Clique aqui para selecionar o PDF</div><div style="font-family:var(--mono);font-size:10px;color:var(--text3)">ou arraste e solte o arquivo</div>';}
 }
 
-/* ══ CONCILIAÇÃO PDF - PROCESSAR ══ */
+/* ── Parsers por banco ── */
+function concParseMoney(str) {
+  if(!str) return 0;
+  const neg=str.trim().startsWith('-');
+  const clean=str.replace(/[^\d,]/g,'').replace(',','.');
+  const val=parseFloat(clean)||0;
+  return neg?-val:val;
+}
+
+function concParseItau(texto) {
+  const trans=[];
+  const IGNORE=['SALDO DO DIA'];
+  const lines=texto.split('\n');
+  const dateRe=/^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+([-]?\d{1,3}(?:\.\d{3})*,\d{2})\s*$/;
+  lines.forEach(line=>{
+    line=line.trim();
+    const m=line.match(dateRe); if(!m) return;
+    const [,dateStr,desc,rawVal]=m;
+    if(IGNORE.some(ig=>desc.toUpperCase().includes(ig))) return;
+    const [dd,mm,aaaa]=dateStr.split('/');
+    const data=`${aaaa}-${mm}-${dd}`;
+    const v=concParseMoney(rawVal);
+    trans.push({data,descricao:desc.trim(),valor:Math.abs(v),tipo:v>=0?'Credito':'Debito'});
+  });
+  return trans;
+}
+
+function concParseBradesco(texto) {
+  // Bradesco format: DATA | HISTÓRICO | DOCTO | CRÉDITO(R$) | DÉBITO(R$) | SALDO(R$)
+  // Columns: credit and debit are SEPARATE columns — last is always saldo
+  const trans=[];
+  const IGNORE=['COD. LANC','TOTAL','EXTRATO INEXISTENTE','DATA','HISTÓRICO'];
+  const lines=texto.split('\n');
+  const dateRe=/^(\d{2}\/\d{2}\/\d{4})\s+(.+)$/;
+  lines.forEach(line=>{
+    line=line.trim();
+    if(!line||IGNORE.some(ig=>line.toUpperCase().includes(ig))) return;
+    const dm=line.match(dateRe); if(!dm) return;
+    const [,dateStr,rest]=dm;
+    // Extract all money values with their positions
+    const moneyMatches=[...rest.matchAll(/\d{1,3}(?:\.\d{3})*,\d{2}/g)];
+    if(moneyMatches.length<2) return;
+    // Last value = saldo (ignore). Remaining values = crédito then débito columns
+    // Bradesco PDF.js extraction puts them in order: [credito] [debito] [saldo]
+    // or just [value] [saldo] when only one column has a value
+    const vals=moneyMatches.map(m=>({val:concParseMoney(m[0]),raw:m[0],idx:m.index}));
+    // Remove saldo (last)
+    vals.pop();
+    // Extract description: text before first money value
+    const firstMoneyPos=moneyMatches[0].index;
+    let desc=rest.slice(0,firstMoneyPos).trim();
+    // Remove trailing doc number (5+ digits)
+    desc=desc.replace(/\s+\d{5,}\s*$/,'').trim();
+    if(!desc||desc.length<2) return;
+    const [dd,mm,aaaa]=dateStr.split('/');
+    const data=`${aaaa}-${mm}-${dd}`;
+    if(vals.length===1) {
+      // Only one column has value — determine type by position in line
+      // In Bradesco PDF: credit column comes before debit column
+      // Heuristic: if value appears in first ~60% of the non-desc portion → credit, else → debit
+      const restAfterDesc=rest.slice(firstMoneyPos);
+      const totalLen=restAfterDesc.length;
+      const relPos=moneyMatches[0].index-firstMoneyPos;
+      const tipo=relPos<totalLen*0.4?'Credito':'Debito';
+      if(vals[0].val>0) trans.push({data,descricao:desc,valor:vals[0].val,tipo});
+    } else {
+      // 2+ values remaining: first=credito, second=debito
+      const cVal=vals[0].val, dVal=vals[1].val;
+      if(cVal>0) trans.push({data,descricao:desc,valor:cVal,tipo:'Credito'});
+      if(dVal>0) trans.push({data,descricao:desc,valor:dVal,tipo:'Debito'});
+    }
+  });
+  return trans;
+}
+
+function concParseCaixa(texto) {
+  const trans=[];
+  const IGNORE=['SALDO DIA','LANÇAMENTOS','NR. DOC','HISTÓRICO','FAVORECIDO','CPF/CNPJ'];
+  const dateRe=/(\d{2}\/\d{2}\/\d{4})(?:\s*[-–]\s*\d{2}:\d{2}:\d{2})?\s+\d*\s*(.+?)\s+([\d.]+,\d{2})\s*([DC])\b/i;
+  texto.split('\n').forEach(line=>{
+    line=line.trim();
+    if(!line||IGNORE.some(ig=>line.toUpperCase().includes(ig))) return;
+    const m=line.match(dateRe); if(!m) return;
+    const [,dateStr,rest,rawVal,tipoCh]=m;
+    const desc=rest.split(/\s{2,}/)[0].trim();
+    if(!desc||desc.toUpperCase().includes('SALDO DIA')) return;
+    const v=concParseMoney(rawVal); if(v===0) return;
+    const [dd,mm,aaaa]=dateStr.split('/');
+    const data=`${aaaa}-${mm}-${dd}`;
+    trans.push({data,descricao:desc,valor:v,tipo:tipoCh.toUpperCase()==='C'?'Credito':'Debito'});
+  });
+  return trans;
+}
+
+function concParseNubank(texto) {
+  const trans=[];
+  const MONTHS={JAN:'01',FEV:'02',MAR:'03',ABR:'04',MAI:'05',JUN:'06',JUL:'07',AGO:'08',SET:'09',OUT:'10',NOV:'11',DEZ:'12'};
+  const IGNORE_RE=[/^total de (entradas|saídas)/i,/^saldo (inicial|final|líquido)/i,/^rendimento/i,/^movimentações/i,/^tem alguma dúvida/i,/^caso a solução/i,/^extrato gerado/i,/^nu (financeira|pagamentos)/i,/^cnpj:/i,/^asseguramos/i,/^não nos responsabilizamos/i,/^o saldo líquido/i,/^\d+ de \d+$/i,/^valores em r\$/i,/^\d{2} de [a-z]+ de \d{4}/i];
+  function nuDate(str){const m=str.match(/^(\d{2})\s+([A-Z]{3})\s+(\d{4})$/i);if(!m)return null;const mon=MONTHS[m[2].toUpperCase()];return mon?`${m[3]}-${mon}-${m[1]}`:null;}
+  let curDate=null,curTipo=null;
+  texto.split('\n').map(l=>l.trim()).filter(Boolean).forEach(line=>{
+    if(IGNORE_RE.some(re=>re.test(line))) return;
+    const dlm=line.match(/^(\d{2}\s+[A-Z]{3}\s+\d{4})\s+(Total de (entradas|saídas))/i);
+    if(dlm){curDate=nuDate(dlm[1]);curTipo=/entradas/i.test(dlm[2])?'Credito':'Debito';return;}
+    const ctm=line.match(/^Total de (entradas|saídas)\s+[+\-]?([\d.]+,\d{2})$/i);
+    if(ctm){curTipo=/entradas/i.test(ctm[1])?'Credito':'Debito';return;}
+    const sd=nuDate(line);if(sd){curDate=sd;return;}
+    if(!curDate||!curTipo) return;
+    const mm=line.match(/([\d.]+,\d{2})\s*$/);if(!mm) return;
+    const v=concParseMoney(mm[1]);if(v===0) return;
+    let desc=line.replace(/\s*[\d.]+,\d{2}\s*$/,'').trim();
+    desc=desc.split(/\s{3,}/)[0].trim();
+    if(desc.length>60) desc=desc.slice(0,60).trim();
+    if(!desc) return;
+    trans.push({data:curDate,descricao:desc,valor:v,tipo:curTipo});
+  });
+  return trans;
+}
+
+/* ── OCR Caixa via API Claude ── */
+async function concOcrCaixa(base64) {
+  const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+  let binary=''; const chunk=8192;
+  for(let i=0;i<bytes.length;i+=chunk) binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+  const b64=btoa(binary);
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:'Extraia o texto deste extrato bancário da Caixa Econômica Federal.\nRetorne APENAS texto puro linha por linha, sem markdown.\nPara cada lançamento: data/hora, nr.doc, histórico, favorecido (se houver), valor seguido de D ou C.\nExemplo: 11/02/2026 - 14:14:10 111414 PIX ENVIADO Rerivaldo 1.710,00 D\nInclua: Cliente, Conta, Período dos lançamentos, SALDO ANTERIOR.'}]}]})});
+  if(!res.ok) throw new Error('OCR HTTP '+res.status);
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message);
+  return data.content.map(b=>b.text||'').join('\n');
+}
+
+/* ── Dispatcher do parser ── */
+function concDispatchParser(texto, banco) {
+  switch(banco) {
+    case 'itau':     return concParseItau(texto);
+    case 'bradesco': return concParseBradesco(texto);
+    case 'caixa':    return concParseCaixa(texto);
+    case 'nubank':   return concParseNubank(texto);
+    default:         return concParseItau(texto);
+  }
+}
+
+/* ── Processar — mostra tabela de resultado antes da fila ── */
+let concPdfTransacoesLidas = []; // todas as transações lidas do extrato
+let concFiltroAtual = 'all';
+
 async function conciliarPDF() {
   const texto=(document.getElementById('concPdfTexto')||{}).value||'';
   const banco=(document.getElementById('concPdfBanco')||{}).value||'';
@@ -6570,21 +7038,34 @@ async function conciliarPDF() {
   const status=document.getElementById('concPdfStatus');
   const temPdf=!!concPdfBase64, temTxt=texto.trim().length>0;
   if(!temPdf&&!temTxt){toast('Selecione um PDF ou cole o texto.','err');return;}
-  if(!banco){toast('Selecione a conta bancária.','err');return;}
+  // banco do sistema é opcional na leitura mas obrigatório na conciliação
   btn.disabled=true; btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Processando...';
   status.innerHTML='<i class="fa fa-spinner fa-spin"></i> Extraindo transações...';
+  document.getElementById('concPdfResultado').style.display='none';
   try {
     let textoFinal='';
     if(temPdf){
-      if(typeof pdfjsLib==='undefined') throw new Error('PDF.js não carregou. Use a opção de colar texto.');
+      if(typeof pdfjsLib==='undefined') throw new Error('PDF.js não carregou. Cole o texto manualmente.');
       textoFinal=await concExtrairTextoPDF(concPdfBase64);
-      if(!textoFinal.trim()) throw new Error('Não foi possível extrair texto do PDF. O arquivo pode ser uma imagem escaneada. Cole o texto manualmente.');
-    } else textoFinal=texto.slice(0,12000);
-    const transacoes=concProcessarTextoExtrato(textoFinal, new Date().getFullYear().toString());
-    if(!transacoes.length){status.innerHTML='⚠️ Nenhuma transação encontrada. Verifique o formato do extrato.';btn.disabled=false;btn.innerHTML='<i class="fa fa-search"></i> Processar Extrato';return;}
-    const fonte=temPdf?'PDF':'texto';
-    status.innerHTML=`<span style="color:var(--teal)"><i class="fa fa-check-circle"></i> ${transacoes.length} transações detectadas via ${fonte}. Iniciando confirmação...</span>`;
-    setTimeout(()=>concPdfIniciarFila(transacoes,banco),800);
+      const hasText=textoFinal.replace(/\s/g,'').length>50;
+      if(!hasText && concBancoSel==='caixa') {
+        status.innerHTML='<i class="fa fa-spinner fa-spin"></i> PDF escaneado — usando OCR via IA...';
+        textoFinal=await concOcrCaixa(concPdfBase64);
+      } else if(!hasText) {
+        throw new Error('PDF escaneado. Selecione o banco Caixa para OCR automático, ou cole o texto manualmente.');
+      }
+    } else textoFinal=texto.slice(0,15000);
+    const transacoes=concDispatchParser(textoFinal, concBancoSel);
+    if(!transacoes.length){
+      status.innerHTML='⚠️ Nenhuma transação encontrada. Verifique o banco selecionado.';
+      btn.disabled=false; btn.innerHTML='<i class="fa fa-search"></i> Processar Extrato'; return;
+    }
+    concPdfTransacoesLidas=transacoes;
+    status.innerHTML=`<span style="color:var(--teal)"><i class="fa fa-check-circle"></i> ${transacoes.length} transações lidas. Revise abaixo e clique em <b>Iniciar conciliação</b>.</span>`;
+    concRenderResultado('all');
+    document.getElementById('concPdfResultado').style.display='';
+    // scroll to result
+    document.getElementById('concPdfResultado').scrollIntoView({behavior:'smooth',block:'start'});
   } catch(err) {
     status.innerHTML=`<span style="color:var(--red)"><i class="fa fa-exclamation-circle"></i> Erro: ${err.message}</span>`;
     toast('Erro: '+err.message,'err');
@@ -6592,140 +7073,92 @@ async function conciliarPDF() {
   btn.disabled=false; btn.innerHTML='<i class="fa fa-search"></i> Processar Extrato';
 }
 
-function concProcessarTextoExtrato(texto, ano) {
-  // Palavras que indicam linha de SALDO, TOTAL ou informação não-transacional
-  const reIgnorar = /\b(saldo|total|limite|disponível|disponivel|extrato|período|periodo|agencia|agência|conta corrente|conta poupança|cpf|cnpj|titular|banco|endereço|cep|telefone|resumo|anterior|atual|atual:|saldo final|saldo inicial|posição|posicao)\b/i;
-  // Padrão de data
-  const reData = /(\d{2})[\/\-](\d{2})[\/\-](\d{2,4})/;
-  // Valores no padrão brasileiro
-  const reValBR = /[\d]{1,3}(?:\.[\d]{3})*,[\d]{2}/g;
-  // Padrões que indicam receita
-  const reCredito = /crédit|credit|recebid|entrada|pix rec|ted rec|doc rec|salário|salario|rendiment|depósit|deposit|transferência recebida|restituição/i;
-  // Padrões que indicam despesa
-  const reDebito  = /débito|debito|pagamento|pago|saída|saida|pix env|ted env|doc env|compra|saque|tarifa|taxa|anuidade|juros|encargo|mensalidade|seguro|IOF/i;
-
-  const trans = [];
-  const linhas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 5);
-
-  linhas.forEach(linha => {
-    // Ignorar linhas de saldo/totais/informações cadastrais
-    if (reIgnorar.test(linha)) return;
-
-    const mD = reData.exec(linha); if (!mD) return;
-    let [, dd, mm, aaaa] = mD;
-    if (aaaa.length === 2) aaaa = '20' + aaaa;
-    const data = `${aaaa}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
-    if (isNaN(new Date(data).getTime())) return;
-
-    const vr = linha.match(reValBR); if (!vr) return;
-    const vals = vr.map(v => parseFloat(v.replace(/\./g,'').replace(',','.'))).filter(v => v > 0.01 && v < 9999999);
-    if (!vals.length) return;
-
-    // Ignorar linhas com múltiplos valores grandes (prováveis linhas de saldo)
-    const valoresGrandes = vals.filter(v => v > 100);
-    if (valoresGrandes.length > 2) return;
-
-    const valor = Math.min(...vals); // menor valor = mais provável ser a transação, não o saldo
-
-    // Detectar tipo
-    let tipo = 'Debito';
-    if (reCredito.test(linha)) tipo = 'Credito';
-    if (reDebito.test(linha))  tipo = 'Debito';
-    // Indicadores C/D explícitos no extrato
-    if (/\bC\b/.test(linha.replace(reData,'').replace(reValBR,''))) tipo = 'Credito';
-    if (/\bD\b/.test(linha.replace(reData,'').replace(reValBR,''))) tipo = 'Debito';
-
-    // Limpar descrição
-    let desc = linha
-      .replace(reData, '')
-      .replace(/[\d]{1,3}(?:\.[\d]{3})*,[\d]{2}/g, '')
-      .replace(/\s[CD]\s/g, '')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
-    if (!desc || desc.length < 3) desc = 'Lançamento importado';
-
-    // Evitar duplicatas exatas
-    if (!trans.some(t => t.data === data && Math.abs(t.valor - valor) < 0.01 && t.descricao === desc)) {
-      trans.push({ data, descricao: desc, valor, tipo });
-    }
+function concRenderResultado(filtro) {
+  concFiltroAtual=filtro;
+  const banco=(document.getElementById('concPdfBanco')||{}).value||'';
+  const existentes=lancamentos.filter(l=>!banco||l.banco===banco);
+  const trans=concPdfTransacoesLidas;
+  const novos=trans.filter(t=>!concJaLancado(t,existentes));
+  const oks  =trans.filter(t=> concJaLancado(t,existentes));
+  const sumC=trans.filter(t=>t.tipo==='Credito').reduce((s,t)=>s+t.valor,0);
+  const sumD=trans.filter(t=>t.tipo==='Debito').reduce((s,t)=>s+t.valor,0);
+  const resumo=document.getElementById('concPdfResumo');
+  if(resumo) resumo.innerHTML=`${trans.length} total · <span style="color:var(--red)">${novos.length} não lançados</span> · <span style="color:var(--teal)">${oks.length} já lançados</span> &nbsp;|&nbsp; +${fmtBRL(sumC)} / -${fmtBRL(sumD)}`;
+  // highlight active filter btn
+  ['all','novo','ok'].forEach(f=>{
+    const b=document.getElementById('concFilt'+f.charAt(0).toUpperCase()+f.slice(1));
+    if(b) b.style.fontWeight=f===filtro?'700':'400';
   });
+  const mostra=filtro==='novo'?novos:filtro==='ok'?oks:trans;
+  const tbody=document.getElementById('concPdfTabelaBody');
+  if(!tbody) return;
+  if(!mostra.length){tbody.innerHTML='<tr><td colspan="5" class="td-empty">Nenhuma transação neste filtro.</td></tr>';return;}
+  tbody.innerHTML=mostra.map(t=>{
+    const jaLanc=concJaLancado(t,existentes);
+    const cor=t.tipo==='Credito'?'var(--teal)':'var(--red)';
+    const badge=jaLanc
+      ?`<span style="background:rgba(62,184,154,.12);color:var(--teal);border:1px solid rgba(62,184,154,.25);border-radius:20px;padding:2px 8px;font-size:9px;font-family:var(--mono)">✓ OK</span>`
+      :`<span style="background:rgba(224,82,82,.1);color:var(--red);border:1px solid rgba(224,82,82,.2);border-radius:20px;padding:2px 8px;font-size:9px;font-family:var(--mono)">Novo</span>`;
+    return `<tr style="${jaLanc?'opacity:.55':''}">
+      <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${fmtDate(t.data)}</td>
+      <td style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.descricao}">${t.descricao}</td>
+      <td style="text-align:center"><span style="background:${t.tipo==='Credito'?'rgba(62,184,154,.12)':'rgba(224,82,82,.1)'};color:${cor};border-radius:20px;padding:2px 8px;font-size:9px;font-family:var(--mono)">${t.tipo==='Credito'?'CRÉD':'DÉB'}</span></td>
+      <td style="text-align:right;font-family:var(--mono);font-size:12px;color:${cor};white-space:nowrap">${t.tipo==='Credito'?'+':'-'}${fmtBRL(t.valor)}</td>
+      <td style="text-align:center">${badge}</td>
+    </tr>`;
+  }).join('');
+}
 
-  return trans;
+function concFiltrarResultado(f) { concRenderResultado(f); }
+
+function concIniciarFila() {
+  const banco=(document.getElementById('concPdfBanco')||{}).value||'';
+  if(!banco){toast('Selecione a conta bancária antes de iniciar a conciliação.','err');return;}
+  concPdfIniciarFila(concPdfTransacoesLidas, banco);
+}
+
+/* ── Comparação com tolerância de ±3 dias ── */
+function concJaLancado(t, existentes) {
+  const tData=new Date(t.data+'T12:00:00');
+  return existentes.some(l=>{
+    const diff=Math.abs(new Date(l.data+'T12:00:00')-tData)/(1000*60*60*24);
+    return diff<=3 && Math.abs(parseMoney(l.valor)-t.valor)<0.02;
+  });
 }
 
 function concPdfIniciarFila(transacoes, banco) {
-  const existentes = lancamentos.filter(l => l.banco === banco);
-  concPdfFila = transacoes.filter(t =>
-    !existentes.some(l => l.data === t.data && Math.abs(parseMoney(l.valor) - t.valor) < 0.02)
-  );
-  concPdfBancoAtivo = banco;
-  concPdfFilaIdx    = 0;
-
-  if (!concPdfFila.length) {
-    toast('Nenhuma transação nova encontrada — extrato já conciliado!', 'ok');
-    return;
-  }
-
-  // Mostrar tabela resumo antes de iniciar confirmação item a item
-  const status = document.getElementById('concPdfStatus');
-  if (status) {
-    const rows = concPdfFila.map((t,i) =>
-      `<tr style="cursor:pointer" onclick="concPdfFilaIdx=${i};concPdfProximoItem()">
-        <td style="font-family:var(--mono);font-size:11px">${relFmtDate?relFmtDate(t.data):t.data}</td>
-        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.descricao}</td>
-        <td style="font-family:var(--mono);font-weight:600;color:${t.tipo==='Credito'?'var(--teal)':'var(--red)'}">
-          ${t.tipo==='Credito'?'+':'-'}${fmtBRL(t.valor)}
-        </td>
-        <td><span style="font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:99px;background:${t.tipo==='Credito'?'var(--teal-pale)':'var(--red-pale)'};color:${t.tipo==='Credito'?'var(--teal)':'var(--red)'}">
-          ${t.tipo==='Credito'?'Receita':'Despesa'}
-        </span></td>
-      </tr>`
-    ).join('');
-
-    status.innerHTML = `
-      <div style="margin-top:14px">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">
-          <i class="fa fa-check-circle" style="color:var(--teal)"></i>
-          <strong style="color:var(--teal)">${concPdfFila.length}</strong> transação(ões) encontradas — não lançadas ainda.
-          Clique em uma linha ou em <b>Iniciar Confirmação</b> para lançar uma a uma.
-        </div>
-        <div style="overflow-x:auto;max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r)">
-          <table style="width:100%;border-collapse:collapse;font-size:12px">
-            <thead><tr style="position:sticky;top:0;background:var(--card2)">
-              <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--text3);border-bottom:1px solid var(--border)">Data</th>
-              <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--text3);border-bottom:1px solid var(--border)">Descrição</th>
-              <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--text3);border-bottom:1px solid var(--border)">Valor</th>
-              <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--text3);border-bottom:1px solid var(--border)">Tipo</th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn btn-gold" onclick="concPdfFilaIdx=0;concPdfProximoItem()">
-            <i class="fa fa-play"></i> Iniciar Confirmação
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="concPdfLancarTodos()">
-            <i class="fa fa-check-double"></i> Lançar Todos
-          </button>
-        </div>
-      </div>`;
-  }
+  const existentes=lancamentos.filter(l=>!banco||l.banco===banco);
+  concPdfFila=transacoes.filter(t=>!concJaLancado(t,existentes));
+  concPdfBancoAtivo=banco; concPdfFilaIdx=0;
+  if(!concPdfFila.length){toast('✅ Todas as transações já estão lançadas! Nenhuma diferença.','ok');renderConciliadosBody();return;}
+  concPdfProximoItem();
 }
+
 function concPdfProximoItem() {
   if(concPdfFilaIdx>=concPdfFila.length){
     const m=document.getElementById('modalConcPdfItem');if(m)m.classList.remove('on');
     renderConciliadosBody();
-    toast('Conciliação PDF concluída! '+concPdfFilaIdx+' itens verificados.','ok');return;
+    toast('Conciliação PDF concluída! '+concPdfFila.length+' itens verificados.','ok');return;
   }
   const t=concPdfFila[concPdfFilaIdx];
   const modal=document.getElementById('modalConcPdfItem');if(!modal)return;
+
+  // Check for similar (within 3 days) — show as warning
+  const existentes=lancamentos.filter(l=>l.banco===concPdfBancoAtivo);
+  const similares=existentes.filter(l=>{
+    const diff=Math.abs(new Date(l.data+'T12:00:00')-new Date(t.data+'T12:00:00'))/(1000*60*60*24);
+    return diff<=5 && Math.abs(parseMoney(l.valor)-t.valor)<0.02;
+  });
+  const aviso=similares.length?`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:var(--r);padding:10px 12px;font-size:11px;color:#f59e0b;margin-bottom:10px"><i class="fa fa-exclamation-triangle"></i> Lançamento similar encontrado com data próxima:<br>${similares.map(l=>`${fmtDate(l.data)} · ${fmtBRL(parseMoney(l.valor))} · ${l.desc||'—'}`).join('<br>')}</div>`:'';
+
   document.getElementById('concPdfItemInfo').innerHTML=`
-    <div style="background:var(--card2);border-radius:var(--r);padding:14px 16px;margin-bottom:14px">
+    <div style="background:var(--card2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px">
       <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:${t.tipo==='Credito'?'var(--teal)':'var(--red)'};margin-bottom:6px">${t.tipo==='Credito'?'+':'-'}${fmtBRL(t.valor)}</div>
       <div style="font-size:13px;color:var(--text);margin-bottom:3px;font-weight:500">${t.descricao}</div>
       <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${fmtDate(t.data)} · ${concPdfBancoAtivo}</div>
     </div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Item ${concPdfFilaIdx+1} de ${concPdfFila.length} — não encontrado nos lançamentos.</div>`;
+    ${aviso}
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Item ${concPdfFilaIdx+1} de ${concPdfFila.length} — não encontrado nos lançamentos (tolerância ±3 dias).</div>`;
   document.getElementById('concPdfItemDesc').value=t.descricao;
   const sel=document.getElementById('concPdfItemCC');
   if(sel)sel.innerHTML='<option value="">— categoria (opcional) —</option>'+centros.filter(c=>!c.tipo||c.tipo===(t.tipo==='Credito'?'Receita':'Despesa')).map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
@@ -6741,20 +7174,6 @@ function concPdfItemLancar() {
 function concPdfItemPular(){concPdfFilaIdx++;concPdfProximoItem();}
 function concPdfItemCancelar(){const m=document.getElementById('modalConcPdfItem');if(m)m.classList.remove('on');renderConciliadosBody();toast('Conciliação interrompida.','inf');}
 
-function concPdfLancarTodos() {
-  if(!concPdfFila.length){toast('Nenhuma transação na fila.','inf');return;}
-  let cont=0;
-  concPdfFila.forEach(t=>{
-    lancamentos.push({id:uid(),tipo:t.tipo==='Credito'?'Receita':'Despesa',data:t.data,banco:concPdfBancoAtivo,cc:'',forma:'Importado PDF',cartaoId:'',parcelas:'1',period:'Único',valor:t.valor,desc:t.descricao,conciliado:true,pago:true});
-    cont++;
-  });
-  saveAll(); renderLancamentos(); renderDashboard(); renderConciliadosBody();
-  concPdfFila=[];
-  const s=document.getElementById('concPdfStatus');
-  if(s) s.innerHTML=`<span style="color:var(--teal)"><i class="fa fa-check-circle"></i> ${cont} lançamento(s) importados com sucesso!</span>`;
-  toast(`${cont} lançamentos importados!`,'ok');
-}
-
 /* ══ EXTRAÇÃO DE TEXTO DO PDF ══ */
 async function concExtrairTextoPDF(base64) {
   if(typeof pdfjsLib==='undefined') throw new Error('PDF.js não carregou.');
@@ -6764,7 +7183,9 @@ async function concExtrairTextoPDF(base64) {
   let texto='';
   for(let p=1;p<=pdf.numPages;p++){
     const pg=await pdf.getPage(p); const ct=await pg.getTextContent();
-    texto+=ct.items.map(it=>it.str).join(" ")+"\n";
+    const lines={};
+    ct.items.forEach(it=>{const y=Math.round(it.transform[5]);if(!lines[y])lines[y]=[];lines[y].push({x:it.transform[4],t:it.str});});
+    Object.keys(lines).sort((a,b)=>b-a).forEach(y=>{texto+=lines[y].sort((a,b)=>a.x-b.x).map(i=>i.t).join(' ')+'\n';});
   }
   return texto.trim();
 }
@@ -6819,77 +7240,15 @@ function relSecHd(icon,titulo,badge=''){return`<div class="rel-section-hd"><span
 function relTblWrap(cols,rows,foot=''){return`<div class="tbl-wrap"><table class="rel-table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows||'<tr><td colspan="'+cols.length+'"><div class="rel-empty"><i class="fa fa-inbox"></i>Sem dados.</div></td></tr>'}</tbody>${foot?`<tfoot>${foot}</tfoot>`:''}</table></div>`;}
 
 function relFluxoCaixa(ym){
-  // Lançamentos reais
-  const reais = lancamentos.filter(l=>l.data&&l.data.startsWith(ym));
-
-  // Recorrentes previstos (sem lançamento real no mês)
-  const [yN,mN] = ym.split('-').map(Number);
-  const recVirt = recorrentes.filter(r=>r.ativo!=='nao').map(r=>{
-    const diaReal = Math.min(r.dia||1, new Date(yN,mN,0).getDate());
-    const data = `${ym}-${String(diaReal).padStart(2,'0')}`;
-    const jaExiste = reais.some(l=>l.recorrenteId===r.id);
-    if(jaExiste) return null;
-    return {tipo:r.tipo, data, valor:r.valor, desc:r.desc, _origem:'Recorrente', pago:false};
-  }).filter(Boolean);
-
-  // Financiamentos previstos (parcela do mês)
-  const finVirt = financiamentos.map(f=>{
-    const pagas = getPagasFinanc(f);
-    if(pagas>=f.parcelas) return null;
-    const d = new Date(f.dataInicio+'T12:00:00');
-    d.setMonth(d.getMonth()+pagas);
-    const data = d.toISOString().slice(0,10);
-    if(!data.startsWith(ym)) return null;
-    const jaExiste = reais.some(l=>l.financiamentoId===f.id&&l.data&&l.data.startsWith(ym));
-    if(jaExiste) return null;
-    return {tipo:'Despesa', data, valor:f.parcelaMensal, desc:f.desc+' (parcela)', _origem:'Financiamento', pago:false};
-  }).filter(Boolean);
-
-  const itens = [...reais, ...recVirt, ...finVirt];
-  const rec  = itens.filter(l=>l.tipo==='Receita');
-  const desp = itens.filter(l=>l.tipo==='Despesa');
-  const totR = rec.reduce((s,l)=>s+(parseMoney?parseMoney(l.valor):+l.valor),0);
-  const totD = desp.reduce((s,l)=>s+(parseMoney?parseMoney(l.valor):+l.valor),0);
-  const saldo = totR-totD;
-
+  const itens=lancamentos.filter(l=>l.data&&l.data.startsWith(ym));
+  const rec=itens.filter(l=>l.tipo==='Receita'), desp=itens.filter(l=>l.tipo==='Despesa');
+  const totR=rec.reduce((s,l)=>s+parseMoney(l.valor),0), totD=desp.reduce((s,l)=>s+parseMoney(l.valor),0), saldo=totR-totD;
   const porDia={};
-  itens.forEach(l=>{
-    if(!porDia[l.data]) porDia[l.data]={r:0,d:0,items:[]};
-    const v = parseMoney ? parseMoney(l.valor) : +l.valor;
-    if(l.tipo==='Receita') porDia[l.data].r+=v;
-    else if(l.tipo==='Despesa') porDia[l.data].d+=v;
-    porDia[l.data].items.push(l);
-  });
-
-  const rows = Object.keys(porDia).sort().map(d=>{
-    const tags = porDia[d].items.map(l=>`<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px">
-      ${l._origem?`<span style="color:var(--gold);opacity:.8">[${l._origem}]</span> `:''}${l.desc||''}</div>`).join('');
-    return `<tr>
-      <td class="td-m">${relFmtDate(d)}</td>
-      <td style="color:var(--teal);font-family:var(--mono)">${porDia[d].r>0?relFmt(porDia[d].r):'—'}</td>
-      <td style="color:var(--red);font-family:var(--mono)">${porDia[d].d>0?relFmt(porDia[d].d):'—'}</td>
-      <td style="color:${(porDia[d].r-porDia[d].d)>=0?'var(--teal)':'var(--red)'};font-family:var(--mono)">${relFmt(porDia[d].r-porDia[d].d)}</td>
-      <td style="font-size:11px;max-width:220px">${tags}</td>
-    </tr>`;
-  }).join('');
-
-  const foot=`<tr><td colspan="2">TOTAL DO MÊS</td><td style="color:var(--teal)">${relFmt(totR)}</td><td style="color:var(--red)">${relFmt(totD)}</td><td style="color:${saldo>=0?'var(--teal)':'var(--red)'}">${relFmt(saldo)}</td></tr>`;
-  const legenda = (recVirt.length||finVirt.length) ? `<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;padding:8px 12px;background:var(--card2);border-radius:var(--r)">
-    <i class="fa fa-info-circle" style="color:var(--gold)"></i>
-    Inclui <b style="color:var(--gold)">${recVirt.length}</b> recorrente(s) e <b style="color:var(--gold)">${finVirt.length}</b> parcela(s) de financiamento previstas para o mês (sem lançamento real ainda).
-  </div>` : '';
-
-  return `<div class="rel-header"><div class="rel-title"><i class="fa fa-stream" style="color:var(--gold);margin-right:8px"></i>Fluxo de Caixa — ${relMesLabel(ym)}</div>
-    <div class="rel-subtitle">Lançamentos + Recorrentes + Financiamentos</div>
-    <div class="rel-kpis">
-      ${relKpiHtml('Total Receitas',relFmt(totR),'pos')}
-      ${relKpiHtml('Total Despesas',relFmt(totD),'neg')}
-      ${relKpiHtml('Saldo do Mês',relFmt(saldo),saldo>=0?'pos':'neg')}
-      ${relKpiHtml('Itens',itens.length,'neu')}
-    </div></div>
-    ${legenda}
-    <div class="rel-section">${relSecHd('calendar-alt','Movimentações por Dia',relMesLabel(ym))}
-    ${relTblWrap(['Data','Receitas','Despesas','Saldo','Descrições'],rows,foot)}</div>`;
+  itens.forEach(l=>{if(!porDia[l.data])porDia[l.data]={r:0,d:0};if(l.tipo==='Receita')porDia[l.data].r+=parseMoney(l.valor);else if(l.tipo==='Despesa')porDia[l.data].d+=parseMoney(l.valor);});
+  const rows=Object.keys(porDia).sort().map(d=>`<tr><td class="td-m">${relFmtDate(d)}</td><td style="color:var(--teal);font-family:var(--mono)">${porDia[d].r>0?relFmt(porDia[d].r):'—'}</td><td style="color:var(--red);font-family:var(--mono)">${porDia[d].d>0?relFmt(porDia[d].d):'—'}</td><td style="color:${(porDia[d].r-porDia[d].d)>=0?'var(--teal)':'var(--red)'};font-family:var(--mono)">${relFmt(porDia[d].r-porDia[d].d)}</td></tr>`).join('');
+  const foot=`<tr><td>TOTAL</td><td style="color:var(--teal)">${relFmt(totR)}</td><td style="color:var(--red)">${relFmt(totD)}</td><td style="color:${saldo>=0?'var(--teal)':'var(--red)'}">${relFmt(saldo)}</td></tr>`;
+  return `<div class="rel-header"><div class="rel-title"><i class="fa fa-stream" style="color:var(--gold);margin-right:8px"></i>Fluxo de Caixa — ${relMesLabel(ym)}</div><div class="rel-subtitle">Movimentações do período</div><div class="rel-kpis">${relKpiHtml('Total Receitas',relFmt(totR),'pos')}${relKpiHtml('Total Despesas',relFmt(totD),'neg')}${relKpiHtml('Saldo do Mês',relFmt(saldo),saldo>=0?'pos':'neg')}${relKpiHtml('Lançamentos',itens.length,'neu')}</div></div>
+    <div class="rel-section">${relSecHd('calendar-alt','Lançamentos Diários',relMesLabel(ym))}${relTblWrap(['Data','Receitas','Despesas','Saldo do Dia'],rows,foot)}</div>`;
 }
 function relMovBanco(ym,bancofiltro){
   const bf=bancofiltro?bancos.filter(b=>b.nome===bancofiltro):bancos;
@@ -7026,6 +7385,26 @@ window.clearLancFilter=function(){if(_origClear)_origClear();const s=document.ge
 <script>
 if(typeof pdfjsLib!=='undefined'){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
 </script>
+
+<!-- Modal Limpar Dados -->
+<div class="modal-bg" id="modalClearData">
+  <div class="modal" style="width:min(420px,96vw);text-align:center">
+    <div style="font-size:48px;margin-bottom:12px">&#9888;&#65039;</div>
+    <div class="modal-title" style="color:var(--red);justify-content:center">Apagar Todos os Dados</div>
+    <p style="color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:20px">
+      Esta ação é <strong>irreversível</strong>.<br>
+      Todos os lançamentos, bancos, cartões, financiamentos e configurações serão apagados permanentemente.
+    </p>
+    <div class="modal-footer" style="justify-content:center;gap:12px">
+      <button class="btn btn-outline" style="min-width:110px" onclick="closeModal('modalClearData')">
+        <i class="fa fa-times"></i> Cancelar
+      </button>
+      <button class="btn btn-danger" style="min-width:110px;background:var(--red);color:#fff;border-color:var(--red)" onclick="executarLimpeza()">
+        <i class="fa fa-trash"></i> Apagar tudo
+      </button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
