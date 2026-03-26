@@ -6,14 +6,14 @@
 <title>NMC Personal Finance System v20</title>
 
 <!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#080b10">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#c9a84c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NMC Finance">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512x512.png">
 
 <!-- SEO / OG -->
 <meta name="description" content="NMC Personal Finance System — controle financeiro pessoal com criptografia AES-256">
@@ -7440,16 +7440,13 @@ function relRecorrentes(){
     ${inativ.length?`<div class="rel-section">${relSecHd('pause-circle','Inativos',''+inativ.length)}${relTblWrap(cols,rowsFn(inativ))}</div>`:''}`;
 }
 function exportarRelatorioPDF(){
-  const out=document.getElementById('relatorioOutput');
-  if(!out||!out.innerHTML.trim()){toast('Gere um relatório antes de exportar.','err');return;}
-  const tipo=document.getElementById('relTipo');
-  const nomeRel=tipo?tipo.options[tipo.selectedIndex].text:'Relatório';
-  const data=new Date().toLocaleDateString('pt-BR');
-  const win=window.open('','_blank','width=900,height=700');
-  win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${nomeRel} — NMC Finance</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:#fff;color:#1a2540;font-size:12px;padding:32px 40px}
+  const out = document.getElementById('relatorioOutput');
+  if (!out || !out.innerHTML.trim()) { toast('Gere um relatório antes de exportar.','err'); return; }
+  const tipo = document.getElementById('relTipo');
+  const nomeRel = tipo ? tipo.options[tipo.selectedIndex].text : 'Relatório';
+  const data = new Date().toLocaleDateString('pt-BR');
+
+  const css = `*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:#fff;color:#1a2540;font-size:12px;padding:32px 40px}
 .pdf-hd{display:flex;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid #c9a84c;margin-bottom:24px}
 .pdf-brand{font-size:18px;font-weight:700;color:#c9a84c}.pdf-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#8a9bb8}
 .pdf-meta-title{font-size:15px;font-weight:700;text-align:right}.pdf-meta-date{font-family:'DM Mono',monospace;font-size:10px;color:#526178;text-align:right;margin-top:2px}
@@ -7473,13 +7470,44 @@ function exportarRelatorioPDF(){
 .badge-gold,.rel-badge{background:rgba(201,168,76,.15);color:#9a7d38}.rel-badge.ok{background:rgba(62,184,154,.15);color:#2d9176}.rel-badge.danger{background:rgba(224,82,82,.12);color:#b84040}.rel-badge.warn{background:rgba(245,158,11,.12);color:#b37b00}
 .pdf-footer{margin-top:30px;padding-top:12px;border-top:1px solid #dde4f0;display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:#8a9bb8}
 @media print{body{padding:20px 24px}.rel-section{page-break-inside:avoid}}
-</style></head><body>
-<div class="pdf-hd"><div><div class="pdf-brand">NMC Personal Finance</div><div class="pdf-sub">Sistema de Controle Financeiro</div></div><div><div class="pdf-meta-title">${nomeRel}</div><div class="pdf-meta-date">Gerado em ${data}</div></div></div>
+`;
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<title>${nomeRel} — NMC Finance</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>${css}</style>
+</head><body>
+<div class="pdf-hd"><div><div class="pdf-brand">NMC Personal Finance</div><div class="pdf-sub">Nobrega Mall Consultant</div></div><div><div class="pdf-meta-title">${nomeRel}</div><div class="pdf-meta-date">Gerado em ${data}</div></div></div>
 ${out.innerHTML}
-<div class="pdf-footer"><span>NMC Personal Finance System</span><span>Gerado em ${data} — Confidencial</span></div>
-</body></html>`);
-  win.document.close();
-  setTimeout(()=>{win.focus();win.print();},800);
+<div class="pdf-footer"><span>NMC Personal Finance System v20</span><span>Gerado em ${data} — Confidencial</span></div>
+</body></html>`;
+
+  // Usa iframe oculto — funciona em mobile/PWA sem abrir popup
+  let iframe = document.getElementById('_printFrame');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = '_printFrame';
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none';
+    document.body.appendChild(iframe);
+  }
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+  iframe.contentWindow.focus();
+  setTimeout(() => {
+    try {
+      iframe.contentWindow.print();
+    } catch(e) {
+      // Fallback: Blob URL para download como HTML
+      const blob = new Blob([html], {type:'text/html'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = nomeRel.replace(/\s+/g,'_')+'.html';
+      a.click(); URL.revokeObjectURL(url);
+      toast('Relatório salvo como HTML. Abra no navegador e imprima.','inf');
+    }
+  }, 600);
 }
 
 /* ══ MANUAL - ATUALIZAR switchTab PARA clearLancFilter ══ */
@@ -7512,6 +7540,22 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.GlobalWorkerOptions.workerSrc='https:
     </div>
   </div>
 </div>
+
+
+<!-- Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('[NMC PWA] Service Worker registrado:', reg.scope);
+        // Verifica atualizações a cada 60 min
+        setInterval(() => reg.update(), 60 * 60 * 1000);
+      })
+      .catch(err => console.warn('[NMC PWA] SW falhou:', err));
+  });
+}
+</script>
 
 </body>
 </html>
