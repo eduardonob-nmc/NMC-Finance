@@ -3002,11 +3002,17 @@ tbody tr:last-child td { border-bottom: none; }
         <input id="mMetaAtual" placeholder="R$ 0,00" oninput="maskMoney(this)">
       </div>
     </div>
-    <div class="field">
-      <label>Centro de Custo (para limite de gasto)</label>
-      <select id="mMetaCC">
-        <option value="">— nenhum —</option>
-      </select>
+    <div class="input-row cols2">
+      <div class="field">
+        <label>Centro de Custo vinculado</label>
+        <select id="mMetaCC">
+          <option value="">— nenhum —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Previsão Mensal (orçamento)</label>
+        <input id="mMetaMensal" placeholder="R$ 0,00" oninput="maskMoney(this)">
+      </div>
     </div>
     <div class="field">
       <label>Observação</label>
@@ -4124,20 +4130,45 @@ function renderLancamentos() {
     </tr>`;
   }).join('');
 
+  // Atualiza metas se a aba estiver visível (CC gasto pode ter mudado)
+  const tabMetasEl = document.getElementById('tab-metas');
+  if (tabMetasEl && tabMetasEl.classList.contains('active')) {
+    renderMetas();
+  }
+
   // Mobile card list
   const ml = document.getElementById('lancMobileList');
+  // Event delegation for mobile cards (avoids quote issues in onclick)
+  if (ml && !ml._delegated) {
+    ml._delegated = true;
+    ml.addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-lanc-id]');
+      if (!btn) return;
+      const id = btn.dataset.lancId;
+      const acao = btn.dataset.acao;
+      if (acao === 'baixa')    { baixaRapida(id); }
+      else if (acao === 'desbaixa') { desfazerBaixa(id); }
+      else if (acao === 'edit')    { openModalLanc(id); }
+      else if (acao === 'del')     { delLanc(id); }
+    });
+  }
   if (ml) {
     if (!data.length) { ml.innerHTML=''; return; }
     ml.innerHTML = data.map(l => {
       const isRec = l.tipo==='Receita';
       const cartaoNome = l.cartaoId ? (cartoes.find(c=>c.id===l.cartaoId)?.nome||'') : '';
       const formaExib  = cartaoNome ? `${l.forma} (${cartaoNome})` : (l.forma||'—');
-      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;border-left:3px solid ${isRec?'var(--teal)':'var(--red)'}">
+            const vencidoM = !l.pago && l.data<hoje && l.tipo==='Despesa';
+      const btnBaixaM = !l.pago&&(l.tipo==='Despesa'||l.tipo==='Receita')
+        ? `<button class="btn btn-ghost btn-icon" data-lanc-id="${l.id}" data-acao="baixa" style="color:var(--teal);padding:5px 8px" title="Dar baixa"><i class="fa fa-check"></i></button>`
+        : l.pago ? `<button class="btn btn-ghost btn-icon" data-lanc-id="${l.id}" data-acao="desbaixa" style="color:#f59e0b;padding:5px 8px" title="Desfazer baixa"><i class="fa fa-undo"></i></button>` : '';
+      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;border-left:3px solid ${isRec?'var(--teal)':vencidoM?'var(--red)':'var(--border)'}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <span style="font-family:var(--mono);font-size:18px;font-weight:500;color:${isRec?'var(--teal)':'var(--red)'}">${isRec?'+':'-'}${fmtBRL(parseMoney(l.valor))}</span>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-ghost btn-icon btn-edit" style="padding:5px 8px" onclick="openModalLanc('${l.id}')"><i class="fa fa-pencil-alt"></i></button>
-            <button class="btn btn-ghost btn-icon btn-danger" style="padding:5px 8px" onclick="delLanc('${l.id}')"><i class="fa fa-trash"></i></button>
+          <div style="display:flex;gap:4px;align-items:center">
+            ${btnBaixaM}
+            <button class="btn btn-ghost btn-icon btn-edit" style="padding:5px 8px" data-lanc-id="${l.id}" data-acao="edit"><i class="fa fa-pencil-alt"></i></button>
+            <button class="btn btn-ghost btn-icon btn-danger" style="padding:5px 8px" data-lanc-id="${l.id}" data-acao="del"><i class="fa fa-trash"></i></button>
           </div>
         </div>
         <div style="font-size:13px;color:var(--text);margin-bottom:4px;font-weight:500">${l.desc||'Sem descrição'}</div>
@@ -6056,6 +6087,7 @@ function openModalMeta(id) {
   const sel = document.getElementById('mMetaCC');
   sel.innerHTML = '<option value="">— nenhum —</option>' + centros.map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
   if (m?.cc) sel.value = m.cc;
+  document.getElementById('mMetaMensal').value = m?.mensal ? fmtBRL(m.mensal) : '';
   openModal('modalMeta');
 }
 
@@ -6066,11 +6098,12 @@ function saveMeta() {
   const prazo  = document.getElementById('mMetaPrazo').value;
   const alvo   = parseMoney(document.getElementById('mMetaValor').value);
   const atual  = parseMoney(document.getElementById('mMetaAtual').value);
-  const cc     = document.getElementById('mMetaCC').value;
-  const obs    = document.getElementById('mMetaObs').value.trim();
+  const cc      = document.getElementById('mMetaCC').value;
+  const mensal  = parseMoney(document.getElementById('mMetaMensal').value);
+  const obs     = document.getElementById('mMetaObs').value.trim();
   if (!nome) { toast('Informe o nome da meta.','err'); return; }
   if (!alvo) { toast('Informe o valor alvo.','err'); return; }
-  const obj = { id: editId||uid(), nome, tipo, prazo, alvo, atual, cc, obs };
+  const obj = { id: editId||uid(), nome, tipo, prazo, alvo, atual, cc, mensal, obs };
   if (editId) {
     const idx = metas.findIndex(x=>x.id===editId);
     if (idx>=0) metas[idx] = obj;
@@ -6107,7 +6140,18 @@ function renderMetas() {
   }
 
   const totalAlvo   = metas.reduce((s,m)=>s+m.alvo,0);
-  const totalAtual  = metas.reduce((s,m)=>s+(m.atual||0),0);
+  // totalAtual: soma do realizado calculado de cada meta
+  const totalAtual  = metas.reduce((s,m) => {
+    if (!m.cc) return s + (m.atual||0);
+    const hoje3 = new Date().toISOString().slice(0,10);
+    const lancsCC = lancamentos.filter(l=>l.cc===m.cc&&l.data<=hoje3);
+    const rec = lancsCC.filter(l=>l.tipo==='Receita').reduce((a,l)=>a+parseMoney(l.valor),0);
+    const dep = lancsCC.filter(l=>l.tipo==='Despesa').reduce((a,l)=>a+parseMoney(l.valor),0);
+    const val = m.tipo==='LimiteGasto'
+      ? lancamentos.filter(l=>l.cc===m.cc&&l.tipo==='Despesa'&&l.data.slice(0,7)===nowYM()).reduce((a,l)=>a+parseMoney(l.valor),0)
+      : m.tipo==='Receita' ? rec : Math.max(0, rec-dep);
+    return s + val;
+  }, 0);
   const concluidas  = metas.filter(m=>(m.atual||0)>=m.alvo).length;
 
   if (statsEl) {
@@ -6121,23 +6165,86 @@ function renderMetas() {
   const hoje = new Date().toISOString().slice(0,7);
 
   grid.innerHTML = metas.map(m => {
-    const pct     = Math.min(100, Math.round(((m.atual||0)/m.alvo)*100));
+    const ym    = nowYM();
+    const hoje2 = new Date().toISOString().slice(0,10);
+
+    // ── Realizado: calculado dos lançamentos quando há CC vinculado ──
+    let realizado = m.atual || 0; // fallback: valor manual
+    if (m.cc) {
+      const lancsCC = lancamentos.filter(l => l.cc === m.cc && l.data <= hoje2);
+      const recCC   = lancsCC.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
+      const despCC  = lancsCC.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+parseMoney(l.valor),0);
+      if (m.tipo === 'LimiteGasto') {
+        // Para limite de gasto: realizado = total gasto no CC (período todo ou mês atual?)
+        // Usa o mês atual para comparar com o orçamento mensal
+        const despMes = lancamentos
+          .filter(l=>l.cc===m.cc&&l.tipo==='Despesa'&&l.data.slice(0,7)===ym)
+          .reduce((s,l)=>s+parseMoney(l.valor),0);
+        realizado = despMes; // mês atual vs alvo mensal
+      } else if (m.tipo === 'Receita') {
+        realizado = recCC; // total de receitas acumuladas neste CC
+      } else {
+        // Economia/Reserva: acumulado = receitas - despesas (saldo líquido)
+        realizado = recCC - despCC;
+      }
+      realizado = Math.max(0, realizado);
+    }
+
+    // ── % e status da meta ──
+    const pct     = Math.min(100, Math.round((realizado/m.alvo)*100));
     const concl   = pct >= 100;
-    const vencido = m.prazo && m.prazo < hoje && !concl;
+    const vencido = m.prazo && m.prazo < ym && !concl;
     const corBar  = concl ? 'var(--teal)' : vencido ? 'var(--red)' : 'var(--gold)';
     const prazoStr = m.prazo ? new Date(m.prazo+'-01T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'}) : '—';
+
+    // ── Gasto do mês atual (para barra de orçamento mensal) ──
+    const gastoCC = m.cc ? lancamentos
+      .filter(l=>l.tipo==='Despesa'&&l.cc===m.cc&&l.data.slice(0,7)===ym)
+      .reduce((s,l)=>s+parseMoney(l.valor),0) : 0;
+    const receitaCC = m.cc ? lancamentos
+      .filter(l=>l.tipo==='Receita'&&l.cc===m.cc&&l.data.slice(0,7)===ym)
+      .reduce((s,l)=>s+parseMoney(l.valor),0) : 0;
+    const saldoCC   = receitaCC - gastoCC;
+    const orcamento = m.mensal || 0;
+    const pctMensal = orcamento>0 ? Math.min(100,Math.round((gastoCC/orcamento)*100)) : 0;
+    const corMensal = pctMensal>=90?'var(--red)':pctMensal>=70?'#f59e0b':'var(--teal)';
+
+    // ── Previsão mensal necessária ──
+    let mensalNecessaria = 0;
+    if (m.prazo && realizado < m.alvo) {
+      const [py,pm] = m.prazo.split('-').map(Number);
+      const [cy,cm] = ym.split('-').map(Number);
+      const mesesRestantes = Math.max(1,(py-cy)*12+(pm-cm));
+      mensalNecessaria = (m.alvo - realizado) / mesesRestantes;
+    }
     return `<div class="meta-card">
       <div class="meta-card-name">${m.nome}</div>
-      <div class="meta-card-tipo">${m.tipo}</div>
+      <div class="meta-card-tipo">${m.tipo}${m.cc?' · '+m.cc:''}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <div class="financ-stat"><div class="financ-stat-label">Alvo</div><div class="financ-stat-val" style="color:var(--gold)">${fmtBRL(m.alvo)}</div></div>
-        <div class="financ-stat"><div class="financ-stat-label">Acumulado</div><div class="financ-stat-val" style="color:${concl?'var(--teal)':'var(--text)'}">${fmtBRL(m.atual||0)}</div></div>
-        <div class="financ-stat"><div class="financ-stat-label">Prazo</div><div class="financ-stat-val" style="font-size:13px;color:${vencido?'var(--red)':'var(--text2)'}">${prazoStr}</div></div>
-        <div class="financ-stat"><div class="financ-stat-label">Progresso</div><div class="financ-stat-val" style="color:${corBar}">${pct}%</div></div>
+        <div class="financ-stat"><div class="financ-stat-label">Alvo Total</div><div class="financ-stat-val" style="color:var(--gold)">${fmtBRL(m.alvo)}</div></div>
+        <div class="financ-stat"><div class="financ-stat-label">Realizado</div><div class="financ-stat-val" style="color:${concl?'var(--teal)':'var(--text)'}">${fmtBRL(realizado)}${m.cc?'<span style="font-size:9px;color:var(--text3);font-family:var(--mono);display:block">auto · lançamentos</span>':''}</div></div>
+        <div class="financ-stat"><div class="financ-stat-label">Prazo</div><div class="financ-stat-val" style="font-size:12px;color:${vencido?'var(--red)':'var(--text2)'}">${prazoStr}</div></div>
+        <div class="financ-stat"><div class="financ-stat-label">${mensalNecessaria>0?'Falta/mês':'Progresso'}</div><div class="financ-stat-val" style="color:${corBar};font-size:${mensalNecessaria>0?'13px':'18px'}">${mensalNecessaria>0?fmtBRL(mensalNecessaria):pct+'%'}</div></div>
       </div>
-      <div class="financ-progress"><div class="financ-progress-bar" style="width:${pct}%;background:${corBar}"></div></div>
-      ${m.obs ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:var(--mono)">${m.obs}</div>` : ''}
-      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <div class="financ-progress" title="${pct}% concluído"><div class="financ-progress-bar" style="width:${pct}%;background:${corBar}"></div></div>
+      <div style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">${pct}% da meta total</div>
+      ${m.cc && orcamento>0 ? `
+      <div style="background:var(--card2);border-radius:var(--r);padding:10px 12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono);margin-bottom:6px">
+          <span style="color:var(--text3)">Gasto ${ym.slice(5,7)}/${ym.slice(0,4)} · ${m.cc}</span>
+          <span style="color:${corMensal};font-weight:600">${fmtBRL(gastoCC)} / ${fmtBRL(orcamento)}</span>
+        </div>
+        <div style="height:4px;background:var(--border);border-radius:99px;overflow:hidden">
+          <div style="height:100%;width:${pctMensal}%;background:${corMensal};border-radius:99px;transition:width .4s"></div>
+        </div>
+        <div style="text-align:right;font-size:10px;color:${corMensal};font-family:var(--mono);margin-top:3px">${pctMensal}% do orçamento mensal</div>
+      </div>` : m.cc ? `
+      <div style="background:var(--card2);border-radius:var(--r);padding:8px 12px;margin-bottom:8px;font-size:11px;font-family:var(--mono);display:flex;justify-content:space-between">
+        <span style="color:var(--text3)">${m.cc} este mês</span>
+        <span style="color:${saldoCC>=0?'var(--teal)':'var(--red)'}">${saldoCC>=0?'+':''}${fmtBRL(saldoCC)}</span>
+      </div>` : ''}
+      ${m.obs ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-family:var(--mono)">${m.obs}</div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${concl ? '<span style="font-size:11px;color:var(--teal);font-family:var(--mono)"><i class="fa fa-check-circle"></i> Concluída!</span>' :
           `<button class="btn btn-outline btn-sm" onclick="aportarMeta('${m.id}')"><i class="fa fa-plus"></i> Aportar</button>`}
         <button class="btn btn-ghost btn-sm btn-edit" onclick="openModalMeta('${m.id}')"><i class="fa fa-pencil-alt"></i></button>
