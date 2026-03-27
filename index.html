@@ -6,14 +6,14 @@
 <title>NMC Personal Finance System v20</title>
 
 <!-- PWA -->
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#c9a84c">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080b10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NMC Finance">
-<link rel="apple-touch-icon" href="./icons/icon-192x192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512x512.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
 <!-- SEO / OG -->
 <meta name="description" content="NMC Personal Finance System — controle financeiro pessoal com criptografia AES-256">
@@ -1316,6 +1316,8 @@ tbody tr:last-child td { border-bottom: none; }
               <option value="">Todos</option>
               <option value="Receita">Receita</option>
               <option value="Despesa">Despesa</option>
+              <option value="Financiamento">Financiamento</option>
+              <option value="Transferência">Transferência</option>
             </select>
           </div>
           <div class="filter-field">
@@ -2032,7 +2034,19 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
 
         <!-- Stats patrimônio -->
-        <div class="stats-grid" id="investStats" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div class="stats-grid" id="investStats"></div>
+
+        <!-- Filtro por investimento -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <div class="field" style="margin:0;flex:1;min-width:160px">
+            <select id="investFiltro" onchange="renderInvestimentos()" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:13px;padding:8px 12px;outline:none">
+              <option value="">Todos os investimentos</option>
+            </select>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('investFiltro').value='';renderInvestimentos()">
+            <i class="fa fa-times"></i> Limpar
+          </button>
+        </div>
 
         <!-- Cards de investimentos -->
         <div id="investGrid" class="invest-grid"></div>
@@ -2061,7 +2075,7 @@ tbody tr:last-child td { border-bottom: none; }
               <i class="fa fa-plus"></i> Registrar
             </button>
           </div>
-          <div class="tbl-wrap">
+          <div class="tbl-wrap tbl-mobile-hide">
             <table>
               <thead>
                 <tr>
@@ -2076,6 +2090,7 @@ tbody tr:last-child td { border-bottom: none; }
               <tbody id="tblMovInvestBody"></tbody>
             </table>
           </div>
+          <div id="movInvestMobileList" class="tbl-card-mobile"></div>
         </div>
       </section>
 
@@ -3234,6 +3249,46 @@ if (!usuarios.length) {
   _saveUsuarios(usuarios);
 }
 
+function _migrateTransferencias() {
+  let dirty = false;
+  const d_arr = lancamentos;
+
+  // Detecta groupIds com par Receita+Despesa (transferências antigas)
+  const groupTipos = {};
+  d_arr.forEach(l => {
+    if (!l.groupId) return;
+    if (!groupTipos[l.groupId]) groupTipos[l.groupId] = {};
+    groupTipos[l.groupId][l.tipo] = l;
+  });
+
+  d_arr.forEach(l => {
+    const d = l.desc || '';
+    const byDesc  = d.startsWith('Transferência →') || d.startsWith('Transferência ←');
+    const byGroup = l.groupId && groupTipos[l.groupId] &&
+                    groupTipos[l.groupId]['Receita'] && groupTipos[l.groupId]['Despesa'];
+
+    if (byDesc || byGroup) {
+      // Converte para tipo:'Transferência' com transDir
+      if (l.tipo !== 'Transferência') {
+        // Determina direção pelo tipo antigo ou pelo desc
+        const isEntrada = l.tipo === 'Receita' || d.startsWith('Transferência ←');
+        l.transDir = isEntrada ? 'entrada' : 'saida';
+        l.tipo = 'Transferência';
+        l.transferencia = true;
+        dirty = true;
+      } else if (!l.transDir) {
+        // Já é Transferência mas sem transDir
+        const isEntrada = d.startsWith('Transferência ←');
+        l.transDir = isEntrada ? 'entrada' : 'saida';
+        l.transferencia = true;
+        dirty = true;
+      }
+    }
+  });
+
+  if (dirty) LS.set('lancamentos', lancamentos);
+}
+
 function _loadAllData() {
   bancos         = LS.get('bancos');
   centros        = LS.get('centroCustos');
@@ -3245,6 +3300,7 @@ function _loadAllData() {
   movsInvest     = LS.get('movsInvest');
   metas          = LS.get('metas');
   recorrentes    = LS.get('recorrentes');
+  _migrateTransferencias(); // migra dados antigos sem a flag
 
   // seeds de dados financeiros (só se vazios)
   if (!formas.length)  formas  = [{nome:'PIX'},{nome:'Boleto'},{nome:'Transferência'},{nome:'Cartão'},{nome:'Dinheiro'},{nome:'Débito Automático'}];
@@ -3561,8 +3617,8 @@ function getSaldoBanco(nomeBanco, atéData) {
       return l.data <= hoje && (l.pago !== false);
     }
   });
-  const entradas = movs.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
-  const saidas   = movs.filter(l=>l.tipo==='Despesa'||l.tipo==='Financiamento').reduce((s,l)=>s+parseMoney(l.valor),0);
+  const entradas = movs.filter(l=>l.tipo==='Receita'||(l.tipo==='Transferência'&&l.transDir==='entrada')).reduce((s,l)=>s+parseMoney(l.valor),0);
+  const saidas   = movs.filter(l=>l.tipo==='Despesa'||l.tipo==='Financiamento'||(l.tipo==='Transferência'&&l.transDir==='saida')).reduce((s,l)=>s+parseMoney(l.valor),0);
   return saldoIni + entradas - saidas;
 }
 
@@ -3984,9 +4040,9 @@ function saveLanc() {
     if (!bancoDestino) { toast('Selecione a conta de destino.','err'); return; }
     if (bancoDestino === banco) { toast('Origem e destino não podem ser iguais.','err'); return; }
     const groupId = uid();
-    lancamentos.push({id:uid(), groupId, tipo:'Despesa',  data, banco,          cc, forma, cartaoId:'', parcelas:'1', period:'Único', valor, desc: `Transferência → ${bancoDestino}` + (desc?' | '+desc:'')});
-    lancamentos.push({id:uid(), groupId, tipo:'Receita',  data, banco:bancoDestino, cc, forma, cartaoId:'', parcelas:'1', period:'Único', valor, desc: `Transferência ← ${banco}` + (desc?' | '+desc:'')});
-    toast('Transferência registrada! Dois lançamentos criados.');
+    lancamentos.push({id:uid(), groupId, transferencia:true, tipo:'Transferência', transDir:'saida',   data, banco,          cc, forma, cartaoId:'', parcelas:'1', period:'Único', valor, desc:`Transferência → ${bancoDestino}`+(desc?' | '+desc:''), pago:true});
+    lancamentos.push({id:uid(), groupId, transferencia:true, tipo:'Transferência', transDir:'entrada', data, banco:bancoDestino, cc, forma, cartaoId:'', parcelas:'1', period:'Único', valor, desc:`Transferência ← ${banco}`+(desc?' | '+desc:''), pago:true});
+    toast('Transferência registrada!');
   } else {
     const obj = {id:uid(),tipo,data,banco,cc,forma,cartaoId,parcelas,period,valor,desc};
     lancamentos.push(obj);
@@ -4036,6 +4092,15 @@ function clearLancFilter() {
   renderLancamentos();
 }
 
+// Helper: identifica se lançamento é parte de uma transferência entre contas
+function isTransferencia(l) {
+  if (!l) return false;
+  if (l.tipo === 'Transferência') return true;
+  if (l.transferencia === true) return true;
+  const d = l.desc || '';
+  return d.startsWith('Transferência →') || d.startsWith('Transferência ←');
+}
+
 function renderLancamentos() {
   const tb = document.getElementById('tblLancBody'); if (!tb) return;
   const busca  = document.getElementById('fLancBusca').value.toLowerCase();
@@ -4048,7 +4113,13 @@ function renderLancamentos() {
   const hoje   = new Date().toISOString().slice(0,10);
 
   let data = lancamentos.filter(l => {
-    if (tipo  && l.tipo!==tipo)   return false;
+    // Filtro tipo: "Transferência" é identificado pelo groupId+desc, não pelo campo tipo
+    if (tipo === 'Transferência') {
+      if (!isTransferencia(l)) return false;
+    } else if (tipo) {
+      if (isTransferencia(l)) return false;
+      if (l.tipo !== tipo) return false;
+    }
     if (banco && l.banco!==banco) return false;
     if (cc    && l.cc!==cc)       return false;
     if (dtI   && l.data < dtI)    return false;
@@ -4057,7 +4128,7 @@ function renderLancamentos() {
     if (status === 'pendente' && (l.pago || l.data < hoje)) return false;
     if (status === 'vencido'  && (l.pago || l.data >= hoje)) return false;
     if (busca) {
-      const hay = `${l.tipo} ${l.banco} ${l.cc} ${l.forma} ${l.desc} ${fmtBRL(parseMoney(l.valor))}`.toLowerCase();
+      const hay = (l.tipo+' '+(l.banco||'')+' '+(l.cc||'')+' '+(l.forma||'')+' '+(l.desc||'')+' '+fmtBRL(parseMoney(l.valor))).toLowerCase();
       if (!hay.includes(busca)) return false;
     }
     return true;
@@ -4107,7 +4178,9 @@ function renderLancamentos() {
     const cartaoNome = l.cartaoId ? (cartoes.find(c=>c.id===l.cartaoId)?.nome||'') : '';
     const formaExib  = cartaoNome ? `${l.forma} (${cartaoNome})` : (l.forma||'—');
     const vencido = !l.pago && l.data<hoje && l.tipo==='Despesa';
-    const sBadge = l.pago
+    const sBadge = isTransferencia(l)
+      ? `<span class="badge-lanc" style="background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.3)"><i class="fa fa-exchange-alt"></i> Transferência</span>`
+      : l.pago
       ? `<span class="badge-lanc pago"><i class="fa fa-check-circle"></i> Pago</span>`
       : vencido ? `<span class="badge-lanc vencido"><i class="fa fa-exclamation-circle"></i> Vencido</span>`
       : l.tipo==='Despesa' ? `<span class="badge-lanc pendente"><i class="fa fa-clock"></i> Pendente</span>`
@@ -4116,7 +4189,7 @@ function renderLancamentos() {
       ? `<button class="btn btn-ghost btn-icon" style="color:var(--teal)" title="Dar baixa" onclick="baixaRapida('${l.id}')"><i class="fa fa-check"></i></button>`
       : l.pago ? `<button class="btn btn-ghost btn-icon" style="color:#f59e0b" title="Desfazer baixa" onclick="desfazerBaixa('${l.id}')"><i class="fa fa-undo"></i></button>` : '';
     return `<tr style="${vencido?'background:rgba(224,82,82,.03)':''}${l.pago?';opacity:.7':''}">
-      <td><span class="${isRec?'td-type-r':'td-type-d'}">${l.tipo}</span></td>
+      <td><span class="${isTransferencia(l)?'':''}${isRec?'td-type-r':isTransferencia(l)?'':'td-type-d'}" style="${isTransferencia(l)?'color:var(--text2);font-size:11px':''}">${isTransferencia(l)?(l.transDir==='entrada'?'↙ Transf.':'↗ Transf.'):l.tipo}</span></td>
       <td class="td-mono">${fmtDate(l.data)}</td>
       <td>${l.banco||'—'}</td>
       <td>${l.cc||'—'}</td>
@@ -4946,7 +5019,17 @@ function renderInvestimentos() {
   const movBody  = document.getElementById('tblMovInvestBody');
   if (!grid) return;
 
-  // Totais
+  // Populate filter select
+  const filtSel = document.getElementById('investFiltro');
+  if (filtSel) {
+    const curFilt = filtSel.value;
+    filtSel.innerHTML = '<option value="">Todos os investimentos</option>' +
+      investimentos.map(i=>`<option value="${i.id}"${i.id===curFilt?' selected':''}>${i.nome}</option>`).join('');
+  }
+  const filtId = filtSel?.value || '';
+  const invFiltrados = filtId ? investimentos.filter(i=>i.id===filtId) : investimentos;
+
+  // Totais (sempre do conjunto completo)
   const totalAportado  = investimentos.reduce((s,i)=>s+i.aportado,0);
   const totalAtual     = investimentos.reduce((s,i)=>s+i.atual,0);
   const totalRentab    = totalAportado > 0 ? ((totalAtual - totalAportado)/totalAportado*100) : 0;
@@ -4973,13 +5056,15 @@ function renderInvestimentos() {
 
   if (!investimentos.length) {
     grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><i class="fa fa-chart-pie"></i>Nenhum investimento cadastrado.</div>';
+  } else if (!invFiltrados.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><i class="fa fa-chart-pie"></i>Nenhum investimento encontrado para este filtro.</div>';
     if (movBody) movBody.innerHTML = '';
-    buildInvestCharts();
+    buildInvestCharts(invFiltrados);
     return;
   }
 
-  // Cards
-  grid.innerHTML = investimentos.map(inv => {
+  // Cards — usa lista filtrada
+  grid.innerHTML = invFiltrados.map(inv => {
     const ganho   = inv.atual - inv.aportado;
     const rentPct = inv.aportado > 0 ? (ganho/inv.aportado*100) : 0;
     const isPos   = ganho >= 0;
@@ -5008,8 +5093,43 @@ function renderInvestimentos() {
   }).join('');
 
   // Tabela movimentações
+  const mobileMovList = document.getElementById('movInvestMobileList');
   if (movBody) {
-    const sorted = [...movsInvest].sort((a,b)=>b.data.localeCompare(a.data));
+    const movsFiltradas = filtId
+      ? movsInvest.filter(m=>m.investId===filtId)
+      : movsInvest;
+    const sorted = [...movsFiltradas].sort((a,b)=>b.data.localeCompare(a.data));
+
+    // Mobile cards
+    if (mobileMovList) {
+      if (!sorted.length) {
+        mobileMovList.innerHTML = '<div class="empty"><i class="fa fa-chart-line"></i>Nenhuma movimentação.</div>';
+      } else {
+        mobileMovList.innerHTML = sorted.map(m => {
+          const inv = investimentos.find(i=>i.id===m.investId);
+          const cor = m.tipo==='Aporte'?'var(--gold)':m.tipo==='Resgate'?'var(--red)':'var(--teal)';
+          const icon = m.tipo==='Aporte'?'fa-arrow-down':m.tipo==='Resgate'?'fa-arrow-up':'fa-chart-line';
+          return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">
+            <div style="width:32px;height:32px;border-radius:50%;background:${cor}22;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fa ${icon}" style="color:${cor};font-size:13px"></i>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:500;font-size:13px;color:var(--text)">${inv?.nome||'—'}</div>
+              <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${m.tipo} · ${fmtDate(m.data)}</div>
+              ${m.obs?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${m.obs}</div>`:''}
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:${cor}">${fmtBRL(m.valor)}</div>
+              <div style="display:flex;gap:4px;justify-content:flex-end;margin-top:4px">
+                <button class="btn btn-ghost btn-icon btn-edit" style="padding:3px 6px" onclick="openModalMovInvest('${m.id}')"><i class="fa fa-pencil-alt"></i></button>
+                <button class="btn btn-ghost btn-icon btn-danger" style="padding:3px 6px" onclick="delMovInvest('${m.id}')"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    }
+
     movBody.innerHTML = sorted.map(m => {
       const inv = investimentos.find(i=>i.id===m.investId);
       const badge = m.tipo==='Aporte'     ? 'mov-aporte'
@@ -5029,12 +5149,12 @@ function renderInvestimentos() {
     }).join('') || '<tr><td colspan="6"><div class="empty"><i class="fa fa-history"></i>Nenhuma movimentação.</div></td></tr>';
   }
 
-  buildInvestCharts();
+  buildInvestCharts(invFiltrados);
 }
 
 let chartInvestEvolucao, chartInvestTipo, chartInvestAtivo;
 
-function buildInvestCharts() {
+function buildInvestCharts(invFiltrados) {
   const scaleOpt = {
     plugins:{ legend:{ position:'bottom', labels:{ color:'#8a9bb8', font:{family:'DM Mono',size:10}, boxWidth:12 } } },
     responsive:true
@@ -5074,7 +5194,7 @@ function buildInvestCharts() {
     });
   }
 
-  // Evolução mensal do patrimônio (últimos 12 meses via movimentações de lançamentos)
+  // Evolução mensal — duas linhas: Saldo Total e Capital Investido
   const ctxEv = document.getElementById('grafInvestEvolucao');
   if (ctxEv) {
     const hoje = new Date();
@@ -5083,19 +5203,34 @@ function buildInvestCharts() {
       const d = new Date(hoje.getFullYear(), hoje.getMonth()-i, 1);
       meses.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
     }
-    // Patrimônio acumulado até fim de cada mês
-    const patrimonioMes = meses.map(ym => {
-      // Soma todos os lançamentos de investimento até esse mês
+
+    // Investimentos considerados (filtrados ou todos)
+    const invBase = invFiltrados;
+
+    const saldoTotalMes   = []; // Saldo Total = aportes - resgates + rendimentos
+    const capitalMes      = []; // Capital Investido = aportes - resgates (sem rendimentos)
+    const ymAtual = meses[meses.length - 1]; // mês atual
+
+    meses.forEach(ym => {
       const toDate = ym + '-31';
-      let total = 0;
-      investimentos.forEach(inv => {
+      let saldoTotal = 0, capital = 0;
+      invBase.forEach(inv => {
         const movs = movsInvest.filter(m => m.investId===inv.id && m.data <= toDate);
-        const aportes  = movs.filter(m=>m.tipo==='Aporte').reduce((s,m)=>s+m.valor,0);
-        const resgates = movs.filter(m=>m.tipo==='Resgate').reduce((s,m)=>s+m.valor,0);
-        const rends    = movs.filter(m=>m.tipo==='Rendimento').reduce((s,m)=>s+m.valor,0);
-        total += aportes - resgates + rends;
+        if (movs.length > 0) {
+          // Tem movimentações: calcula pelo histórico
+          const aportes  = movs.filter(m=>m.tipo==='Aporte').reduce((s,m)=>s+m.valor,0);
+          const resgates = movs.filter(m=>m.tipo==='Resgate').reduce((s,m)=>s+m.valor,0);
+          const rends    = movs.filter(m=>m.tipo==='Rendimento').reduce((s,m)=>s+m.valor,0);
+          saldoTotal += aportes - resgates + rends;
+          capital    += aportes - resgates;
+        } else if (ym === ymAtual) {
+          // Sem movimentações: usa valores cadastrados no mês atual
+          saldoTotal += inv.atual   || 0;
+          capital    += inv.aportado|| 0;
+        }
       });
-      return total;
+      saldoTotalMes.push(saldoTotal);
+      capitalMes.push(capital);
     });
 
     const labels = meses.map(m => {
@@ -5108,20 +5243,33 @@ function buildInvestCharts() {
       type:'line',
       data:{
         labels,
-        datasets:[{
-          label:'Patrimônio',
-          data: patrimonioMes,
-          borderColor:'#c9a84c',
-          backgroundColor:'rgba(201,168,76,.1)',
-          borderWidth:2, tension:.4, pointRadius:4,
-          pointBackgroundColor:'#c9a84c', fill:true
-        }]
+        datasets:[
+          {
+            label:'Saldo Total',
+            data: saldoTotalMes,
+            borderColor:'#c9a84c',
+            backgroundColor:'rgba(201,168,76,.08)',
+            borderWidth:2.5, tension:.4, pointRadius:4,
+            pointBackgroundColor:'#c9a84c', fill:true, order:1
+          },
+          {
+            label:'Capital Investido',
+            data: capitalMes,
+            borderColor:'#4a8fff',
+            backgroundColor:'rgba(74,143,255,.06)',
+            borderWidth:2, tension:.4, pointRadius:3,
+            pointBackgroundColor:'#4a8fff',
+            borderDash:[5,3], fill:false, order:2
+          }
+        ]
       },
       options:{
         responsive:true, maintainAspectRatio:true,
         interaction:{mode:'index',intersect:false},
-        plugins:{ legend:{labels:{color:'#8a9bb8',font:{family:'DM Mono',size:11}}},
-          tooltip:{callbacks:{label:ctx=>' '+fmtBRL(ctx.parsed.y)}}
+        plugins:{
+          legend:{labels:{color:'#8a9bb8',font:{family:'DM Mono',size:11},
+            boxWidth:12, usePointStyle:true}},
+          tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmtBRL(ctx.parsed.y)}}
         },
         scales:{
           x:{ticks:{color:'#526178',font:{family:'DM Mono',size:10}},grid:{color:'rgba(30,45,69,.6)'}},
@@ -5358,6 +5506,7 @@ function getDashData() {
   const ym    = nowYM();
 
   return lancamentos.filter(l => {
+    if (isTransferencia(l)) return false; // transferências excluídas de rec/desp
     if (banco && l.banco !== banco) return false;
     if (mes === '__ano__') {
       return l.data.slice(0,4) === ym.slice(0,4);
@@ -5378,16 +5527,16 @@ function renderDashboard() {
   const data = getDashData();
   const banco = document.getElementById('dashBanco')?.value || '';
 
-  // ── Receitas e Despesas do período selecionado ──
-  const rec  = data.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
-  const desp = data.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+parseMoney(l.valor),0);
+  // ── Receitas e Despesas do período — exclui transferências entre contas ──
+  const rec  = data.filter(l=>l.tipo==='Receita' && !isTransferencia(l)).reduce((s,l)=>s+parseMoney(l.valor),0);
+  const desp = data.filter(l=>l.tipo==='Despesa' && !isTransferencia(l)).reduce((s,l)=>s+parseMoney(l.valor),0);
   const saldo = rec - desp;
 
   // ── Saldo Total Hoje: saldoInicial + lançamentos PAGOS até hoje ──
   const hoje = new Date().toISOString().slice(0,10);
   const saldoHoje = bancos.length
     ? bancos.filter(b=>!banco||b.nome===banco).reduce((s,b)=>s+getSaldoBanco(b.nome),0)
-    : lancamentos.filter(l=>l.data<=hoje && l.pago!==false && l.tipo!=='Investimento')
+    : lancamentos.filter(l=>l.data<=hoje && l.pago!==false && l.tipo!=='Investimento' && !isTransferencia(l))
         .reduce((s,l)=>{
           const v=parseMoney(l.valor);
           return l.tipo==='Receita'?s+v:(l.tipo==='Despesa'||l.tipo==='Financiamento')?s-v:s;
@@ -5412,8 +5561,8 @@ function renderDashboard() {
   document.getElementById('dReceit').textContent = fmtBRL(rec);
   document.getElementById('dDesp').textContent   = fmtBRL(desp);
   document.getElementById('dSaldo').textContent  = fmtBRL(saldoPeriodo);
-  document.getElementById('dReceitQ').textContent = data.filter(l=>l.tipo==='Receita').length + ' lançamentos';
-  document.getElementById('dDespQ').textContent   = data.filter(l=>l.tipo==='Despesa').length + ' lançamentos';
+  document.getElementById('dReceitQ').textContent = data.filter(l=>l.tipo==='Receita'&&!isTransferencia(l)).length + ' lançamentos';
+  document.getElementById('dDespQ').textContent   = data.filter(l=>l.tipo==='Despesa'&&!isTransferencia(l)).length + ' lançamentos';
   document.getElementById('dSaldoHint').textContent = (saldoPeriodo>=0?'▲ Positivo':'▼ Negativo')+' · até '+fmtDate(dataFimFiltro);
 
   // Saldo Total Hoje
@@ -5450,18 +5599,28 @@ function buildDashInvestChart() {
     meses.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
   }
 
-  // Patrimônio acumulado até o fim de cada mês
-  const patrimonioMes = meses.map(ym => {
+  // Patrimônio acumulado + Capital Investido (últimos 12 meses)
+  const ymAtual = meses[meses.length - 1];
+  const patrimonioMes = [], capitalMes = [];
+  meses.forEach(ym => {
     const toDate = ym + '-31';
-    let total = 0;
+    let saldo = 0, capital = 0;
     investimentos.forEach(inv => {
       const movs     = movsInvest.filter(m => m.investId === inv.id && m.data <= toDate);
-      const aportes  = movs.filter(m => m.tipo === 'Aporte').reduce((s, m) => s + m.valor, 0);
-      const resgates = movs.filter(m => m.tipo === 'Resgate').reduce((s, m) => s + m.valor, 0);
-      const rends    = movs.filter(m => m.tipo === 'Rendimento').reduce((s, m) => s + m.valor, 0);
-      total += aportes - resgates + rends;
+      if (movs.length > 0) {
+        const aportes  = movs.filter(m => m.tipo === 'Aporte').reduce((s,m) => s + m.valor, 0);
+        const resgates = movs.filter(m => m.tipo === 'Resgate').reduce((s,m) => s + m.valor, 0);
+        const rends    = movs.filter(m => m.tipo === 'Rendimento').reduce((s,m) => s + m.valor, 0);
+        saldo   += aportes - resgates + rends;
+        capital += aportes - resgates;
+      } else if (ym === ymAtual) {
+        // Sem movimentações: usa valores do cadastro no mês atual
+        saldo   += inv.atual    || 0;
+        capital += inv.aportado || 0;
+      }
     });
-    return total;
+    patrimonioMes.push(saldo);
+    capitalMes.push(capital);
   });
 
   // Variação mensal (delta entre meses consecutivos)
@@ -5506,16 +5665,31 @@ function buildDashInvestChart() {
       datasets: [
         {
           type: 'line',
-          label: 'Patrimônio Acumulado',
+          label: 'Saldo Total',
           data: patrimonioMes,
           borderColor: '#c9a84c',
           backgroundColor: 'rgba(201,168,76,.10)',
-          borderWidth: 2,
+          borderWidth: 2.5,
           tension: .4,
           pointRadius: 4,
           pointBackgroundColor: '#c9a84c',
           fill: true,
           order: 1,
+          yAxisID: 'y'
+        },
+        {
+          type: 'line',
+          label: 'Capital Investido',
+          data: capitalMes,
+          borderColor: '#4a8fff',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: .4,
+          pointRadius: 3,
+          pointBackgroundColor: '#4a8fff',
+          borderDash: [5, 3],
+          fill: false,
+          order: 2,
           yAxisID: 'y'
         },
         {
@@ -5526,7 +5700,7 @@ function buildDashInvestChart() {
           borderColor:      deltaMes.map(v => v >= 0 ? '#3eb89a' : '#e05252'),
           borderWidth: 1,
           borderRadius: 4,
-          order: 2,
+          order: 3,
           yAxisID: 'y2'
         }
       ]
@@ -5575,24 +5749,15 @@ function buildFluxoChart(data) {
   const keyFn  = l => wideMode ? l.data.slice(0,7) : l.data;
   const groups = {};
   data.forEach(l => {
+    if (isTransferencia(l)) return; // transferências não afetam fluxo de caixa
     const k = keyFn(l);
     if (!groups[k]) groups[k] = {r:0, d:0};
-    if (l.tipo==='Receita')       groups[k].r += parseMoney(l.valor);
+    if (l.tipo==='Receita')  groups[k].r += parseMoney(l.valor);
     else if (l.tipo==='Despesa' || l.tipo==='Financiamento') groups[k].d += parseMoney(l.valor);
   });
 
-  // Include financiamento parcelas that fall within the period (from financiamentos data)
-  financiamentos.forEach(f => {
-    for (let p = f.pagas; p < f.parcelas; p++) {
-      const d = new Date(f.dataInicio + 'T12:00:00');
-      d.setMonth(d.getMonth() + p);
-      const dateStr = d.toISOString().slice(0,10);
-      const k = wideMode ? dateStr.slice(0,7) : dateStr;
-      if (groups[k]) {
-        groups[k].d += f.parcelaMensal;
-      }
-    }
-  });
+  // Nota: parcelas de financiamento já estão incluídas via lancamentos tipo='Financiamento'
+  // Não duplicar aqui
 
   const sorted = Object.keys(groups).sort();
 
@@ -5606,36 +5771,38 @@ function buildFluxoChart(data) {
   const recs  = sorted.map(k => groups[k].r);
   const desps = sorted.map(k => groups[k].d);
 
-  // Saldo acumulado das contas ate o fim de cada periodo
-  const inclFinanc = document.getElementById('dashInclFinanc')?.checked || false;
+  // Saldo acumulado real: saldoInicial + lançamentos pagos até cada data
+  // Para datas futuras (previsão): inclui todos os lançamentos agendados
+  const hoje2 = new Date().toISOString().slice(0,10);
   const saldos = sorted.map(k => {
     const limitDate = wideMode
       ? (() => { const [y,mo]=k.split('-'); const d=new Date(+y,+mo,0); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })()
       : k;
 
-    // Base: receitas e despesas lançadas
-    let saldo = lancamentos
-      .filter(l => {
-        if (banco && l.banco !== banco) return false;
-        return l.data <= limitDate;
-      })
-      .reduce((s, l) => s + (l.tipo === 'Receita' ? parseMoney(l.valor) : -parseMoney(l.valor)), 0);
+    const bancosAlvo = banco
+      ? [bancos.find(b=>b.nome===banco)].filter(Boolean)
+      : bancos;
 
-    // Adiciona parcelas de financiamentos projetadas até essa data
-    if (inclFinanc) {
-      financiamentos.forEach(f => {
-        for (let p = 0; p < f.parcelas; p++) {
-          const d = new Date(f.dataInicio + 'T12:00:00');
-          d.setMonth(d.getMonth() + p);
-          const parcDate = d.toISOString().slice(0,10);
-          // Só subtrai parcelas projetadas (não já lançadas como Financiamento)
-          const jaLancada = lancamentos.some(l => l.financId === f.id && l.tipo === 'Financiamento' && l.data.slice(0,7) === parcDate.slice(0,7));
-          if (!jaLancada && parcDate <= limitDate) {
-            saldo -= f.parcelaMensal;
-          }
-        }
+    const saldo = bancosAlvo.reduce((total, b) => {
+      const saldoIni = b.saldoInicial || 0;
+      const movs = lancamentos.filter(l => {
+        if (l.banco !== b.nome) return false;
+        if (l.tipo === 'Investimento') return false;
+        if (!isTransferencia(l) && l.data > limitDate) return false;
+        if (isTransferencia(l) && l.data > limitDate) return false;
+        // Datas passadas: só pagos; datas futuras: todos (previsão)
+        if (l.data <= hoje2 && l.pago === false) return false;
+        return l.data <= limitDate;
       });
-    }
+      const entradas = movs.filter(l =>
+        l.tipo==='Receita' || (l.tipo==='Transferência' && l.transDir==='entrada')
+      ).reduce((s,l) => s + parseMoney(l.valor), 0);
+      const saidas = movs.filter(l =>
+        l.tipo==='Despesa' || l.tipo==='Financiamento' ||
+        (l.tipo==='Transferência' && l.transDir==='saida')
+      ).reduce((s,l) => s + parseMoney(l.valor), 0);
+      return total + saldoIni + entradas - saidas;
+    }, 0);
 
     return saldo;
   });
@@ -5814,6 +5981,7 @@ function importData() {
       if (obj.movsInvest)     movsInvest     = obj.movsInvest;
       if (obj.metas)          metas          = obj.metas;
       if (obj.recorrentes)    recorrentes    = obj.recorrentes;
+      _migrateTransferencias(); // migra transferências do backup
       saveAll(); renderAll(); renderDashboard();
       toast(`Dados importados! (backup de ${obj._ts ? new Date(obj._ts).toLocaleString('pt-BR') : 'data desconhecida'})`);
     } catch { toast('Arquivo inválido ou corrompido.','err'); }
@@ -6642,7 +6810,7 @@ function renderComparativoDash() {
   const mesAnterior = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 
   function calcMes(ym) {
-    const ls = lancamentos.filter(l => l.data.slice(0,7)===ym);
+    const ls = lancamentos.filter(l => l.data.slice(0,7)===ym && !isTransferencia(l));
     const r = ls.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+parseMoney(l.valor),0);
     const e = ls.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+parseMoney(l.valor),0);
     return { r, e, s: r-e };
@@ -6719,7 +6887,7 @@ function renderAlertaLimiteCCDash() {
   if (!limiteMetas.length) { card.style.display='none'; return; }
   const ym = nowYM();
   const alertas = limiteMetas.map(m => {
-    const gasto = lancamentos.filter(l=>l.tipo==='Despesa' && l.cc===m.cc && l.data.slice(0,7)===ym).reduce((s,l)=>s+parseMoney(l.valor),0);
+    const gasto = lancamentos.filter(l=>l.tipo==='Despesa' && l.cc===m.cc && l.data.slice(0,7)===ym && !isTransferencia(l)).reduce((s,l)=>s+parseMoney(l.valor),0);
     const pct   = Math.min(100, Math.round((gasto/m.alvo)*100));
     return { ...m, gasto, pct };
   }).filter(m=>m.pct>=70);
@@ -6793,7 +6961,7 @@ function verificarAlertas() {
 
   // Alerta de limite CC ≥ 90%
   metas.filter(m=>m.tipo==='LimiteGasto' && m.cc).forEach(m => {
-    const gasto = lancamentos.filter(l=>l.tipo==='Despesa' && l.cc===m.cc && l.data.slice(0,7)===ym).reduce((s,l)=>s+parseMoney(l.valor),0);
+    const gasto = lancamentos.filter(l=>l.tipo==='Despesa' && l.cc===m.cc && l.data.slice(0,7)===ym && !isTransferencia(l)).reduce((s,l)=>s+parseMoney(l.valor),0);
     const pct = Math.round((gasto/m.alvo)*100);
     if (pct>=90) notificar(`Limite CC: ${m.cc}`, `${pct}% do limite atingido (${fmtBRL(gasto)} de ${fmtBRL(m.alvo)})`);
   });
@@ -7019,111 +7187,174 @@ function concParseItau(texto) {
 }
 
 function concParseBradesco(texto) {
-  // Bradesco format: DATA | HISTÓRICO | DOCTO | CRÉDITO(R$) | DÉBITO(R$) | SALDO(R$)
-  // Columns: credit and debit are SEPARATE columns — last is always saldo
+  // Bradesco: DATA | HISTÓRICO | DOCTO | CRÉDITO(R$) | DÉBITO(R$) | SALDO(R$)
   const trans=[];
-  const IGNORE=['COD. LANC','TOTAL','EXTRATO INEXISTENTE','DATA','HISTÓRICO'];
+  const IGNORE=['COD. LANC','TOTAL','EXTRATO INEXISTENTE','DATA','HISTÓRICO','SALDO'];
   const lines=texto.split('\n');
   const dateRe=/^(\d{2}\/\d{2}\/\d{4})\s+(.+)$/;
+  let prevSaldo=null, pendente=null; // pendente: transação sem desc ainda
+
   lines.forEach(line=>{
     line=line.trim();
-    if(!line||IGNORE.some(ig=>line.toUpperCase().includes(ig))) return;
-    const dm=line.match(dateRe); if(!dm) return;
+    if(!line) return;
+    if(IGNORE.some(ig=>line.toUpperCase().startsWith(ig))) return;
+
+    const dm=line.match(dateRe);
+    if(!dm) {
+      // Linha de continuação: pode ser descrição da transação anterior
+      if(pendente && line.length>2 && !/^\d{5,}$/.test(line)) {
+        pendente.descricao = (pendente.descricao+' '+line).trim().slice(0,80);
+      }
+      return;
+    }
+    // Confirma transação pendente anterior
+    if(pendente) { trans.push(pendente); pendente=null; }
+
     const [,dateStr,rest]=dm;
-    // Extract all money values with their positions
     const moneyMatches=[...rest.matchAll(/\d{1,3}(?:\.\d{3})*,\d{2}/g)];
     if(moneyMatches.length<2) return;
-    // Last value = saldo (ignore). Remaining values = crédito then débito columns
-    // Bradesco PDF.js extraction puts them in order: [credito] [debito] [saldo]
-    // or just [value] [saldo] when only one column has a value
-    const vals=moneyMatches.map(m=>({val:concParseMoney(m[0]),raw:m[0],idx:m.index}));
-    // Remove saldo (last)
-    vals.pop();
-    // Extract description: text before first money value
-    const firstMoneyPos=moneyMatches[0].index;
-    let desc=rest.slice(0,firstMoneyPos).trim();
-    // Remove trailing doc number (5+ digits)
-    desc=desc.replace(/\s+\d{5,}\s*$/,'').trim();
-    if(!desc||desc.length<2) return;
+
+    // Último valor = saldo atual
+    const saldoAtual=concParseMoney(moneyMatches[moneyMatches.length-1][0]);
+    const vals=moneyMatches.slice(0,-1).map(m=>({val:concParseMoney(m[0]),idx:m.index}));
+
+    // Descrição: texto antes do primeiro valor monetário
+    let desc=rest.slice(0,moneyMatches[0].index).trim();
+    desc=desc.replace(/\s+\d{5,}\s*$/,'').trim(); // remove nº docto
     const [dd,mm,aaaa]=dateStr.split('/');
-    const data=`${aaaa}-${mm}-${dd}`;
-    if(vals.length===1) {
-      // Only one column has value — determine type by position in line
-      // In Bradesco PDF: credit column comes before debit column
-      // Heuristic: if value appears in first ~60% of the non-desc portion → credit, else → debit
-      const restAfterDesc=rest.slice(firstMoneyPos);
-      const totalLen=restAfterDesc.length;
-      const relPos=moneyMatches[0].index-firstMoneyPos;
-      const tipo=relPos<totalLen*0.4?'Credito':'Debito';
-      if(vals[0].val>0) trans.push({data,descricao:desc,valor:vals[0].val,tipo});
-    } else {
-      // 2+ values remaining: first=credito, second=debito
-      const cVal=vals[0].val, dVal=vals[1].val;
-      if(cVal>0) trans.push({data,descricao:desc,valor:cVal,tipo:'Credito'});
-      if(dVal>0) trans.push({data,descricao:desc,valor:dVal,tipo:'Debito'});
+    const data=aaaa+'-'+mm+'-'+dd;
+
+    if(vals.length>=2) {
+      // Duas colunas presentes: primeira=crédito, segunda=débito
+      if(vals[0].val>0) trans.push({data,descricao:desc||'Lançamento',valor:vals[0].val,tipo:'Credito'});
+      if(vals[1].val>0) trans.push({data,descricao:desc||'Lançamento',valor:vals[1].val,tipo:'Debito'});
+      prevSaldo=saldoAtual;
+    } else if(vals.length===1 && vals[0].val>0) {
+      // Uma coluna: usa variação do saldo para determinar Crédito/Débito
+      let tipo;
+      if(prevSaldo!==null) {
+        // Saldo aumentou → crédito na conta (entrada de dinheiro)
+        // Saldo diminuiu → débito na conta (saída de dinheiro)
+        tipo = saldoAtual >= prevSaldo ? 'Credito' : 'Debito';
+      } else {
+        // Sem saldo anterior: usa posição relativa como fallback
+        // Crédito aparece ANTES de Débito no extrato Bradesco
+        // Se o valor ocupa a primeira metade da área monetária → crédito
+        const areaLen=rest.length-moneyMatches[0].index;
+        tipo = areaLen > 20 ? 'Credito' : 'Debito';
+      }
+      if(desc && desc.length>=2) {
+        trans.push({data,descricao:desc,valor:vals[0].val,tipo});
+      } else {
+        // Desc pode vir na próxima linha (continuação)
+        pendente={data,descricao:'',valor:vals[0].val,tipo};
+      }
+      prevSaldo=saldoAtual;
     }
   });
+  if(pendente) trans.push(pendente);
   return trans;
 }
 
 function concParseCaixa(texto) {
-  const trans=[];
-  const IGNORE=['SALDO DIA','LANÇAMENTOS','NR. DOC','HISTÓRICO','FAVORECIDO','CPF/CNPJ'];
-  const dateRe=/(\d{2}\/\d{2}\/\d{4})(?:\s*[-–]\s*\d{2}:\d{2}:\d{2})?\s+\d*\s*(.+?)\s+([\d.]+,\d{2})\s*([DC])\b/i;
-  texto.split('\n').forEach(line=>{
-    line=line.trim();
-    if(!line||IGNORE.some(ig=>line.toUpperCase().includes(ig))) return;
-    const m=line.match(dateRe); if(!m) return;
-    const [,dateStr,rest,rawVal,tipoCh]=m;
-    const desc=rest.split(/\s{2,}/)[0].trim();
-    if(!desc||desc.toUpperCase().includes('SALDO DIA')) return;
-    const v=concParseMoney(rawVal); if(v===0) return;
-    const [dd,mm,aaaa]=dateStr.split('/');
-    const data=`${aaaa}-${mm}-${dd}`;
-    trans.push({data,descricao:desc,valor:v,tipo:tipoCh.toUpperCase()==='C'?'Credito':'Debito'});
+  // Parser robusto para extratos da Caixa Econômica Federal
+  // Lida com OCR imperfeito: datas com espaços, letras no lugar de zeros, valores mesclados
+
+  const IGNORE = ['SALDO DIA','NR. DOC','HISTÓRICO','FAVORECIDO','CPF/CNPJ',
+                  'LANÇAMENTOS','EXTRATO','CLIENTE','CONTA','MÊS','PERÍODO',
+                  'SALDO ANTERIOR','ALÔ CAIXA','SAC CAIXA','OUVIDORIA','PESSOAS COM',
+                  'ASSEGURAMOS','NÃO NOS','#PESSOAL'];
+
+  function normDate(s) {
+    // "D D /MM/YYYY" → "DD/MM/YYYY"
+    s = s.replace(/(\d)\s+(\d)\s*\/\s*(\d{1,2})\s*\/\s*(\d{4})/g,
+                  (_,a,b,m,y)=>a+b+'/'+m.padStart(2,'0')+'/'+y);
+    // "DD /MM /YYYY" → "DD/MM/YYYY"
+    s = s.replace(/(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{4})/g,
+                  (_,d,m,y)=>d.padStart(2,'0')+'/'+m.padStart(2,'0')+'/'+y);
+    return s;
+  }
+
+  function fixOCR(s) {
+    // "1 oo,oo" → "100,00"  |  "oo,oo" → "00,00"  |  letter-o → 0 next to digits
+    s = s.replace(/(\d)\s+oo,oo/gi, (_,d)=>d+'00,00');
+    s = s.replace(/\boo,oo\b/gi, '00,00');
+    s = s.replace(/(\d)[oO](\d)/g, (_,a,b)=>a+'0'+b);
+    s = s.replace(/(\d)\s+([oO]{2}),(\d)/g, (_,d,__,c)=>d+'00,'+c);
+    // fix "123,1 6" → "123,16"
+    s = s.replace(/(\d,\d)\s+(\d)\b/g, (_,a,b)=>a+b);
+    return s;
+  }
+
+  function parseMon(s) {
+    s = fixOCR(s).replace(/\s+/g,'');
+    const m = s.match(/(\d{1,3}(?:\.\d{3})*,\d{2})$/);
+    if (m) return parseFloat(m[1].replace(/\./g,'').replace(',','.'));
+    const m2 = s.match(/(\d+,\d{2})$/);
+    if (m2) return parseFloat(m2[1].replace(',','.'));
+    return 0;
+  }
+
+  function buildDesc(raw) {
+    let d = raw;
+    d = normDate(d);
+    d = d.replace(/\d{2}\/\d{2}\/\d{4}/g,'');          // date
+    d = d.replace(/[-–]\s*\d{2}:\s*\d{2}[:\d\s]*/g,' '); // time
+    d = d.replace(/\b\d{6,}\b/g,' ');                   // nrdoc
+    d = d.replace(/\*+[\d.*-]+\**/g,' ');               // CPF masked
+    d = d.replace(/\d{2}\/\d{4}/g,' ');                 // partial date
+    // remove money + tipo patterns (including OCR variants)
+    d = fixOCR(d);
+    d = d.replace(/[\d][,.\d]*\d\s*[DdCc]\b/g,' ');
+    d = d.replace(/\b[\d][,.\d]*\b/g,' ');
+    d = d.replace(/[-–—\/]+/g,' ');
+    d = d.replace(/\s{2,}/g,' ').trim();
+    d = d.replace(/^[\s\W]+/,'').trim();
+    return d.slice(0,60) || 'Lançamento';
+  }
+
+  const trans = [];
+  let lastDate = null, lastMM = null;
+
+  texto.split('\n').forEach(raw => {
+    if (!raw.trim()) return;
+
+    const lineN = normDate(raw.replace(/[—–]/g,'-'));
+    const isIgnore = IGNORE.some(ig => lineN.toUpperCase().includes(ig));
+
+    // ── Extrair data (sempre, mesmo de linhas ignoradas) ──
+    const dm = lineN.match(/(\d{2}\/\d{2}\/\d{4})/);
+    if (dm) {
+      lastDate = dm[1];
+      lastMM   = lastDate.split('/')[1];
+    } else {
+      // Data parcial "DD/YYYY" sem mês → usa lastMM
+      const pm = lineN.match(/^[\s]*(\d{2})\/(\d{4})/);
+      if (pm && lastMM) lastDate = pm[1]+'/'+lastMM+'/'+pm[2];
+    }
+
+    if (isIgnore || !lastDate) return;
+
+    // ── Corrigir OCR e encontrar pares valor+tipo ──
+    const lineV = fixOCR(lineN);
+    const allVals = [...lineV.matchAll(/(\d[\d.,]*\d|\d),(\d{2})\s*([DdCc])\b/gi)];
+    if (!allVals.length) return;
+
+    // Último par = Saldo, penúltimo = Valor
+    const vPat = allVals.length >= 2 ? allVals[allVals.length-2] : allVals[0];
+    const val  = parseMon(vPat[1]+','+vPat[2]);
+    const tipo = vPat[3].toUpperCase();
+    if (val === 0) return;
+
+    const desc = buildDesc(raw);
+    const [dd,mm,aaaa] = lastDate.split('/');
+    trans.push({ data: aaaa+'-'+mm+'-'+dd, descricao: desc, valor: val,
+                 tipo: tipo==='C' ? 'Credito' : 'Debito' });
   });
   return trans;
 }
 
-function concParseNubank(texto) {
-  const trans=[];
-  const MONTHS={JAN:'01',FEV:'02',MAR:'03',ABR:'04',MAI:'05',JUN:'06',JUL:'07',AGO:'08',SET:'09',OUT:'10',NOV:'11',DEZ:'12'};
-  const IGNORE_RE=[/^total de (entradas|saídas)/i,/^saldo (inicial|final|líquido)/i,/^rendimento/i,/^movimentações/i,/^tem alguma dúvida/i,/^caso a solução/i,/^extrato gerado/i,/^nu (financeira|pagamentos)/i,/^cnpj:/i,/^asseguramos/i,/^não nos responsabilizamos/i,/^o saldo líquido/i,/^\d+ de \d+$/i,/^valores em r\$/i,/^\d{2} de [a-z]+ de \d{4}/i];
-  function nuDate(str){const m=str.match(/^(\d{2})\s+([A-Z]{3})\s+(\d{4})$/i);if(!m)return null;const mon=MONTHS[m[2].toUpperCase()];return mon?`${m[3]}-${mon}-${m[1]}`:null;}
-  let curDate=null,curTipo=null;
-  texto.split('\n').map(l=>l.trim()).filter(Boolean).forEach(line=>{
-    if(IGNORE_RE.some(re=>re.test(line))) return;
-    const dlm=line.match(/^(\d{2}\s+[A-Z]{3}\s+\d{4})\s+(Total de (entradas|saídas))/i);
-    if(dlm){curDate=nuDate(dlm[1]);curTipo=/entradas/i.test(dlm[2])?'Credito':'Debito';return;}
-    const ctm=line.match(/^Total de (entradas|saídas)\s+[+\-]?([\d.]+,\d{2})$/i);
-    if(ctm){curTipo=/entradas/i.test(ctm[1])?'Credito':'Debito';return;}
-    const sd=nuDate(line);if(sd){curDate=sd;return;}
-    if(!curDate||!curTipo) return;
-    const mm=line.match(/([\d.]+,\d{2})\s*$/);if(!mm) return;
-    const v=concParseMoney(mm[1]);if(v===0) return;
-    let desc=line.replace(/\s*[\d.]+,\d{2}\s*$/,'').trim();
-    desc=desc.split(/\s{3,}/)[0].trim();
-    if(desc.length>60) desc=desc.slice(0,60).trim();
-    if(!desc) return;
-    trans.push({data:curDate,descricao:desc,valor:v,tipo:curTipo});
-  });
-  return trans;
-}
 
-/* ── OCR Caixa via API Claude ── */
-async function concOcrCaixa(base64) {
-  const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
-  let binary=''; const chunk=8192;
-  for(let i=0;i<bytes.length;i+=chunk) binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
-  const b64=btoa(binary);
-  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:'Extraia o texto deste extrato bancário da Caixa Econômica Federal.\nRetorne APENAS texto puro linha por linha, sem markdown.\nPara cada lançamento: data/hora, nr.doc, histórico, favorecido (se houver), valor seguido de D ou C.\nExemplo: 11/02/2026 - 14:14:10 111414 PIX ENVIADO Rerivaldo 1.710,00 D\nInclua: Cliente, Conta, Período dos lançamentos, SALDO ANTERIOR.'}]}]})});
-  if(!res.ok) throw new Error('OCR HTTP '+res.status);
-  const data=await res.json();
-  if(data.error) throw new Error(data.error.message);
-  return data.content.map(b=>b.text||'').join('\n');
-}
-
-/* ── Dispatcher do parser ── */
 function concDispatchParser(texto, banco) {
   switch(banco) {
     case 'itau':     return concParseItau(texto);
@@ -7348,7 +7579,7 @@ function relTblWrap(cols,rows,foot=''){return`<div class="tbl-wrap"><table class
 
 function relFluxoCaixa(ym){
   const itens=lancamentos.filter(l=>l.data&&l.data.startsWith(ym));
-  const rec=itens.filter(l=>l.tipo==='Receita'), desp=itens.filter(l=>l.tipo==='Despesa');
+  const rec=itens.filter(l=>l.tipo==='Receita'&&!isTransferencia(l)), desp=itens.filter(l=>l.tipo==='Despesa'&&!isTransferencia(l));
   const totR=rec.reduce((s,l)=>s+parseMoney(l.valor),0), totD=desp.reduce((s,l)=>s+parseMoney(l.valor),0), saldo=totR-totD;
   const porDia={};
   itens.forEach(l=>{if(!porDia[l.data])porDia[l.data]={r:0,d:0};if(l.tipo==='Receita')porDia[l.data].r+=parseMoney(l.valor);else if(l.tipo==='Despesa')porDia[l.data].d+=parseMoney(l.valor);});
@@ -7362,7 +7593,7 @@ function relMovBanco(ym,bancofiltro){
   let html='';
   bf.forEach(b=>{
     const itens=lancamentos.filter(l=>l.data&&l.data.startsWith(ym)&&(l.banco===b.nome||l.bancoDestino===b.nome));
-    const saldo=getSaldoBanco(b.nome), rec=itens.filter(l=>l.tipo==='Receita'&&l.banco===b.nome).reduce((s,l)=>s+parseMoney(l.valor),0), desp=itens.filter(l=>l.tipo==='Despesa'&&l.banco===b.nome).reduce((s,l)=>s+parseMoney(l.valor),0);
+    const saldo=getSaldoBanco(b.nome), rec=itens.filter(l=>l.tipo==='Receita'&&l.banco===b.nome&&!isTransferencia(l)).reduce((s,l)=>s+parseMoney(l.valor),0), desp=itens.filter(l=>l.tipo==='Despesa'&&l.banco===b.nome&&!isTransferencia(l)).reduce((s,l)=>s+parseMoney(l.valor),0);
     const rows=itens.map(l=>`<tr><td class="td-m">${relFmtDate(l.data)}</td><td>${l.desc||'—'}</td><td>${l.centro||l.cc||'—'}</td><td style="color:${l.tipo==='Receita'?'var(--teal)':'var(--red)'};font-family:var(--mono)">${l.tipo==='Receita'?'+':'-'}${relFmt(parseMoney(l.valor))}</td><td><span class="rel-badge ${l.pago?'ok':'warn'}">${l.pago?'Pago':'Pendente'}</span></td></tr>`).join('');
     html+=`<div class="rel-section" style="margin-bottom:16px"><div class="rel-section-hd"><span><i class="fa fa-university"></i>${b.nome}</span><div style="display:flex;gap:12px;font-family:var(--mono);font-size:12px"><span style="color:var(--teal)">+${relFmt(rec)}</span><span style="color:var(--red)">-${relFmt(desp)}</span><span style="color:var(--gold)">Saldo: ${relFmt(saldo)}</span></div></div>${relTblWrap(['Data','Descrição','Categoria','Valor','Status'],rows)}</div>`;
   });
@@ -7381,7 +7612,7 @@ function relMovCartao(ym,cartaoFiltro){
   return `<div class="rel-header"><div class="rel-title"><i class="fa fa-credit-card" style="color:var(--gold);margin-right:8px"></i>Movimentação de Cartões — ${relMesLabel(ym)}</div><div class="rel-kpis">${cf.map(c=>{const t=lancamentos.filter(l=>l.data&&l.data.startsWith(ym)&&(l.cartaoId===c.id||l.cc===c.nome)).reduce((s,l)=>s+parseMoney(l.valor),0);return relKpiHtml(c.nome,relFmt(t),'neg');}).join('')}</div></div>${html}`;
 }
 function relCategoria(ym){
-  const desp=lancamentos.filter(l=>l.data&&l.data.startsWith(ym)&&l.tipo==='Despesa');
+  const desp=lancamentos.filter(l=>l.data&&l.data.startsWith(ym)&&l.tipo==='Despesa'&&!isTransferencia(l));
   const total=desp.reduce((s,l)=>s+parseMoney(l.valor),0);
   const por={};desp.forEach(l=>{const cat=l.cc||'Sem categoria';por[cat]=(por[cat]||0)+parseMoney(l.valor);});
   const sorted=Object.entries(por).sort((a,b)=>b[1]-a[1]);
@@ -7540,22 +7771,6 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.GlobalWorkerOptions.workerSrc='https:
     </div>
   </div>
 </div>
-
-
-<!-- Service Worker Registration -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => {
-        console.log('[NMC PWA] Service Worker registrado:', reg.scope);
-        // Verifica atualizações a cada 60 min
-        setInterval(() => reg.update(), 60 * 60 * 1000);
-      })
-      .catch(err => console.warn('[NMC PWA] SW falhou:', err));
-  });
-}
-</script>
 
 </body>
 </html>
