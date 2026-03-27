@@ -5742,24 +5742,41 @@ function buildDashInvestChart() {
 }
 
 function buildFluxoChart(data) {
-  const mes   = document.getElementById('dashMes')?.value || nowYM();
-  const banco = document.getElementById('dashBanco')?.value || '';
+  const mes    = document.getElementById('dashMes')?.value || nowYM();
+  const banco  = document.getElementById('dashBanco')?.value || '';
   const wideMode = (mes === '__ano__' || mes === '__6m__');
+  const hoje   = new Date().toISOString().slice(0,10);
 
-  const keyFn  = l => wideMode ? l.data.slice(0,7) : l.data;
-  const groups = {};
-  data.forEach(l => {
-    if (isTransferencia(l)) return; // transferências não afetam fluxo de caixa
-    const k = keyFn(l);
-    if (!groups[k]) groups[k] = {r:0, d:0};
-    if (l.tipo==='Receita')  groups[k].r += parseMoney(l.valor);
-    else if (l.tipo==='Despesa' || l.tipo==='Financiamento') groups[k].d += parseMoney(l.valor);
+  // Cores por banco
+  const CORES = ['#c9a84c','#3eb89a','#4a8fff','#a78bfa','#f59e0b',
+                 '#ec4899','#10b981','#6366f1','#ef4444','#06b6d4'];
+
+  // Bancos a exibir
+  const bancosAlvo = banco
+    ? [bancos.find(b=>b.nome===banco)].filter(Boolean)
+    : bancos;
+
+  // Datas únicas com movimento (eixo X)
+  const datasSet = new Set();
+  lancamentos.forEach(l => {
+    if (!l.data) return;
+    if (banco && l.banco !== banco) return;
+    const k = wideMode ? l.data.slice(0,7) : l.data;
+    datasSet.add(k);
   });
 
-  // Nota: parcelas de financiamento já estão incluídas via lancamentos tipo='Financiamento'
-  // Não duplicar aqui
+  // Garante pelo menos o mês/período atual
+  if (mes !== '__ano__' && mes !== '__6m__') {
+    datasSet.add(wideMode ? mes.slice(0,7) : mes + '-01');
+  }
 
-  const sorted = Object.keys(groups).sort();
+  const sorted = Array.from(datasSet).sort();
+
+  // Se não há datas, esconde
+  if (!sorted.length || !bancosAlvo.length) {
+    if (chartFluxo) chartFluxo.destroy();
+    return;
+  }
 
   const labels = sorted.map(k => {
     if (wideMode) {
@@ -5768,31 +5785,27 @@ function buildFluxoChart(data) {
     }
     return fmtDate(k);
   });
-  const recs  = sorted.map(k => groups[k].r);
-  const desps = sorted.map(k => groups[k].d);
 
-  // Saldo acumulado real: saldoInicial + lançamentos pagos até cada data
-  // Para datas futuras (previsão): inclui todos os lançamentos agendados
-  const hoje2 = new Date().toISOString().slice(0,10);
-  const saldos = sorted.map(k => {
-    const limitDate = wideMode
-      ? (() => { const [y,mo]=k.split('-'); const d=new Date(+y,+mo,0); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })()
-      : k;
+  // Uma linha por banco: saldo acumulado até cada data
+  const datasets = bancosAlvo.map((b, idx) => {
+    const cor = CORES[idx % CORES.length];
+    const saldos = sorted.map(k => {
+      const limitDate = wideMode
+        ? (() => {
+            const [y,mo] = k.split('-');
+            const d = new Date(+y, +mo, 0);
+            return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+          })()
+        : k;
 
-    const bancosAlvo = banco
-      ? [bancos.find(b=>b.nome===banco)].filter(Boolean)
-      : bancos;
-
-    const saldo = bancosAlvo.reduce((total, b) => {
       const saldoIni = b.saldoInicial || 0;
       const movs = lancamentos.filter(l => {
         if (l.banco !== b.nome) return false;
         if (l.tipo === 'Investimento') return false;
-        if (!isTransferencia(l) && l.data > limitDate) return false;
-        if (isTransferencia(l) && l.data > limitDate) return false;
-        // Datas passadas: só pagos; datas futuras: todos (previsão)
-        if (l.data <= hoje2 && l.pago === false) return false;
-        return l.data <= limitDate;
+        if (l.data > limitDate) return false;
+        // Passado: só pagos; Futuro: todos (previsão)
+        if (l.data <= hoje && l.pago === false) return false;
+        return true;
       });
       const entradas = movs.filter(l =>
         l.tipo==='Receita' || (l.tipo==='Transferência' && l.transDir==='entrada')
@@ -5801,61 +5814,40 @@ function buildFluxoChart(data) {
         l.tipo==='Despesa' || l.tipo==='Financiamento' ||
         (l.tipo==='Transferência' && l.transDir==='saida')
       ).reduce((s,l) => s + parseMoney(l.valor), 0);
-      return total + saldoIni + entradas - saidas;
-    }, 0);
+      return saldoIni + entradas - saidas;
+    });
 
-    return saldo;
+    return {
+      type: 'line',
+      label: b.nome,
+      data: saldos,
+      borderColor: cor,
+      backgroundColor: cor + '18',
+      borderWidth: 2,
+      tension: .35,
+      pointRadius: sorted.length <= 15 ? 4 : 2,
+      pointBackgroundColor: saldos.map(v => v >= 0 ? cor : '#e05252'),
+      pointBorderColor:     saldos.map(v => v >= 0 ? cor : '#e05252'),
+      fill: bancosAlvo.length === 1, // preenche só quando for um banco
+      order: idx + 1
+    };
   });
 
   const cfg = {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          type: 'bar',
-          label: 'Receitas',
-          data: recs,
-          backgroundColor: 'rgba(62,184,154,.75)',
-          borderColor: '#3eb89a',
-          borderWidth: 1,
-          borderRadius: 4,
-          order: 2
-        },
-        {
-          type: 'bar',
-          label: 'Despesas',
-          data: desps,
-          backgroundColor: 'rgba(224,82,82,.75)',
-          borderColor: '#e05252',
-          borderWidth: 1,
-          borderRadius: 4,
-          order: 2
-        },
-        {
-          type: 'line',
-          label: 'Saldo das Contas',
-          data: saldos,
-          borderColor: '#c9a84c',
-          backgroundColor: 'rgba(201,168,76,.12)',
-          borderWidth: 2,
-          tension: .4,
-          pointRadius: 4,
-          pointBackgroundColor: saldos.map(v => v >= 0 ? '#c9a84c' : '#e05252'),
-          pointBorderColor: saldos.map(v => v >= 0 ? '#c9a84c' : '#e05252'),
-          fill: false,
-          order: 1,
-          yAxisID: 'y'
-        }
-      ]
-    },
+    type: 'line',
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: true,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
-          labels: { color:'#8a9bb8', font:{ family:'DM Mono', size:11 }, boxWidth:14, padding:16 }
+          labels: {
+            color: '#8a9bb8',
+            font: { family: 'DM Mono', size: 11 },
+            boxWidth: 14, padding: 14,
+            usePointStyle: true
+          }
         },
         tooltip: {
           callbacks: {
@@ -5870,7 +5862,8 @@ function buildFluxoChart(data) {
         },
         y: {
           ticks: { color:'#526178', font:{ family:'DM Mono', size:10 }, callback: v => fmtBRL(v) },
-          grid:  { color:'rgba(30,45,69,.6)' }
+          grid:  { color:'rgba(30,45,69,.6)' },
+          grace: '5%'
         }
       }
     }
@@ -5879,6 +5872,7 @@ function buildFluxoChart(data) {
   if (chartFluxo) chartFluxo.destroy();
   chartFluxo = new Chart(document.getElementById('grafFluxo'), cfg);
 }
+
 
 function buildCCCharts(data) {
   const scaleOpt = {
