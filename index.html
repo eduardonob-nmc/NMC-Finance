@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NMC Personal Finance System v20.16.20260329</title>
+<title>NMC Personal Finance System v20.17.20260401</title>
 
 <!-- PWA — manifest inline para funcionamento single-file -->
 <meta name="theme-color" content="#080b10">
@@ -901,6 +901,57 @@ tbody tr:last-child td { border-bottom: none; }
    RESPONSIVE
 ───────────────────────────────────────── */
 
+/* ── Item 1: Lançamentos — sem scroll horizontal no desktop ── */
+#tblLanc {
+  table-layout: fixed;
+  width: 100%;
+}
+#tblLanc colgroup col:nth-child(1) { width: 72px; }   /* Tipo */
+#tblLanc colgroup col:nth-child(2) { width: 84px; }   /* Vencimento */
+#tblLanc colgroup col:nth-child(3) { width: auto; }   /* Descrição — flexível */
+#tblLanc colgroup col:nth-child(4) { width: 110px; }  /* Conta/Forma */
+#tblLanc colgroup col:nth-child(5) { width: 88px; }   /* Valor */
+#tblLanc colgroup col:nth-child(6) { width: 90px; }   /* Status */
+#tblLanc colgroup col:nth-child(7) { width: 88px; }   /* Ações */
+
+#tblLanc th, #tblLanc td {
+  padding: 9px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#tblLanc td:nth-child(3) { white-space: normal; word-break: break-word; } /* Descrição pode quebrar */
+
+/* Remove overflow-x do wrapper da tabela de lançamentos — desktop */
+@media (min-width: 961px) {
+  #tab-lancamentos .tbl-wrap { overflow-x: hidden; }
+
+  /* Filtros em 2 linhas equilibradas, preenchendo 100% da largura */
+  #tab-lancamentos .filter-bar {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.2fr 1.2fr 1.4fr 1fr 1fr 1fr 1fr auto;
+    grid-template-rows: auto;
+    gap: 8px 10px;
+    align-items: end;
+    width: 100%;
+  }
+  #tab-lancamentos .filter-field { min-width: 0; width: 100%; }
+  #tab-lancamentos .filter-field label { font-size: 11px; }
+  #tab-lancamentos .filter-field input,
+  #tab-lancamentos .filter-field select {
+    font-size: 12px;
+    padding: 6px 8px;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+  #tab-lancamentos .filter-bar .btn {
+    white-space: nowrap;
+    width: 100%;
+  }
+}
+
 /* ── Mobile: table cards view ── */
 .tbl-card-mobile { display: none; }
 
@@ -1403,6 +1454,12 @@ initTema();
             <div class="stat-hint" id="dSaldoTotalHint">todos os lançamentos</div>
             <div id="dSaldoBreakdown" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px"></div>
           </div>
+          <!-- Item 5: Card Patrimônio Atual -->
+          <div class="stat-card" style="border-color:var(--teal);cursor:pointer" onclick="abrirDetalhePatrimonio()" title="Clique para ver detalhes dos investimentos">
+            <div class="stat-label"><i class="fa fa-chart-line" style="font-size:10px;color:var(--teal);margin-right:4px"></i>Patrimônio Atual <i class="fa fa-chevron-right" style="font-size:9px;opacity:.5;margin-left:4px"></i></div>
+            <div class="stat-val" id="dPatrimonio" style="color:var(--teal)">R$ 0,00</div>
+            <div class="stat-hint" id="dPatrimonioHint">total em investimentos</div>
+          </div>
         </div>
 
         <div class="card">
@@ -1481,6 +1538,15 @@ initTema();
           </div>
         </div>
 
+        <!-- Item 6: Acompanhamento de Orçamento -->
+        <div class="card" id="dashOrcamentoCard" style="display:none">
+          <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <span><i class="fa fa-bullseye" style="color:var(--gold);margin-right:6px"></i>Acompanhamento de Orçamento <span class="badge badge-gold">Mês atual</span></span>
+            <button class="btn btn-ghost btn-sm" onclick="switchTab('orcamento',document.querySelector('[data-tab=orcamento]'))" style="font-size:11px"><i class="fa fa-external-link-alt"></i> Ver tudo</button>
+          </div>
+          <div id="dashOrcamentoBody"></div>
+        </div>
+
         <!-- Alertas de Limite por CC -->
         <div class="card" id="dashLimiteCCCard" style="display:none">
           <div class="card-title">
@@ -1530,6 +1596,7 @@ initTema();
 
         <!-- Filter bar -->
         <div class="filter-bar">
+          <!-- Linha 1: Busca + Tipo + Conta + Cartão + CC + Tipo data + Data ini + Data fim + Status + Limpar -->
           <div class="filter-field">
             <label for="fLancBusca">Buscar</label>
             <input id="fLancBusca" placeholder="🔍 Descrição, valor..." oninput="renderLancamentos()">
@@ -1545,7 +1612,7 @@ initTema();
             </select>
           </div>
           <div class="filter-field">
-            <label for="fLancBanco">Conta Corrente</label>
+            <label for="fLancBanco">Conta</label>
             <select id="fLancBanco" onchange="renderLancamentos()">
               <option value="">Todos os bancos</option>
             </select>
@@ -1563,7 +1630,7 @@ initTema();
             </select>
           </div>
           <div class="filter-field">
-            <label>Tipo de data</label>
+            <label>Tipo data</label>
             <select id="fLancTipoDt" onchange="renderLancamentos()">
               <option value="data">Vencimento</option>
               <option value="dataCriacao">Criação</option>
@@ -1571,11 +1638,11 @@ initTema();
             </select>
           </div>
           <div class="filter-field">
-            <label for="fLancDtI">Data inicial</label>
+            <label for="fLancDtI">De</label>
             <input id="fLancDtI" type="date" onchange="renderLancamentos()">
           </div>
           <div class="filter-field">
-            <label for="fLancDtF">Data final</label>
+            <label for="fLancDtF">Até</label>
             <input id="fLancDtF" type="date" onchange="renderLancamentos()">
           </div>
           <div class="filter-field">
@@ -2013,7 +2080,7 @@ initTema();
               </div>
               <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
                 <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Versão</span>
-                <span style="font-size:12px;color:var(--gold);font-family:var(--mono);font-weight:600" id="fichaVersao">v20.16.20260329</span>
+                <span style="font-size:12px;color:var(--gold);font-family:var(--mono);font-weight:600" id="fichaVersao">v20.17.20260401</span>
               </div>
               <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px">
                 <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">Desenvolvedor</span>
@@ -3615,8 +3682,8 @@ function _decrypt(raw) {
 }
 
 /* ══ VERSÃO DO APP ══════════════════════════ */
-const APP_VERSION = '20.16.20260329';
-const APP_BUILD   = '20260328';
+const APP_VERSION = '20.17.20260401';
+const APP_BUILD   = '20260401';
 
 /* ══════════════════════════════════════════
    STATE & STORAGE
@@ -3682,6 +3749,25 @@ let usuarios = _loadUsuarios();
 if (!usuarios.length) {
   usuarios = [{user:'admin', pass: _hashSenha('1234'), perfil:'admin'}];
   _saveUsuarios(usuarios);
+}
+
+function _migrateCartaoFaturas() {
+  // Migração: lançamentos antigos de cartão sem pago:true e sem cartaoFatura
+  // → marca como pago:true e gera lançamento de fatura
+  let migrados = 0;
+  lancamentos.forEach(l => {
+    if (l.tipo === 'Despesa' && l.cartaoId && !l.cartaoFatura && !l.pago) {
+      // Lançamento antigo: marca como pago (despesa já realizada)
+      l.pago = true;
+      l.dataPagamento = l.data;
+      migrados++;
+    }
+  });
+  if (migrados > 0) {
+    // Reconstrói faturas a partir dos lançamentos migrados
+    _recalcFaturasCartao();
+    console.log('[NMC] Migração cartão: ' + migrados + ' lançamentos migrados, faturas recalculadas.');
+  }
 }
 
 function _migrateTransferencias() {
@@ -4558,6 +4644,7 @@ function renderCartoes() {
       ${!isDebito?`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
         ${(()=>{
           const hoje = new Date();
+          const hojeStr = hoje.toISOString().slice(0,10); // Item 9: para comparação precisa
           const ymAtual = hoje.toISOString().slice(0,7);
           const ymProx  = new Date(hoje.getFullYear(), hoje.getMonth()+1, 1).toISOString().slice(0,7);
 
@@ -4565,6 +4652,8 @@ function renderCartoes() {
           const vencDiaC = c.venc ? parseInt(c.venc) : 10;
           const ultimoDiaC = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
           const vencAtualStr = ymAtual + '-' + String(Math.min(vencDiaC, ultimoDiaC)).padStart(2,'0');
+          // Item 9: fatura vencida SOMENTE se hoje > data de vencimento real
+          const faturaVencida = hojeStr > vencAtualStr;
 
           // Fatura atual = TODOS lançamentos não pagos com data <= vencimento atual
           // (inclui meses anteriores que ainda não foram pagos)
@@ -4600,7 +4689,7 @@ function renderCartoes() {
               +'</button></div>';
           };
           return (fatAtual||fatProx)
-            ? mkRow(ymAtual,fatAtual,pagAtualExiste,pagAtualPago,true)
+            ? mkRow(ymAtual,fatAtual,pagAtualExiste,pagAtualPago,faturaVencida)
              +mkRow(ymProx, fatProx, pagProxExiste, false, false)
             : '<div style="font-size:11px;color:var(--text3);font-family:var(--mono);text-align:center">Sem lançamentos</div>';
         })()}
@@ -4819,8 +4908,10 @@ function saveLanc() {
     }
   } else {
     const isPeriod = (period==='Semestral'||period==='Anual') && (parseInt(parcelas)||1)>1;
+    const isPeriod2 = isPeriod; // alias para clareza
+    const gid = uid();
     const obj = {id:uid(),tipo,data,banco:bancoFinal,cc,forma,cartaoId,parcelas,period,valor,desc,dataCriacao:new Date().toISOString().slice(0,10),
-      ...(isPeriod ? {parcelaNum:1, groupId:uid()} : {})};
+      ...(isPeriod ? {parcelaNum:1, groupId:gid} : {})};
     lancamentos.push(obj);
   }
 
@@ -4895,6 +4986,8 @@ function renderLancamentos() {
   const hoje   = new Date().toISOString().slice(0,10);
 
   let data = lancamentos.filter(l => {
+    // Lançamentos internos de fatura de cartão não aparecem na lista de lançamentos
+    if (l.cartaoFatura) return false;
     // Filtro tipo: "Transferência" é identificado pelo groupId+desc, não pelo campo tipo
     if (tipo === 'Transferência') {
       if (!isTransferencia(l)) return false;
@@ -5063,8 +5156,35 @@ function renderLancamentos() {
 
 function delLanc(id) {
   if (!confirm('Excluir este lançamento?')) return;
+  const l = lancamentos.find(x=>x.id===id);
+  const isCartaoCompra = l && l.tipo==='Despesa' && l.cartaoId && !l.cartaoFatura;
+  const cartaoId = isCartaoCompra ? l.cartaoId : null;
+  const faturaYM = isCartaoCompra ? l.faturaYM || (l.data ? l.data.slice(0,7) : null) : null;
   lancamentos = lancamentos.filter(x=>x.id!==id);
-  saveAll(); renderLancamentos(); renderCartoes(); renderDashboard(); toast('Lançamento excluído.');
+  // Se era despesa de cartão, recalcula a fatura correspondente
+  if (isCartaoCompra && faturaYM) {
+    // Remove a fatura do mês afetado e reconstrói
+    lancamentos = lancamentos.filter(l => !(l.cartaoFatura && l.cartaoId===cartaoId && l.faturaYM===faturaYM));
+    const comprasRestantes = lancamentos.filter(l =>
+      l.tipo==='Despesa' && l.cartaoId===cartaoId && !l.cartaoFatura && l.pago &&
+      (l.faturaYM===faturaYM || (l.data && l.data.slice(0,7)===faturaYM))
+    );
+    if (comprasRestantes.length > 0) {
+      const cart = cartoes.find(c=>c.id===cartaoId);
+      const total = comprasRestantes.reduce((s,x)=>s+parseMoney(x.valor),0);
+      const vencData = _faturaVencData(cart, faturaYM);
+      lancamentos.push({
+        id: uid(), tipo:'Despesa', cartaoFatura:true, cartaoId, faturaYM,
+        data: vencData, banco: cart ? (cart.banco||'') : '',
+        cc:'', forma:'Cartão de Crédito', parcelas:'1', period:'Único',
+        valor: total,
+        desc: 'Fatura ' + (cart?cart.nome:'Cartão') + ' ' + faturaYM.slice(5,7)+'/'+faturaYM.slice(0,4),
+        dataCriacao: new Date().toISOString().slice(0,10), pago: false
+      });
+    }
+  }
+  saveAll(); renderLancamentos(); renderCartoes(); renderDashboard(); renderContasPagarDash();
+  toast('Lançamento excluído.');
 }
 
 /* ══════════════════════════════════════════
@@ -6218,42 +6338,59 @@ function parcTogglePago(financId, numParcela, marcarPago) {
 }
 
 function parcLancarProxima() {
+  // Item 2: Apenas registra como "Previsto" — não dá baixa automática
   const f = financiamentos.find(x=>x.id===_parcelasFinancId);
   if (!f) return;
   const pagasF = getPagasFinanc(f);
-  if (pagasF >= f.parcelas) { toast('Todas as parcelas já foram pagas.','inf'); return; }
-  parcTogglePago(f.id, pagasF + 1, true);
+  const proxNum = pagasF + 1;
+  if (proxNum > f.parcelas) { toast('Todas as parcelas já foram lançadas.','inf'); return; }
+  // Verifica se já existe lançamento para essa parcela
+  const jaExiste = lancamentos.find(l =>
+    l.financId === f.id && l.tipo === 'Financiamento' &&
+    (l.desc.includes('('+proxNum+'/'+f.parcelas+')') || l.desc.includes('('+proxNum+'/'+f.parcelas+' ')));
+  if (jaExiste) { toast('Parcela '+proxNum+' já lançada.','inf'); return; }
+  const data = addMonthsFinanc(f.dataInicio, proxNum - 1);
+  lancamentos.push({
+    id: uid(), financId: f.id, dataCriacao: new Date().toISOString().slice(0,10),
+    tipo: 'Financiamento', data,
+    banco: f.banco, cc: 'Financiamentos', forma: 'Debito Automatico',
+    cartaoId: '', parcelas: String(f.parcelas), period: 'Mensal',
+    valor: f.parcelaMensal, desc: f.desc+' ('+proxNum+'/'+f.parcelas+')',
+    pago: false, status: 'Previsto', conciliado: false
+  });
+  saveAll(); renderLancamentos(); renderDashboard();
+  renderParcelasBody(f);
+  toast('Parcela '+proxNum+' lançada como Previsto!','ok');
 }
 
 function parcLancarTodas() {
+  // Item 2: Lança todas as restantes como "Previsto" — sem dar baixa
   const f = financiamentos.find(x=>x.id===_parcelasFinancId);
   if (!f) return;
   const pagasF = getPagasFinanc(f);
   const restantes = f.parcelas - pagasF;
-  if (!restantes) { toast('Todas já pagas.','inf'); return; }
-  if (!confirm('Marcar todas as '+restantes+' parcela(s) restantes como pagas?')) return;
-  // Batch: marca todas sem render intermediário
+  if (!restantes) { toast('Todas já lançadas.','inf'); return; }
+  if (!confirm('Lançar as '+restantes+' parcela(s) restantes como Previsto (sem dar baixa)?')) return;
+  let criados = 0;
   for (let p = pagasF + 1; p <= f.parcelas; p++) {
-    const lanc = lancamentos.find(l =>
+    const jaExiste = lancamentos.find(l =>
       l.financId === f.id && l.tipo === 'Financiamento' &&
       (l.desc.includes('('+p+'/'+f.parcelas+')') || l.desc.includes('('+p+'/'+f.parcelas+' ')));
-    if (lanc) {
-      lanc.pago = true;
-    } else {
-      const data = addMonthsFinanc(f.dataInicio, p - 1);
-      lancamentos.push({
-        id: uid(), financId: f.id, dataCriacao:new Date().toISOString().slice(0,10), tipo: 'Financiamento', data,
-        banco: f.banco, cc: 'Financiamentos', forma: 'Debito Automatico',
-        cartaoId: '', parcelas: String(f.parcelas), period: 'Mensal',
-        valor: f.parcelaMensal, desc: f.desc+' ('+p+'/'+f.parcelas+')',
-        pago: true, conciliado: false
-      });
-    }
+    if (jaExiste) continue; // não duplica
+    const data = addMonthsFinanc(f.dataInicio, p - 1);
+    lancamentos.push({
+      id: uid(), financId: f.id, dataCriacao: new Date().toISOString().slice(0,10),
+      tipo: 'Financiamento', data,
+      banco: f.banco, cc: 'Financiamentos', forma: 'Debito Automatico',
+      cartaoId: '', parcelas: String(f.parcelas), period: 'Mensal',
+      valor: f.parcelaMensal, desc: f.desc+' ('+p+'/'+f.parcelas+')',
+      pago: false, status: 'Previsto', conciliado: false
+    });
+    criados++;
   }
-  // Um único save + render no final
   saveAll(); renderLancamentos(); renderDashboard();
   renderParcelasBody(f);
-  toast(restantes+' parcela(s) marcadas como pagas!','ok');
+  toast(criados+' parcela(s) lançadas como Previsto!','ok');
 }
 
 function parcAjustarFuturas() {
@@ -6268,22 +6405,61 @@ function parcSalvarAjuste() {
   const novoValor = parseMoney(document.getElementById('parcAjusteValor').value);
   const novoDesc  = document.getElementById('parcAjusteDesc').value.trim();
   if (!novoValor) { toast('Informe o novo valor.','err'); return; }
-  const pagasF = getPagasFinanc(f);
-  // Atualiza lançamentos futuros existentes
+
+  // Fronteira real entre pagas e futuras:
+  // f.pagas = pagas via botão "Pagar Parcela" (sem lançamento individual)
+  // lançamentos com pago===true = pagas via modal parcelas (tem lançamento)
+  const pagasViaLanc = lancamentos.filter(l =>
+    l.financId === f.id && l.tipo === 'Financiamento' && l.pago === true
+  ).length;
+  const totalPagas = Math.max(f.pagas || 0, pagasViaLanc);
+
   let atualizados = 0;
+  const ignoradas = totalPagas;
+
+  // Passo 1: atualiza lançamentos existentes SEM baixa
   lancamentos.forEach(l => {
-    if (l.financId === f.id && l.tipo === 'Financiamento' && !l.pago) {
-      l.valor = novoValor;
-      if (novoDesc) l.desc = novoDesc + l.desc.replace(/^[^(]*/,'');
-      atualizados++;
-    }
+    if (l.financId !== f.id || l.tipo !== 'Financiamento') return;
+    if (l.pago === true) return; // baixada — preserva valor histórico
+    l.valor = novoValor;
+    if (novoDesc) l.desc = novoDesc + l.desc.replace(/^[^(]*/, '');
+    atualizados++;
   });
-  // Atualiza parcelaMensal do financiamento
-  f.parcelaMensal = novoValor;
+
+  // Passo 2: parcelas futuras sem lançamento (numero > totalPagas) -> materializa com novo valor
+  // Isso evita que f.parcelaMensal (NÃO alterado abaixo) apareça no render das pagas sem lançamento
+  for (let p = totalPagas + 1; p <= f.parcelas; p++) {
+    const jaExiste = lancamentos.find(l =>
+      l.financId === f.id && l.tipo === 'Financiamento' &&
+      (l.desc.includes('(' + p + '/' + f.parcelas + ')') ||
+       l.desc.includes('(' + p + '/' + f.parcelas + ' ')));
+    if (jaExiste) continue; // já atualizado no passo 1
+    const data = addMonthsFinanc(f.dataInicio, p - 1);
+    const descBase = novoDesc || f.desc;
+    lancamentos.push({
+      id: uid(), financId: f.id,
+      dataCriacao: new Date().toISOString().slice(0, 10),
+      tipo: 'Financiamento', data,
+      banco: f.banco, cc: 'Financiamentos', forma: 'Debito Automatico',
+      cartaoId: '', parcelas: String(f.parcelas), period: 'Mensal',
+      valor: novoValor,
+      desc: descBase + ' (' + p + '/' + f.parcelas + ')',
+      pago: false, status: 'Previsto', conciliado: false
+    });
+    atualizados++;
+  }
+
+  // NAO altera f.parcelaMensal para nao mudar visualmente parcelas pagas sem lancamento
+  // (o render usa f.parcelaMensal como fallback para parcelas sem lancamento — p <= f.pagas)
+
   saveAll(); renderFinanciamentos(); renderLancamentos(); renderDashboard();
   document.getElementById('parcAjustePanel').style.display = 'none';
   renderParcelasBody(f);
-  toast(atualizados+' parcela(s) futura(s) ajustada(s) para '+fmtBRL(novoValor)+'!');
+  toast(
+    atualizados + ' parcela(s) futura(s) ajustada(s) para ' + fmtBRL(novoValor) +
+    ' · ' + ignoradas + ' paga(s) preservada(s)',
+    'ok'
+  );
 }
 
 function openLancFinanc(financId) {
@@ -6437,9 +6613,11 @@ function renderDashboard() {
   buildFluxoChart(data);
   buildCCCharts(data);
   buildDashInvestChart();
+  updatePatrimonioCard(); // Item 5
   renderAlertFaturas();
   renderComparativoDash();
   renderPrevisaoDash();
+  renderOrcamentoDash(); // Item 6
   renderAlertaLimiteCCDash();
   renderAlertasInlineDash();
   // Drill-down hierárquico
@@ -6852,6 +7030,14 @@ function renderSysInfo() {
   const lastBk = localStorage.getItem('lastBackup');
   const cfg = getBackupConfig();
   const dataSize = (JSON.stringify({bancos,centros,formas,cartoes,lancamentos,usuarios,financiamentos,investimentos,movsInvest,metas,recorrentes}).length/1024).toFixed(1);
+  // Item 10: formato seguro de data do último backup
+  let lastBkStr = 'Nunca';
+  if (lastBk) {
+    try {
+      const d = new Date(lastBk);
+      lastBkStr = isNaN(d.getTime()) ? 'Data inválida' : d.toLocaleString('pt-BR');
+    } catch(e) { lastBkStr = 'Data inválida'; }
+  }
   document.getElementById('sysInfo').innerHTML = `
     Lançamentos: ${lancamentos.length}<br>
     Bancos: ${bancos.length}<br>
@@ -6866,7 +7052,7 @@ function renderSysInfo() {
     Versão: <span style="color:var(--gold)">${APP_VERSION}</span><br>
     Build: <span style="color:var(--text3)">${APP_BUILD}</span><br>
     Armazenamento: ${dataSize} KB<br>
-    Último backup: <span style="color:${lastBk?'var(--teal)':'var(--red)'}">${lastBk ? new Date(lastBk).toLocaleString('pt-BR') : 'Nunca'}</span><br>
+    Último backup: <span style="color:${lastBk?'var(--teal)':'var(--red)'}">${lastBkStr}</span><br>
     Backup automático: <span style="color:${cfg.ativo?'var(--teal)':'var(--text3)'}">${cfg.ativo ? '✓ Ativo ('+cfg.intervalo+')' : 'Inativo'}</span>
   `;
   // Update toggle button state
@@ -6926,6 +7112,73 @@ function importData() {
 function toggleSaldoBreakdown() {
   const el = document.getElementById('dSaldoBreakdown');
   if (el) el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+/* ── Item 5: Patrimônio Atual ── */
+function _calcPatrimonioAtual() {
+  // Soma valor atual de todos os investimentos
+  return investimentos.reduce((s, inv) => {
+    // Se tem movimentações, usa saldo calculado; senão usa cadastro
+    const movs = movsInvest.filter(m => m.investId === inv.id);
+    if (movs.length > 0) {
+      const aportes  = movs.filter(m=>m.tipo==='Aporte').reduce((a,m)=>a+m.valor,0);
+      const resgates = movs.filter(m=>m.tipo==='Resgate').reduce((a,m)=>a+m.valor,0);
+      const rends    = movs.filter(m=>m.tipo==='Rendimento').reduce((a,m)=>a+m.valor,0);
+      return s + aportes - resgates + rends;
+    }
+    return s + (inv.atual || inv.aportado || 0);
+  }, 0);
+}
+
+function updatePatrimonioCard() {
+  const el = document.getElementById('dPatrimonio');
+  const hint = document.getElementById('dPatrimonioHint');
+  if (!el) return;
+  const total = _calcPatrimonioAtual();
+  el.textContent = fmtBRL(total);
+  if (hint) hint.textContent = investimentos.length + ' investimento(s)';
+}
+
+function abrirDetalhePatrimonio() {
+  const body = document.getElementById('modalPatrimonioBody');
+  if (!body) return;
+  if (!investimentos.length) {
+    body.innerHTML = '<div class="empty"><i class="fa fa-chart-line"></i>Nenhum investimento cadastrado.</div>';
+    openModal('modalPatrimonio');
+    return;
+  }
+  const total = _calcPatrimonioAtual();
+  body.innerHTML = investimentos.map(inv => {
+    const movs = movsInvest.filter(m => m.investId === inv.id);
+    let valorAtual = inv.atual || inv.aportado || 0;
+    if (movs.length > 0) {
+      const aportes  = movs.filter(m=>m.tipo==='Aporte').reduce((a,m)=>a+m.valor,0);
+      const resgates = movs.filter(m=>m.tipo==='Resgate').reduce((a,m)=>a+m.valor,0);
+      const rends    = movs.filter(m=>m.tipo==='Rendimento').reduce((a,m)=>a+m.valor,0);
+      valorAtual = aportes - resgates + rends;
+    }
+    const pct = total > 0 ? (valorAtual/total*100).toFixed(1) : 0;
+    const barW = total > 0 ? Math.min(100, valorAtual/total*100) : 0;
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div>
+          <div style="font-weight:600;color:var(--text)">${inv.nome}</div>
+          <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${inv.tipo||'—'}${inv.banco?' · '+inv.banco:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--mono);font-size:15px;color:var(--teal);font-weight:600">${fmtBRL(valorAtual)}</div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">${pct}% do total</div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border-radius:99px;height:4px;overflow:hidden">
+        <div style="height:100%;border-radius:99px;background:var(--teal);width:${barW}%;transition:width .4s"></div>
+      </div>
+    </div>`;
+  }).join('') + `<div style="padding:14px 0;display:flex;justify-content:space-between;font-family:var(--mono);font-weight:700">
+    <span style="color:var(--text2)">TOTAL</span>
+    <span style="color:var(--teal);font-size:16px">${fmtBRL(total)}</span>
+  </div>`;
+  openModal('modalPatrimonio');
 }
 
 function openModalClearData() {
@@ -7260,12 +7513,18 @@ function renderMetas() {
       : m.tipo==='Receita' ? rec : Math.max(0, rec-dep);
     return s + val;
   }, 0);
-  const concluidas  = metas.filter(m=>(m.atual||0)>=m.alvo).length;
+  // Item 12: calcular status de cada meta para totais
+  const ym0 = nowYM();
+  const concluidas  = metas.filter(m => (m.atual||0) >= m.alvo).length;
+  const atrasadas   = metas.filter(m => m.prazo && m.prazo < ym0 && (m.atual||0) < m.alvo).length;
+  const emAndamento = metas.length - concluidas - atrasadas;
 
   if (statsEl) {
     statsEl.innerHTML = `
       <div class="stat-card neu"><div class="stat-label">Total de Metas</div><div class="stat-val neu">${metas.length}</div></div>
-      <div class="stat-card pos"><div class="stat-label">Concluídas</div><div class="stat-val pos">${concluidas}</div></div>
+      <div class="stat-card pos"><div class="stat-label"><i class="fa fa-check-circle" style="color:var(--teal)"></i> Concluídas</div><div class="stat-val pos">${concluidas}</div></div>
+      <div class="stat-card neg"><div class="stat-label"><i class="fa fa-exclamation-circle" style="color:var(--red)"></i> Atrasadas</div><div class="stat-val neg">${atrasadas}</div></div>
+      <div class="stat-card neu"><div class="stat-label"><i class="fa fa-clock" style="color:#f59e0b"></i> Em andamento</div><div class="stat-val neu">${emAndamento}</div></div>
       <div class="stat-card neu"><div class="stat-label">Total Acumulado</div><div class="stat-val neu" style="font-size:18px">${fmtBRL(totalAtual)}</div><div class="stat-hint">de ${fmtBRL(totalAlvo)}</div></div>
     `;
   }
@@ -7325,17 +7584,34 @@ function renderMetas() {
       const mesesRestantes = Math.max(1,(py-cy)*12+(pm-cm));
       mensalNecessaria = (m.alvo - realizado) / mesesRestantes;
     }
-    return `<div class="meta-card">
-      <div class="meta-card-name">${m.nome}</div>
+    // Item 12: status visual da meta
+    const statusLabel = concl ? 'Concluído' : vencido ? 'Atrasado' : 'Em andamento';
+    const statusCor   = concl ? 'var(--teal)' : vencido ? 'var(--red)' : '#f59e0b';
+    const statusIcon  = concl ? 'fa-check-circle' : vencido ? 'fa-exclamation-circle' : 'fa-clock';
+    const statusBg    = concl ? 'rgba(62,184,154,.12)' : vencido ? 'rgba(224,82,82,.12)' : 'rgba(245,158,11,.12)';
+
+    return `<div class="meta-card" style="border-top:3px solid ${statusCor}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div class="meta-card-name" style="margin-bottom:0">${m.nome}</div>
+        <span style="font-size:10px;font-family:var(--mono);font-weight:600;color:${statusCor};background:${statusBg};padding:2px 8px;border-radius:99px;white-space:nowrap">
+          <i class="fa ${statusIcon}" style="margin-right:3px"></i>${statusLabel}
+        </span>
+      </div>
       <div class="meta-card-tipo">${m.tipo}${m.cc?' · '+m.cc:''}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
         <div class="financ-stat"><div class="financ-stat-label">Alvo Total</div><div class="financ-stat-val" style="color:var(--gold)">${fmtBRL(m.alvo)}</div></div>
         <div class="financ-stat"><div class="financ-stat-label">Realizado</div><div class="financ-stat-val" style="color:${concl?'var(--teal)':'var(--text)'}">${fmtBRL(realizado)}${m.cc?'<span style="font-size:9px;color:var(--text3);font-family:var(--mono);display:block">auto · lançamentos</span>':''}</div></div>
         <div class="financ-stat"><div class="financ-stat-label">Prazo</div><div class="financ-stat-val" style="font-size:12px;color:${vencido?'var(--red)':'var(--text2)'}">${prazoStr}</div></div>
-        <div class="financ-stat"><div class="financ-stat-label">${mensalNecessaria>0?'Falta/mês':'Progresso'}</div><div class="financ-stat-val" style="color:${corBar};font-size:${mensalNecessaria>0?'13px':'18px'}">${mensalNecessaria>0?fmtBRL(mensalNecessaria):pct+'%'}</div></div>
+        <div class="financ-stat"><div class="financ-stat-label">Progresso</div><div class="financ-stat-val" style="color:${corBar};font-size:18px">${pct}%</div></div>
       </div>
-      <div class="financ-progress" title="${pct}% concluído"><div class="financ-progress-bar" style="width:${pct}%;background:${corBar}"></div></div>
-      <div style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">${pct}% da meta total</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="financ-progress" style="flex:1;margin-bottom:0" title="${pct}% concluído"><div class="financ-progress-bar" style="width:${pct}%;background:${corBar}"></div></div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${corBar};min-width:40px;text-align:right">${pct}%</div>
+      </div>
+      <div style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">
+        ${fmtBRL(realizado)} de ${fmtBRL(m.alvo)}
+        ${mensalNecessaria>0?` · falta ${fmtBRL(mensalNecessaria)}/mês`:''}
+      </div>
       ${m.cc && orcamento>0 ? `
       <div style="background:var(--card2);border-radius:var(--r);padding:10px 12px;margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono);margin-bottom:6px">
@@ -7732,6 +8008,7 @@ function renderRecorrentes() {
         ${expir
           ? `<button class="btn btn-ghost btn-icon btn-sm" style="color:var(--gold)" onclick="abrirModalRenovar('${r.id}')" title="Renovar ciclo"><i class="fa fa-redo"></i></button>`
           : (!jaLancado && r.ativo==='sim' && !r.cartaoId ? `<button class="btn btn-ghost btn-icon btn-sm" style="color:var(--teal)" onclick="lancarRecorrenteAgora('${r.id}')"><i class="fa fa-bolt"></i></button>` : '')}
+        <button class="btn btn-ghost btn-icon btn-sm" style="color:var(--blue)" onclick="ajustarValorFuturoRecorrente('${r.id}')" title="Ajustar Valor Futuro"><i class="fa fa-dollar-sign"></i></button>
         <button class="btn btn-ghost btn-icon btn-edit" onclick="openModalRecorrente('${r.id}')"><i class="fa fa-pencil-alt"></i></button>
         <button class="btn btn-ghost btn-icon btn-sm" style="color:var(--red);border-color:rgba(224,82,82,.35)" onclick="cancelarRecorrenteAgora('${r.id}')" title="Cancelar recorrente"><i class="fa fa-ban"></i></button>
         <button class="btn btn-ghost btn-icon btn-danger" onclick="delRecorrente('${r.id}')"><i class="fa fa-trash"></i></button>
@@ -7743,6 +8020,34 @@ function renderRecorrentes() {
 /* ══════════════════════════════════════════
    COMPARATIVO MÊS A MÊS (DASHBOARD)
 ══════════════════════════════════════════ */
+/* ── Item 4: Ajustar Valor Futuro de Recorrente ── */
+function ajustarValorFuturoRecorrente(recId) {
+  const r = recorrentes.find(x => x.id === recId);
+  if (!r) return;
+  const novoValorStr = prompt(
+    `Ajustar valor futuro de "${r.desc}"\nValor atual: ${fmtBRL(r.valor)}\n\nNovo valor (apenas lançamentos futuros não pagos serão alterados):`,
+    fmtBRL(r.valor)
+  );
+  if (novoValorStr === null) return; // cancelou
+  const novoValor = parseMoney(novoValorStr);
+  if (!novoValor || novoValor <= 0) { toast('Valor inválido.', 'err'); return; }
+  const hoje = new Date().toISOString().slice(0, 10);
+  let atualizados = 0;
+  // Atualiza lançamentos futuros e pendentes vinculados
+  lancamentos.forEach(l => {
+    if (l.recorrenteId === recId && !l.pago && l.data >= hoje) {
+      l.valor = novoValor;
+      atualizados++;
+    }
+  });
+  // Atualiza valor padrão do recorrente (para futuros gerados automaticamente)
+  r.valor = novoValor;
+  saveAll();
+  renderLancamentos();
+  renderRecorrentes();
+  toast(`Valor atualizado para ${fmtBRL(novoValor)}. ${atualizados} lançamento(s) futuro(s) ajustado(s).`, 'ok');
+}
+
 function renderComparativoDash() {
   const hoje = new Date();
   const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
@@ -7844,6 +8149,80 @@ function renderPrevisaoDash() {
 /* ══════════════════════════════════════════
    ALERTAS DE LIMITE CC NO DASHBOARD
 ══════════════════════════════════════════ */
+/* ── Item 6: Acompanhamento de Orçamento no Dashboard ── */
+function renderOrcamentoDash() {
+  const card = document.getElementById('dashOrcamentoCard');
+  const body = document.getElementById('dashOrcamentoBody');
+  if (!card || !body) return;
+
+  const ano = new Date().getFullYear();
+  const mes = new Date().getMonth() + 1; // 1-12
+  const ymAtual = nowYM();
+
+  // Pega linhas do orçamento que têm valor para o mês atual
+  const dados = centros.filter(cc => {
+    if (cc.excluirRecDesp) return false;
+    const orcado = orcGet(cc.nome, ano, mes);
+    return orcado > 0;
+  }).map(cc => {
+    const orcado   = orcGet(cc.nome, ano, mes);
+    const realizado = orcRealizado(cc.nome, ano, mes);
+    const pct = orcado > 0 ? Math.min(150, Math.round(Math.abs(realizado) / orcado * 100)) : 0;
+    return { nome: cc.nome, orcado, realizado: Math.abs(realizado), pct };
+  }).sort((a,b) => b.pct - a.pct);
+
+  if (!dados.length) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+
+  // Totais do mês
+  const totOrc = dados.reduce((s,d) => s + d.orcado, 0);
+  const totReal = dados.reduce((s,d) => s + d.realizado, 0);
+  const totPct  = totOrc > 0 ? Math.min(150, Math.round(totReal / totOrc * 100)) : 0;
+  const totCor  = totPct >= 100 ? 'var(--red)' : totPct >= 80 ? '#f59e0b' : 'var(--teal)';
+
+  // Calcula totais anuais
+  const totOrcAnual  = centros.reduce((s,cc) => {
+    let t=0; for(let m=1;m<=12;m++) t+=orcGet(cc.nome,ano,m); return s+t;
+  }, 0);
+  const totRealAnual = centros.reduce((s,cc) => {
+    let t=0; for(let m=1;m<=12;m++) t+=Math.abs(orcRealizado(cc.nome,ano,m)); return s+t;
+  }, 0);
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div style="background:var(--surface);border-radius:var(--r);padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Orçado Mês</div>
+        <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text)">${fmtBRL(totOrc)}</div>
+      </div>
+      <div style="background:var(--surface);border-radius:var(--r);padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Realizado Mês</div>
+        <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${totCor}">${fmtBRL(totReal)} <span style="font-size:11px">(${totPct}%)</span></div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      ${dados.slice(0,6).map(d => {
+        const cor = d.pct >= 100 ? 'var(--red)' : d.pct >= 80 ? '#f59e0b' : 'var(--teal)';
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="color:var(--text2)">${d.nome}</span>
+            <span style="font-family:var(--mono);color:${cor}">${fmtBRL(d.realizado)} / ${fmtBRL(d.orcado)} (${d.pct}%)</span>
+          </div>
+          <div style="background:var(--surface);border-radius:99px;height:5px;overflow:hidden">
+            <div style="height:100%;border-radius:99px;background:${cor};width:${Math.min(100,d.pct)}%;transition:width .4s"></div>
+          </div>
+        </div>`;
+      }).join('')}
+      ${dados.length > 6 ? `<div style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px">+${dados.length-6} centros — <a href="#" onclick="switchTab('orcamento',document.querySelector('[data-tab=orcamento]'));return false" style="color:var(--gold)">ver tudo</a></div>` : ''}
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono);color:var(--text3)">
+      <span>Anual: ${fmtBRL(totRealAnual)} realizados</span>
+      <span>de ${fmtBRL(totOrcAnual)} orçados</span>
+    </div>`;
+}
+
 function renderAlertaLimiteCCDash() {
   const card = document.getElementById('dashLimiteCCCard');
   const body = document.getElementById('dashLimiteCCBody');
@@ -7985,6 +8364,32 @@ document.getElementById('lUser').value = 'admin';
 
 // Start auto-backup scheduler on page load
 agendarAutoBackup();
+
+// Item 11: Backup automático ao entrar — 1x por sessão, sem bloquear UI
+(function() {
+  const SESSION_KEY = 'nmc_session_backup_done';
+  if (!sessionStorage.getItem(SESSION_KEY)) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    // Aguarda 3s após login para não impactar performance de carregamento
+    setTimeout(function() {
+      try {
+        const obj = {bancos,centros,formas,cartoes,lancamentos,usuarios,
+          financiamentos,investimentos,movsInvest,metas,recorrentes,
+          _v:'19', _ts:new Date().toISOString(), _enc:true, _auto:true};
+        const blob = new Blob([JSON.stringify(obj)], {type:'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `nmc_auto_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        const ts = new Date().toISOString();
+        localStorage.setItem('lastBackup', ts);
+        if (typeof renderSysInfo === 'function') renderSysInfo();
+        toast('Backup automático de sessão realizado!', 'inf');
+      } catch(e) { console.warn('Auto-backup sessão falhou:', e); }
+    }, 3000);
+  }
+})();
+
 initTema();
 </script>
 <!-- Service Worker — ativado para PWA/Play Store -->
@@ -8133,30 +8538,128 @@ function clearLancFilter() {
 }
 
 /* ══ CONTAS A PAGAR NO DASHBOARD ══ */
+// Despesas de cartão: agrupadas por cartão com total da fatura no vencimento do cartão
+// Demais despesas (sem cartão): exibidas individualmente
 function renderContasPagarDash() {
   const card = document.getElementById('dashContasPagarCard'); if(!card) return;
   const hoje = new Date().toISOString().slice(0,10);
   const em7  = new Date(Date.now()+7*864e5).toISOString().slice(0,10);
-  const pendentes = lancamentos.filter(l=>l.tipo==='Despesa'&&!l.pago&&l.data&&l.data<=em7).sort((a,b)=>a.data.localeCompare(b.data));
-  if(!pendentes.length){card.innerHTML='';return;}
-  const totV=pendentes.filter(l=>l.data<hoje).reduce((s,l)=>s+parseMoney(l.valor),0);
-  const totP=pendentes.filter(l=>l.data>=hoje).reduce((s,l)=>s+parseMoney(l.valor),0);
+
+  // 1. Despesas SEM cartão com vencimento nos próximos 7 dias
+  const individuais = lancamentos.filter(l =>
+    l.tipo==='Despesa' && !l.pago && !l.cartaoId && l.data && l.data<=em7
+  ).sort((a,b)=>a.data.localeCompare(b.data));
+
+  // 2. Faturas de cartão: agrupa TODAS as despesas não pagas por cartão
+  //    A data exibida é o vencimento da fatura do cartão (não da compra individual)
+  const fatMap = {};
+  lancamentos.filter(l => l.tipo==='Despesa' && !l.pago && l.cartaoId).forEach(l => {
+    const c = cartoes.find(x=>x.id===l.cartaoId);
+    if (!c) return;
+    // Calcula data de vencimento da fatura do mês do lançamento
+    const lYM  = (l.data||'').slice(0,7);
+    const fechDay = c.fech ? parseInt(c.fech) : 31;
+    const vencDay = c.venc ? parseInt(c.venc) : 10;
+    // Determina mês da fatura
+    const lDate = new Date((l.data||hoje)+'T12:00:00');
+    let fatY = lDate.getFullYear(), fatM = lDate.getMonth();
+    if (lDate.getDate() > fechDay) { fatM++; if(fatM>11){fatM=0;fatY++;} }
+    const fatUltimoDia = new Date(fatY, fatM+1, 0).getDate();
+    const fatDia = Math.min(vencDay, fatUltimoDia);
+    const vencData = fatY+'-'+String(fatM+1).padStart(2,'0')+'-'+String(fatDia).padStart(2,'0');
+    const key = l.cartaoId + '_' + fatY + '_' + String(fatM+1).padStart(2,'0');
+    if (!fatMap[key]) {
+      fatMap[key] = { cartaoId:l.cartaoId, nome:c.nome, valor:0, vencData, ids:[], qtd:0 };
+    }
+    fatMap[key].valor += parseMoney(l.valor);
+    fatMap[key].ids.push(l.id);
+    fatMap[key].qtd++;
+  });
+
+  // Filtra faturas com vencimento até 7 dias ou já vencidas
+  const itensCartao = Object.values(fatMap).filter(x=>x.vencData<=em7)
+    .sort((a,b)=>a.vencData.localeCompare(b.vencData));
+
+  if (!itensCartao.length && !individuais.length) { card.innerHTML=''; return; }
+
+  const totV = [
+    ...itensCartao.filter(x=>x.vencData<hoje).map(x=>x.valor),
+    ...individuais.filter(l=>l.data<hoje).map(l=>parseMoney(l.valor))
+  ].reduce((s,v)=>s+v,0);
+  const totP = [
+    ...itensCartao.filter(x=>x.vencData>=hoje).map(x=>x.valor),
+    ...individuais.filter(l=>l.data>=hoje).map(l=>parseMoney(l.valor))
+  ].reduce((s,v)=>s+v,0);
+
+  const mkItemCartao = (fat) => {
+    const vencido = fat.vencData < hoje;
+    const diff = Math.round((new Date(fat.vencData+'T12:00:00')-new Date())/864e5);
+    const dLabel = fat.vencData===hoje?'Hoje':vencido?`Venceu há ${Math.abs(diff)}d`:`Em ${diff}d`;
+    return `<div class="cp-item">
+      <div style="width:4px;height:40px;border-radius:2px;flex-shrink:0;background:${vencido?'var(--red)':'#f59e0b'}"></div>
+      <div class="cp-item-info">
+        <div class="cp-item-desc"><i class="fa fa-credit-card" style="font-size:10px;opacity:.7;margin-right:5px"></i>Fatura ${fat.nome}</div>
+        <div class="cp-item-meta">Venc. ${fmtDate(fat.vencData)} · ${fat.qtd} lançamento(s) · <span style="color:${vencido?'var(--red)':'#f59e0b'}">${dLabel}</span></div>
+      </div>
+      <div class="cp-item-val">${fmtBRL(fat.valor)}</div>
+      <button class="cp-btn-baixa" onclick="abrirBaixaCartaoIds(${JSON.stringify(fat.ids).replace(/"/g,"'").replace('[','[').replace(']',']')},'${fat.nome}',${fat.valor},'${fat.vencData}')">
+        <i class="fa fa-check"></i> Pagar fatura
+      </button>
+    </div>`;
+  };
+
+  const mkItemIndividual = (l) => {
+    const vencido = l.data < hoje;
+    const diff = Math.round((new Date(l.data+'T12:00:00')-new Date())/864e5);
+    const dLabel = l.data===hoje?'Hoje':vencido?`Venceu há ${Math.abs(diff)}d`:`Em ${diff}d`;
+    return `<div class="cp-item">
+      <div style="width:4px;height:40px;border-radius:2px;flex-shrink:0;background:${vencido?'var(--red)':'#f59e0b'}"></div>
+      <div class="cp-item-info">
+        <div class="cp-item-desc">${l.desc||'Sem descrição'}</div>
+        <div class="cp-item-meta">${fmtDate(l.data)} · ${l.banco||l.forma||'—'} · <span style="color:${vencido?'var(--red)':'#f59e0b'}">${dLabel}</span></div>
+      </div>
+      <div class="cp-item-val">${fmtBRL(parseMoney(l.valor))}</div>
+      <button class="cp-btn-baixa" onclick="baixaRapida('${l.id}')"><i class="fa fa-check"></i> Dar baixa</button>
+    </div>`;
+  };
+
   card.innerHTML=`<div class="cp-card">
-    <div class="cp-header"><span><i class="fa fa-file-invoice-dollar" style="color:var(--gold);margin-right:8px"></i>Contas a Pagar <span class="badge badge-gold" style="margin-left:8px">Próximos 7 dias</span></span>
-      <div style="display:flex;gap:14px;font-family:var(--mono);font-size:12px">${totV?`<span style="color:var(--red)">Vencidas: ${fmtBRL(totV)}</span>`:''} ${totP?`<span style="color:#f59e0b">A vencer: ${fmtBRL(totP)}</span>`:''}</div></div>
-    ${pendentes.map(l=>{
-      const vencido=l.data<hoje;
-      const diff=Math.round((new Date(l.data+'T12:00:00')-new Date())/864e5);
-      const dLabel=l.data===hoje?'Hoje':vencido?`Venceu há ${Math.abs(diff)}d`:`Em ${diff}d`;
-      return `<div class="cp-item">
-        <div style="width:4px;height:36px;border-radius:2px;flex-shrink:0;background:${vencido?'var(--red)':'#f59e0b'}"></div>
-        <div class="cp-item-info"><div class="cp-item-desc">${l.desc||'Sem descrição'}</div>
-          <div class="cp-item-meta">${fmtDate(l.data)} · ${l.banco||'—'} · <span style="color:${vencido?'var(--red)':'#f59e0b'}">${dLabel}</span></div></div>
-        <div class="cp-item-val">${fmtBRL(parseMoney(l.valor))}</div>
-        <button class="cp-btn-baixa" onclick="baixaRapida('${l.id}')"><i class="fa fa-check"></i> Dar baixa</button>
-      </div>`;
-    }).join('')}
+    <div class="cp-header">
+      <span><i class="fa fa-file-invoice-dollar" style="color:var(--gold);margin-right:8px"></i>Contas a Pagar <span class="badge badge-gold" style="margin-left:8px">Próximos 7 dias</span></span>
+      <div style="display:flex;gap:14px;font-family:var(--mono);font-size:12px">
+        ${totV?`<span style="color:var(--red)">Vencidas: ${fmtBRL(totV)}</span>`:''}
+        ${totP?`<span style="color:#f59e0b">A vencer: ${fmtBRL(totP)}</span>`:''}
+      </div>
+    </div>
+    ${[...itensCartao.map(mkItemCartao), ...individuais.map(mkItemIndividual)].join('')}
   </div>`;
+}
+
+function abrirBaixaCartaoIds(ids, cartaoNome, totalFatura, vencData) {
+  // ids = array de ids dos lançamentos desta fatura
+  const hoje = new Date().toISOString().slice(0,10);
+  document.getElementById('mBaixaCartaoNome').textContent  = 'Fatura ' + cartaoNome;
+  document.getElementById('mBaixaCartaoTotal').textContent = fmtBRL(totalFatura);
+  document.getElementById('mBaixaCartaoQtd').textContent   = ids.length + ' lançamento(s) · Venc. ' + fmtDate(vencData);
+  document.getElementById('mBaixaCartaoData').value        = vencData || hoje;
+  document.getElementById('mBaixaCartaoId').value          = JSON.stringify(ids);
+  openModal('modalBaixaCartao');
+}
+
+function confirmarBaixaCartao() {
+  const idsRaw  = document.getElementById('mBaixaCartaoId').value;
+  const dataPag = document.getElementById('mBaixaCartaoData').value || new Date().toISOString().slice(0,10);
+  let ids;
+  try { ids = JSON.parse(idsRaw); } catch(e) { ids = [idsRaw]; }
+  if (!ids.length) { closeModal('modalBaixaCartao'); return; }
+  let baixados = 0;
+  ids.forEach(id => {
+    const l = lancamentos.find(x=>x.id===id);
+    if (l) { l.pago=true; l.dataPagamento=dataPag; baixados++; }
+  });
+  saveAll(); renderLancamentos(); renderDashboard(); renderContasPagarDash();
+  closeModal('modalBaixaCartao');
+  toast('✓ Fatura paga! ' + baixados + ' lançamento(s) baixado(s).','ok');
 }
 
 /* ══ CONCILIAÇÃO - ABAS ══ */
@@ -8956,7 +9459,9 @@ function aprovarPlanoAnual() {
 // ── Acompanhamento Orçado vs Realizado
 function orcGetRealizado(ccNome, ano, mes) {
   // mes: string '01'..'12' ou '' para o ano todo
-  const ccExcl = centros.find(c=>c.nome===ccNome)?.excluirRecDesp;
+  // Item 7: se CC marcado para exclusão, retorna 0
+  const ccObj = centros.find(c=>c.nome===ccNome);
+  if (ccObj && ccObj.excluirRecDesp) return 0;
   let itens = lancamentos.filter(l =>
     l.cc === ccNome && l.pago &&
     l.data && l.data.startsWith(String(ano)) &&
@@ -10254,6 +10759,9 @@ function orcSet(ccNome, ano, mes, valor) {
 
 // Realizado caixa para CC num mês/ano
 function orcRealizado(ccNome, ano, mes) {
+  // Item 7: se o CC estiver marcado "Excluir dos Totais", não computa no realizado
+  const cc = centros.find(c => c.nome === ccNome);
+  if (cc && cc.excluirRecDesp) return 0;
   const prefix = `${ano}-${String(mes).padStart(2,'0')}`;
   return lancamentos
     .filter(l => l.data && l.data.startsWith(prefix) && l.cc === ccNome && l.pago)
@@ -10961,6 +11469,41 @@ function relOrcadoRealizado(ym) {
       <button class="btn btn-outline" onclick="closeModal('modalBaixa')">Cancelar</button>
       <button class="btn btn-gold" onclick="confirmarBaixa()"><i class="fa fa-check"></i> Confirmar Baixa</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal Baixa Fatura Cartão -->
+<div class="modal-bg" id="modalBaixaCartao" onclick="if(event.target===this)closeModal('modalBaixaCartao')">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeModal('modalBaixaCartao')"><i class="fa fa-times"></i></button>
+    <div class="modal-title" style="color:var(--teal)"><i class="fa fa-credit-card"></i> Pagar Fatura do Cartão</div>
+    <input type="hidden" id="mBaixaCartaoId">
+    <div style="margin-bottom:16px;padding:14px;background:var(--surface);border-radius:var(--r);border:1px solid var(--border)">
+      <div style="font-size:14px;color:var(--text);font-weight:600;margin-bottom:4px" id="mBaixaCartaoNome"></div>
+      <div style="font-size:22px;font-family:var(--mono);color:var(--red);font-weight:700" id="mBaixaCartaoTotal"></div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px" id="mBaixaCartaoQtd"></div>
+    </div>
+    <div style="background:rgba(62,184,154,.08);border:1px solid rgba(62,184,154,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--teal);font-family:var(--mono)">
+      <i class="fa fa-info-circle" style="margin-right:6px"></i>Todos os lançamentos desta fatura serão marcados como pagos.
+    </div>
+    <div class="field">
+      <label>Data do Pagamento</label>
+      <input type="date" id="mBaixaCartaoData">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalBaixaCartao')">Cancelar</button>
+      <button class="btn btn-gold" onclick="confirmarBaixaCartao()"><i class="fa fa-check"></i> Confirmar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Patrimônio Atual -->
+<div id="modalPatrimonio" class="modal-bg" onclick="if(event.target===this)closeModal('modalPatrimonio')">
+  <div class="modal" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('modalPatrimonio')"><i class="fa fa-times"></i></button>
+    <div class="modal-title"><i class="fa fa-chart-line" style="color:var(--teal)"></i> Patrimônio em Investimentos</div>
+    <div id="modalPatrimonioBody" style="padding:8px 0;max-height:60vh;overflow-y:auto"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modalPatrimonio')">Fechar</button></div>
   </div>
 </div>
 
