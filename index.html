@@ -3352,6 +3352,27 @@ window._applySelectOptions = function() {
     <p style="text-align:center;margin-top:18px;font-size:11px;color:var(--text3);font-family:var(--mono)">
       padrão: admin / 1234
     </p>
+    <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);text-align:center">
+      <details style="font-size:11px;color:var(--text3)">
+        <summary style="cursor:pointer;font-family:var(--mono);letter-spacing:.5px">⚠ Problemas para entrar?</summary>
+        <div style="margin-top:10px;line-height:1.7">
+          <p>Se os dados aparecem em branco após o login, o Service Worker pode estar com cache antigo.</p>
+          <button onclick="(function(){
+            if(confirm('Isso vai forçar o recarregamento do app. Seus dados no localStorage serão preservados. Continuar?')){
+              if(navigator.serviceWorker){
+                navigator.serviceWorker.getRegistrations().then(function(regs){
+                  regs.forEach(function(r){r.unregister();});
+                  setTimeout(function(){location.reload(true);},400);
+                });
+              } else { location.reload(true); }
+            }
+          })()"
+          style="margin-top:6px;padding:6px 14px;background:rgba(224,82,82,.12);border:1px solid rgba(224,82,82,.3);border-radius:var(--r);color:var(--red);font-size:11px;cursor:pointer;font-family:var(--mono)">
+            🔄 Limpar cache e recarregar
+          </button>
+        </div>
+      </details>
+    </div>
   </div>
 </div>
 
@@ -3876,7 +3897,14 @@ window._applySelectOptions = function() {
 
         <!-- Cadastro de Moedas -->
         <div class="card" style="margin-top:16px">
-          <div class="card-title"><i class="fa fa-coins" style="color:var(--gold)"></i> Moedas e Cotações</div>
+          <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <span><i class="fa fa-coins" style="color:var(--gold)"></i> Moedas e Cotações</span>
+            <button class="btn btn-sm" id="btnBCBSync" onclick="syncBCB()" style="background:rgba(62,184,154,.12);color:var(--teal);border-color:rgba(62,184,154,.35);font-size:12px;display:flex;align-items:center;gap:6px">
+              <i class="fa fa-sync-alt" id="iconBCBSync"></i>
+              <span id="lblBCBSync">Atualizar pelo Banco Central</span>
+            </button>
+          </div>
+          <div id="bcbStatusBar" style="display:none;margin-bottom:8px;padding:8px 12px;border-radius:var(--r);font-size:12px;font-family:var(--mono)"></div>
           <div class="cad-form" style="flex-wrap:wrap">
             <div class="field" style="min-width:120px;max-width:140px">
               <label>Código *</label>
@@ -6097,64 +6125,66 @@ window._applySelectOptions = function() {
     <button class="modal-close" onclick="closeModal('modalRecorrente')"><i class="fa fa-times"></i></button>
     <div class="modal-title" id="modalRecorrenteTitle">Novo Lançamento Recorrente</div>
     <input type="hidden" id="recorrenteEditId">
-    <div class="input-row cols2">
-      <div class="field">
-        <label>Tipo *</label>
-        <select id="mRecTipo">
-          <option value="Receita" data-i18n-key="opt.receita">Receita</option>
-          <option value="Despesa" data-i18n-key="opt.despesa">Despesa</option>
-        </select>
-      </div>
-      <div class="field">
-        <label data-i18n="lbl.dia_mes">Dia do Mês *</label>
-        <input id="mRecDia" type="number" min="1" max="31" placeholder="Ex: 5">
-      </div>
+
+    <!-- 1. Tipo -->
+    <div class="field">
+      <label>Tipo *</label>
+      <select id="mRecTipo">
+        <option value="Receita" data-i18n-key="opt.receita">Receita</option>
+        <option value="Despesa" data-i18n-key="opt.despesa">Despesa</option>
+      </select>
     </div>
+
+    <!-- 2. Descrição -->
     <div class="field">
       <label data-i18n="lbl.descricao_req">Descrição *</label>
       <input id="mRecDesc" placeholder="Ex: Salário, Aluguel, Netflix...">
     </div>
-    <div class="input-row cols2">
-      <div class="field">
-        <label>Valor *</label>
-        <input id="mRecValor" placeholder="R$ 0,00" oninput="maskMoney(this)">
-      </div>
-      <div class="field">
-        <label data-i18n="lbl.banco_conta_req">Banco / Conta *</label>
-        <select id="mRecBanco">
-          <option value="" data-i18n-key="opt.selecione">— selecione —</option>
-        </select>
-      </div>
+
+    <!-- 3. Forma de Pagamento -->
+    <div class="field">
+      <label data-i18n="lbl.forma">Forma de Pagamento</label>
+      <select id="mRecForma" onchange="onRecFormaChange()">
+        <option value="">— nenhuma —</option>
+      </select>
     </div>
-    <div class="input-row cols2">
-      <div class="field">
-        <label data-i18n="lbl.cc">Centro de Custo</label>
-        <select id="mRecCC">
-          <option value="">— nenhum —</option>
-        </select>
-      </div>
-      <div class="field">
-        <label data-i18n="lbl.forma">Forma de Pagamento</label>
-        <select id="mRecForma" onchange="onRecFormaChange()">
-          <option value="">— nenhuma —</option>
-        </select>
-      </div>
-    </div>
-    <!-- Cartão (aparece só quando forma = Cartão) -->
+
+    <!-- 4. Cartão de Crédito (só quando forma = CC) -->
     <div class="field" id="fieldRecCartao" style="display:none">
-      <label data-i18n="lbl.cartao_req">Cartão de Crédito *</label>
-      <select id="mRecCartao">
+      <label>Cartão de Crédito *</label>
+      <select id="mRecCartao" onchange="_atualizarInfoFaturaRec()">
         <option value="">— selecione o cartão —</option>
       </select>
       <div style="font-size:11px;color:var(--gold);font-family:var(--mono);margin-top:5px;padding:8px 10px;background:var(--gold-pale);border-radius:var(--r);border:1px solid var(--gold-dim)">
         <i class="fa fa-info-circle"></i> A despesa será lançada no cartão selecionado por <strong>12 meses</strong> automaticamente.
       </div>
+      <div id="infoRecFatura" style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-family:var(--mono);color:var(--text2)">
+        <i class="fa fa-calendar-alt" style="color:var(--teal);margin-right:4px"></i>
+        <span id="infoRecFaturaTexto"></span>
+      </div>
     </div>
-    <!-- Mês de início -->
-    <div class="field" id="fieldRecMesInicio">
+
+    <!-- 5. Valor -->
+    <div class="field">
+      <label>Valor *</label>
+      <input id="mRecValor" placeholder="R$ 0,00" oninput="maskMoney(this)">
+    </div>
+
+    <!-- 6. Centro de Custo -->
+    <div class="field">
+      <label data-i18n="lbl.cc">Centro de Custo</label>
+      <select id="mRecCC">
+        <option value="">— nenhum —</option>
+      </select>
+    </div>
+
+    <!-- 7. Mês de Início -->
+    <div class="field">
       <label data-i18n="lbl.mes_inicio">Mês de Início *</label>
-      <input id="mRecMesInicio" type="month">
+      <input id="mRecMesInicio" type="month" onchange="_atualizarInfoFaturaRec()">
     </div>
+
+    <!-- 8. Ativo -->
     <div class="field">
       <label data-i18n="lbl.ativo">Ativo</label>
       <select id="mRecAtivo">
@@ -6162,6 +6192,21 @@ window._applySelectOptions = function() {
         <option value="nao">Não — pausado</option>
       </select>
     </div>
+
+    <!-- 9. Banco / Conta (oculto para CC, visível para outras formas) -->
+    <div class="field" id="fieldRecBanco">
+      <label id="lblRecBanco">Banco / Conta *</label>
+      <select id="mRecBanco">
+        <option value="">— selecione —</option>
+      </select>
+    </div>
+
+    <!-- 10. Dia do Mês (oculto para CC, visível para outras formas) -->
+    <div class="field" id="fieldRecDia">
+      <label>Dia do Mês *</label>
+      <input id="mRecDia" type="number" min="1" max="31" placeholder="Ex: 5">
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalRecorrente')">Cancelar</button>
       <button class="btn btn-gold" onclick="saveRecorrente()"><i class="fa fa-save"></i> Salvar</button>
@@ -6222,21 +6267,25 @@ function _crypt(data) {
 }
 
 function _decrypt(raw) {
-  if (!_cryptoKey || !raw) return null;
-  try {
-    // Tenta decifrar (dado criptografado)
-    const bytes = CryptoJS.AES.decrypt(raw, _cryptoKey);
-    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-  } catch {
+  if (!raw) return null;
+  // Tentativa 1: com chave derivada (normal)
+  if (_cryptoKey) {
     try {
-      // Fallback: dado ainda em texto claro (migração)
-      return JSON.parse(raw);
-    } catch { return null; }
+      const bytes = CryptoJS.AES.decrypt(raw, _cryptoKey);
+      const str   = bytes.toString(CryptoJS.enc.Utf8);
+      if (str && str.length > 0) return JSON.parse(str);
+    } catch(e) { /* continua */ }
   }
+  // Tentativa 2: JSON puro (dados sem criptografia / migração)
+  try { const p = JSON.parse(raw); if (p !== null) return p; } catch(e) { /* continua */ }
+  // Tentativa 3: base64 então JSON
+  try { return JSON.parse(atob(raw)); } catch(e) { /* continua */ }
+  console.warn('[NMC] _decrypt: não foi possível decifrar dado. Retornando null.');
+  return null;
 }
 
 /* ══ VERSÃO DO APP ══════════════════════════ */
-const APP_VERSION = '20.18.20260413';
+const APP_VERSION = '20.18.20260416';
 const APP_BUILD   = '20260401';
 
 /* ══════════════════════════════════════════
@@ -6248,10 +6297,19 @@ const LS = {
       const raw = localStorage.getItem(k);
       if (!raw) return [];
       const dec = _decrypt(raw);
-      return Array.isArray(dec) ? dec : [];
-    } catch { return []; }
+      if (Array.isArray(dec)) return dec;
+      if (dec !== null && typeof dec === 'object') return Object.values(dec);
+      if (dec === null && raw) console.warn('[NMC] LS.get: chave', k, '— dado não decifrável. Tamanho raw:', raw.length);
+      return [];
+    } catch(e) {
+      console.warn('[NMC] LS.get erro em', k, ':', e.message);
+      return [];
+    }
   },
-  set:  (k, v) => localStorage.setItem(k, _crypt(v)),
+  set:  (k, v) => {
+    try { localStorage.setItem(k, _crypt(v)); }
+    catch(e) { console.warn('LS.set erro em', k, e.message); }
+  },
   getO: k => {
     try {
       const raw = localStorage.getItem(k);
@@ -6328,6 +6386,27 @@ function _migrateCartaoFaturas() {
   }
 }
 
+// Migração: lançamentos recorrentes de CC devem ter banco=''
+// para aparecer corretamente na tela de Lançamentos como fatura CC
+function _migrateRecorrentesCC() {
+  let count = 0;
+  lancamentos.forEach(l => {
+    if (l.recorrenteId && l.cartaoId && l.tipo === 'Despesa') {
+      // Se tem cartaoId e banco preenchido: zerar banco (deve aparecer como fatura CC)
+      if (l.banco) {
+        const cart = cartoes.find(c => c.id === l.cartaoId);
+        if (cart && (cart.tipoCt || 'credito') === 'credito') {
+          l.banco = '';
+          count++;
+        }
+      }
+    }
+  });
+  if (count > 0) {
+    console.log('[NMC] Migração: ' + count + ' lançamento(s) recorrente(s) de CC corrigidos (banco → vazio)');
+  }
+}
+
 function _migrateTransferencias() {
   let dirty = false;
   const d_arr = lancamentos;
@@ -6383,6 +6462,7 @@ function _loadAllData() {
   cotacoes       = LS.get('cotacoes')  || [];
   orcamento      = LS.get('orcamento');
   _migrateTransferencias(); // migra dados antigos sem a flag
+  _migrateRecorrentesCC();  // garante banco='' em lançamentos recorrentes de CC
 
   // seeds de dados financeiros (só se vazios)
   if (!formas.length)  formas  = [
@@ -7011,33 +7091,13 @@ function onCartaoChange() {
     return;
   }
 
-  const hoje = new Date();
-  const fechDay = c.fech ? parseInt(c.fech) : 31;
-  const vencDay = c.venc ? parseInt(c.venc) : 10;
-
-  // Data de fechamento do mês atual (data que vai no lançamento da despesa)
-  const ultDiaMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
-  const fechDia   = Math.min(fechDay, ultDiaMes);
-  const fechData  = hoje.getFullYear() + '-' +
-                    String(hoje.getMonth()+1).padStart(2,'0') + '-' +
-                    String(fechDia).padStart(2,'0');
-
-  // Se hoje já passou do fechamento → fatura do próximo mês
-  let fatY = hoje.getFullYear(), fatM = hoje.getMonth();
-  if (hoje.getDate() > fechDay) { fatM++; if (fatM > 11) { fatM = 0; fatY++; } }
-  const ultDiaFat = new Date(fatY, fatM+1, 0).getDate();
-  const vencDia   = Math.min(vencDay, ultDiaFat);
-  const vencData  = fatY + '-' + String(fatM+1).padStart(2,'0') + '-' + String(vencDia).padStart(2,'0');
-
-  // Preenche a data do lançamento com a data de fechamento do cartão
-  if (dataEl && !dataEl.value) dataEl.value = fechData;
-
-  // Exibe info resumida
-  if (inf)     inf.style.display = '';
-  if (infoTxt) infoTxt.textContent =
-    'Fechamento: dia ' + fechDay +
-    ' · Lançado em: ' + fechData.split('-').reverse().join('/') +
-    ' · Fatura vence em: ' + vencData.split('-').reverse().join('/');
+  // Preenche a data com hoje se estiver vazia
+  if (dataEl && !dataEl.value) {
+    dataEl.value = new Date().toISOString().slice(0,10);
+    _onDataLancChange(); // atualizar checkbox jaBaixado
+  }
+  // Atualizar info de fatura baseado na data do campo
+  _atualizarInfoFaturaLanc();
 }
 
 /* ══════════════════════════════════════════
@@ -7472,6 +7532,28 @@ function saveCartao() {
 
 
 /* Calcula o mês de fatura (YYYY-MM) para uma despesa de cartão */
+// Helper: dados completos de fatura dado uma data e cartão
+// Retorna {vencData, fechData, vencYM, faturaNoMesSeguinte}
+function _calcVencFaturaInfo(data, cartao) {
+  if (!data || !cartao) return null;
+  const fechS = cartao.fech ? parseInt(cartao.fech) : 31;
+  const vencS = cartao.venc ? parseInt(cartao.venc) : 10;
+  const base  = new Date(data + 'T12:00:00');
+  const diaLanc = base.getDate();
+  let fatY = base.getFullYear(), fatM = base.getMonth(); // 0-based
+  const faturaNoMesSeguinte = diaLanc > fechS;
+  if (faturaNoMesSeguinte) { fatM++; if (fatM > 11) { fatM = 0; fatY++; } }
+  const ultVenc  = new Date(fatY, fatM + 1, 0).getDate();
+  const ultFech  = new Date(fatY, fatM + 1, 0).getDate();
+  const vencDia  = Math.min(vencS, ultVenc);
+  const fechDia  = Math.min(fechS, ultFech);
+  const mm = String(fatM + 1).padStart(2, '0');
+  const vencData = fatY + '-' + mm + '-' + String(vencDia).padStart(2, '0');
+  const fechData = fatY + '-' + mm + '-' + String(fechDia).padStart(2, '0');
+  const vencYM   = fatY + '-' + mm;
+  return { vencData, fechData, vencYM, faturaNoMesSeguinte, diaLanc, fechS };
+}
+
 function _calcFaturaYM(data, cartao) {
   if (!data || !cartao) return data ? data.slice(0,7) : undefined;
   const fechDay = cartao.fech ? parseInt(cartao.fech) : 31;
@@ -7674,18 +7756,43 @@ function delCartao(id) {
 ══════════════════════════════════════════ */
 // ── Controle de data: exibe/oculta checkbox "Lançar já baixado" ───────────
 function _onDataLancChange() {
-  const dataVal = document.getElementById('mLancData')?.value || '';
-  const hoje    = new Date().toISOString().slice(0,10);
-  const fieldEl = document.getElementById('fieldJaBaixado');
-  const chkEl   = document.getElementById('mLancJaBaixado');
+  const dataVal  = document.getElementById('mLancData')?.value || '';
+  const hoje     = new Date().toISOString().slice(0,10);
+  const fieldEl  = document.getElementById('fieldJaBaixado');
+  const chkEl    = document.getElementById('mLancJaBaixado');
   if (!fieldEl) return;
   if (dataVal && dataVal <= hoje) {
     fieldEl.style.display = '';
-    if (chkEl) chkEl.checked = true;  // vem marcado por padrão
+    if (chkEl) chkEl.checked = true;
   } else {
     fieldEl.style.display = 'none';
-    if (chkEl) chkEl.checked = false; // internamente desmarcado para datas futuras
+    if (chkEl) chkEl.checked = false;
   }
+  // Atualizar info de fatura quando há cartão de crédito selecionado
+  _atualizarInfoFaturaLanc();
+}
+
+// Atualiza o painel de info da fatura baseado na data atual do formulário
+function _atualizarInfoFaturaLanc() {
+  const cartaoId = document.getElementById('mLancCartao')?.value || '';
+  const tipo     = document.getElementById('mLancTipo')?.value || '';
+  const dataVal  = document.getElementById('mLancData')?.value || '';
+  const inf      = document.getElementById('infoCartaoFatura');
+  const infoTxt  = document.getElementById('infoCartaoTexto');
+  if (!cartaoId || tipo !== 'Despesa' || !inf) return;
+  const c = cartoes.find(x => x.id === cartaoId);
+  if (!c || (c.tipoCt || 'credito') !== 'credito') return;
+  const data = dataVal || new Date().toISOString().slice(0,10);
+  const info = _calcVencFaturaInfo(data, c);
+  if (!info) return;
+  inf.style.display = '';
+  const aviso = info.faturaNoMesSeguinte
+    ? ' ⚠ Dia ' + info.diaLanc + ' > fechamento ' + info.fechS + ' → fatura do mês seguinte'
+    : '';
+  if (infoTxt) infoTxt.innerHTML =
+    'Fechamento: dia ' + info.fechS +
+    ' · Vence em: <strong>' + info.vencData.split('-').reverse().join('/') + '</strong>' +
+    (aviso ? '<br><span style="color:var(--gold)">' + aviso + '</span>' : '');
 }
 
 // ── Controle de Parcelas × Periodicidade ──────────────────────────────────
@@ -8205,12 +8312,28 @@ function _toggleLancDateFields() {
 function populateFLancMes(syncDash) {
   const sel = document.getElementById('fLancMes'); if(!sel) return;
   // Coleta todos os YM distintos dos lançamentos
-  const yms = [...new Set(
-    lancamentos
-      .filter(l => !l.cartaoFatura)
-      .map(l => (l.data||'').slice(0,7))
-      .filter(ym => /^\d{4}-\d{2}$/.test(ym))
-  )].sort().reverse();
+  // Coleta YMs: datas dos lançamentos normais + vencYM das faturas CC
+  const _ymsSet = new Set();
+  lancamentos
+    .filter(l => !l.cartaoFatura && !l._fatura && !l._ocultarLanc)
+    .forEach(l => {
+      const ym = (l.data||'').slice(0,7);
+      if (/^\d{4}-\d{2}$/.test(ym)) {
+        if (l.cartaoId && l.tipo === 'Despesa' && !isTransferencia(l)) {
+          // Para CC: usar o vencYM calculado (pode ser mês seguinte ao da compra)
+          const cart = cartoes.find(c => c.id === l.cartaoId);
+          if (cart && (cart.tipoCt||'credito') === 'credito') {
+            const vYM = l.dataFatura ? l.dataFatura.slice(0,7)
+                      : l.faturaYM  ? l.faturaYM
+                      : (_calcFaturaYM(l.data, cart) || ym);
+            _ymsSet.add(vYM);
+            return;
+          }
+        }
+        _ymsSet.add(ym);
+      }
+    });
+  const yms = [..._ymsSet].sort().reverse();
 
   const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const current = sel.value; // mantém seleção atual se possível
@@ -8297,20 +8420,27 @@ function renderLancamentos() {
       if (tipo === 'Financiamento') { if (!l.financId) return false; }
       else { if (l.tipo !== tipo) return false; }
     }
-    if (banco      && l.banco    !== banco)      return false;
+    // Para lançamentos de CC (banco vazio) ou recorrentes sem banco: ignora filtro de banco
+    const _isCC  = l.cartaoId && l.tipo === 'Despesa';
+    const _isRec = l.recorrenteId && !l.banco;
+    if (banco && !_isCC && !_isRec && l.banco !== banco) return false;
     if (cartaoFilt && l.cartaoId !== cartaoFilt) return false;
     if (cc         && l.cc       !== cc)         return false;
     const _pagoFilt = l.pago === true || l.pago === 'true';
     if (status === 'pago'     && !_pagoFilt)                    return false;
     if (status === 'pendente' &&  _pagoFilt)                    return false;
     if (status === 'vencido'  && (_pagoFilt || l.data >= hoje)) return false;
-    // Filtro de data no rawData (lançamentos não-cartão crédito)
+    // Filtro de data — lançamentos de CC são agrupados pelo vencYM (passo 2),
+    // não pela data do lançamento, então não aplicar filtro de data aqui para eles
     if (dtI || dtF) {
-      const dataCmp = tipoDt === 'dataPagamento' ? (l.dataPagamento || l.data)
-                    : tipoDt === 'dataCriacao'   ? (l.dataCriacao   || l.data)
-                    : l.data;
-      if (dtI && dataCmp < dtI) return false;
-      if (dtF && dataCmp > dtF) return false;
+      const ehCC = l.cartaoId && l.tipo === 'Despesa' && !isTransferencia(l);
+      if (!ehCC) {
+        const dataCmp = tipoDt === 'dataPagamento' ? (l.dataPagamento || l.data)
+                      : tipoDt === 'dataCriacao'   ? (l.dataCriacao   || l.data)
+                      : l.data;
+        if (dtI && dataCmp < dtI) return false;
+        if (dtF && dataCmp > dtF) return false;
+      }
     }
     if (busca) {
       const hay = (l.tipo+' '+(l.banco||'')+' '+(l.cc||'')+' '+(l.forma||'')+' '+(l.desc||'')+' '+fmtBRL(parseMoney(l.valor))).toLowerCase();
@@ -8405,9 +8535,16 @@ function renderLancamentos() {
     }
   });
   Object.values(grpFaturas).forEach(g => {
-    const dtCmp = tipoDt === 'dataPagamento' ? (g.dataPag || g.vencData) : g.vencData;
-    if (dtI && dtCmp < dtI) return;
-    if (dtF && dtCmp > dtF) return;
+    // Para grupos CC: filtrar pelo vencData (data de vencimento da fatura)
+    // independente do tipo de data escolhido
+    const dtCmpGrp = tipoDt === 'dataPagamento' ? (g.dataPag || g.vencData) : g.vencData;
+    // Se filtro de mês: comparar o vencYM do grupo com o mês filtrado
+    if (mesFilt) {
+      if (g.vencYM !== mesFilt) return; // grupo não pertence ao mês filtrado
+    } else {
+      if (dtI && dtCmpGrp < dtI) return;
+      if (dtF && dtCmpGrp > dtF) return;
+    }
     if (status === 'pago'     && !g.pago) return;
     if (status === 'pendente' &&  g.pago) return;
     if (status === 'vencido'  && (g.pago || g.vencData >= hoje)) return;
@@ -8725,18 +8862,18 @@ function renderLancamentos() {
 
   tb.innerHTML = rowsHtml;
 
-  // ── Rodapé: totais do filtro atual ───────────────────────────────────────
+  // ── Rodapé: totais do filtro (mesma regra do Dashboard) ────────────────
   const foot = document.getElementById('tblLancFoot');
   if (foot && dataFinal.length) {
     let totRec = 0, totDesp = 0, totTransf = 0;
     dataFinal.forEach(item => {
       if (item._isFatGrp) {
-        totDesp += item.total;
+        // Fatura CC: cada item é tratado individualmente
+        item.items.forEach(l => { if (isDespesaReal(l)) totDesp += parseMoney(l.valor); });
       } else {
-        const v = parseMoney(item.valor);
-        if (isTransferencia(item))       totTransf += v;
-        else if (item.tipo === 'Receita') totRec   += v;
-        else                              totDesp  += v;
+        if (isTransferencia(item))  totTransf += parseMoney(item.valor);
+        else if (isReceitaReal(item)) totRec  += parseMoney(item.valor);
+        else if (isDespesaReal(item)) totDesp += parseMoney(item.valor);
       }
     });
     const saldo = totRec - totDesp;
@@ -11803,20 +11940,56 @@ function dentroDosCiclo(r, ym) {
 }
 
 /* ── Controle do campo cartão no modal ── */
+// Atualiza info de fatura no modal de recorrentes
+function _atualizarInfoFaturaRec() {
+  const cartaoId = document.getElementById('mRecCartao')?.value || '';
+  const mesInicio = document.getElementById('mRecMesInicio')?.value || '';
+  const inf     = document.getElementById('infoRecFatura');
+  const infoTxt = document.getElementById('infoRecFaturaTexto');
+  if (!inf) return;
+  if (!cartaoId || !mesInicio) { inf.style.display = 'none'; return; }
+  const c = cartoes.find(x => x.id === cartaoId);
+  if (!c || (c.tipoCt || 'credito') !== 'credito') { inf.style.display = 'none'; return; }
+  // Dia padrão = 1 (recorrentes CC não têm dia obrigatório)
+  const dia = parseInt(document.getElementById('mRecDia')?.value || '1') || 1;
+  const data = mesInicio + '-' + String(dia).padStart(2, '0');
+  const info = _calcVencFaturaInfo(data, c);
+  if (!info) { inf.style.display = 'none'; return; }
+  inf.style.display = '';
+  const aviso = info.faturaNoMesSeguinte
+    ? ' — dia ' + info.diaLanc + ' > fechamento ' + info.fechS + ' → fatura cai no mês seguinte'
+    : ' — dentro do ciclo de fechamento';
+  infoTxt.innerHTML = '1ª parcela vence em: <strong>' + info.vencData.split('-').reverse().join('/') + '</strong>' + aviso;
+}
+
 function onRecFormaChange() {
-  const forma = document.getElementById('mRecForma').value;
-  const fc = document.getElementById('fieldRecCartao');
+  const forma    = document.getElementById('mRecForma').value;
   const isCartao = _isFormaCartao(forma);
-  fc.style.display = isCartao ? '' : 'none';
+
+  // Cartão de crédito: mostra seleção do cartão, oculta Banco e Dia
+  const fc  = document.getElementById('fieldRecCartao');
+  const fb  = document.getElementById('fieldRecBanco');
+  const fd  = document.getElementById('fieldRecDia');
+
+  if (fc) fc.style.display = isCartao ? '' : 'none';
+  if (fb) fb.style.display = isCartao ? 'none' : '';
+  if (fd) fd.style.display = isCartao ? 'none' : '';
+
+  // Popular cartões quando forma for cartão
   if (isCartao) {
     const sc = document.getElementById('mRecCartao');
     const fl = (forma||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     let filtrados = cartoes;
     if (fl.includes('cred')) filtrados = cartoes.filter(c=>(c.tipoCt||'credito')==='credito');
     else if (fl.includes('deb')) filtrados = cartoes.filter(c=>(c.tipoCt||'credito')==='debito');
-    sc.innerHTML = '<option value="">— selecione o cartão —</option>' +
+    if (sc) sc.innerHTML = '<option value="">— selecione o cartão —</option>' +
       filtrados.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+  } else {
+    // Ao sair do cartão, ocultar info de fatura
+    const inf = document.getElementById('infoRecFatura');
+    if (inf) inf.style.display = 'none';
   }
+  _atualizarInfoFaturaRec();
 }
 
 /* ── Abrir modal ── */
@@ -11845,13 +12018,19 @@ function openModalRecorrente(id) {
   const sf = document.getElementById('mRecForma');
   sf.innerHTML = '<option value="">— nenhuma —</option>' + formas.map(f=>`<option value="${f.nome}">${f.nome}</option>`).join('');
   if (r?.forma) sf.value = r.forma;
-  // Cartão
-  const fieldC = document.getElementById('fieldRecCartao');
+  // Cartão e visibilidade dos campos condicionais
+  const fieldC  = document.getElementById('fieldRecCartao');
+  const fieldBk = document.getElementById('fieldRecBanco');
+  const fieldDi = document.getElementById('fieldRecDia');
   const scartao = document.getElementById('mRecCartao');
-  scartao.innerHTML = '<option value="">— selecione o cartão —</option>' + cartoes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+  scartao.innerHTML = '<option value="">— selecione o cartão —</option>' +
+    cartoes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
   const isCartao = _isFormaCartao(r?.forma||'');
-  fieldC.style.display = isCartao ? '' : 'none';
+  if (fieldC)  fieldC.style.display  = isCartao ? '' : 'none';
+  if (fieldBk) fieldBk.style.display = isCartao ? 'none' : '';
+  if (fieldDi) fieldDi.style.display = isCartao ? 'none' : '';
   if (r?.cartaoId) scartao.value = r.cartaoId;
+  _atualizarInfoFaturaRec();
   openModal('modalRecorrente');
 }
 
@@ -11870,10 +12049,12 @@ function saveRecorrente() {
   const cartaoId  = document.getElementById('mRecCartao').value;
   const isCartao  = document.getElementById('fieldRecCartao').style.display !== 'none';
 
-  if (!desc)  { toast(t('toast.informe_descricao'),'err'); return; }
-  if (!valor) { toast(t('toast.informe_valor'),'err'); return; }
-  if (!dia || dia<1 || dia>31) { toast(t('toast.informe_dia_valido'),'err'); return; }
-  if (!banco) { toast(t('toast.banco_selecione'),'err'); return; }
+  if (!desc)    { toast(t('toast.informe_descricao'),'err'); return; }
+  if (!valor)   { toast(t('toast.informe_valor'),'err'); return; }
+  // Dia obrigatório apenas quando não é cartão de crédito
+  if (!isCartao && (!dia || dia < 1 || dia > 31)) { toast(t('toast.informe_dia_valido'),'err'); return; }
+  // Banco obrigatório apenas quando não é cartão de crédito
+  if (!isCartao && !banco) { toast(t('toast.banco_selecione'),'err'); return; }
   if (!mesInicio) { toast(t('toast.informe_mes_inicio'),'err'); return; }
   if (isCartao && !cartaoId) { toast(t('toast.cartao_selecione_credito'),'err'); return; }
 
@@ -11912,15 +12093,18 @@ function gerarLancamentosRecorrente(r) {
     const jaExiste = lancamentos.some(l => l.recorrenteId===r.id && l.data && l.data.slice(0,7)===ym);
     if (jaExiste) continue;
     const [y, m] = ym.split('-').map(Number);
-    const diaReal = Math.min(r.dia||1, new Date(y, m, 0).getDate());
+    const diaReal = Math.min(r.dia||1, new Date(y, m, 0).getDate()); // dia=1 padrão quando CC sem dia definido
     const data = `${y}-${String(m).padStart(2,'0')}-${String(diaReal).padStart(2,'0')}`;
+    // Se tem cartão de crédito: banco fica vazio (como qualquer despesa CC)
+    // para aparecer corretamente agrupado na tela de Lançamentos
+    const lancBanco = r.cartaoId ? '' : (r.banco || '');
     lancamentos.push({
       dataCriacao: new Date().toISOString().slice(0,10),
       id: uid(), tipo: r.tipo, data,
-      banco: r.banco, cc: r.cc, forma: r.forma,
+      banco: lancBanco, cc: r.cc, forma: r.forma,
       cartaoId: r.cartaoId || '',
       valor: r.valor,
-      desc: `${r.desc} (${i+1}/12)`,
+      desc: r.desc + ' (' + (i+1) + '/12)',
       parcelas: '1', period: 'Mensal',
       recorrenteId: r.id,
       cicloMes: i + 1,
@@ -11993,26 +12177,25 @@ function cancelarRecorrenteAgora(id) {
 }
 
 function delRecorrente(id) {
-  const hoje = new Date().toISOString().slice(0,10);
+  // Lançamentos em aberto (não pagos) de qualquer data — serão removidos
+  const emAberto = lancamentos.filter(l => l.recorrenteId === id && !l.pago);
+  const pagos    = lancamentos.filter(l => l.recorrenteId === id &&  l.pago);
 
-  // Conta quantos lançamentos futuros não pagos serão removidos
-  const futuros = lancamentos.filter(l =>
-    l.recorrenteId === id && !l.pago && l.data > hoje
-  );
-
-  const msg = futuros.length > 0
-    ? 'Excluir este recorrente? Os ' + futuros.length + ' lançamento(s) futuro(s) não pago(s) serão removidos. Os lançamentos já realizados no passado serão preservados.'
-    : 'Excluir este recorrente? Os lançamentos já realizados serão preservados.';
+  let msg = 'Excluir este recorrente?';
+  if (emAberto.length > 0) {
+    msg += '\n\n⚠ ' + emAberto.length + ' lançamento(s) em aberto serão removidos.';
+  }
+  if (pagos.length > 0) {
+    msg += '\n✅ ' + pagos.length + ' lançamento(s) já pago(s) serão preservados no histórico.';
+  }
 
   if (!confirm(msg)) return;
 
-  // Preserva lançamentos passados (pagos OU com data <= hoje)
-  // Remove apenas os futuros não pagos
+  // Remove todos os lançamentos não pagos deste recorrente
+  // Preserva apenas os pagos (histórico financeiro)
   lancamentos = lancamentos.filter(l => {
-    if (l.recorrenteId !== id) return true;  // não é deste recorrente — mantém
-    if (l.pago) return true;                  // já pago — preserva sempre
-    if (l.data <= hoje) return true;          // data passada não paga — preserva (pode querer dar baixa)
-    return false;                             // futuro não pago — remove
+    if (l.recorrenteId !== id) return true;  // outro recorrente — mantém
+    return l.pago === true || l.pago === 'true'; // preserva só pagos
   });
 
   recorrentes = recorrentes.filter(x => x.id !== id);
@@ -12240,22 +12423,36 @@ function gerarBalancoPatrimonial(anoFiltro) {
   // ATIVO CIRCULANTE: saldos bancários + investimentos imediata/curto prazo
   // anoFiltro: "2025", "2026" ou null (tudo)
   const fimAno = anoFiltro ? (anoFiltro + '-12-31') : null;
-  const saldosBancos = bancos.reduce((s,b)=>{
-    const mv = lancamentos.filter(l=>l.pago && l.banco===b.nome && (!fimAno || l.data<=fimAno));
-    const ent = mv.filter(l=>l.tipo==='Receita'||l.transDir==='entrada').reduce((a,l)=>a+parseMoney(l.valor),0);
-    const sai = mv.filter(l=>l.tipo==='Despesa'||l.transDir==='saida').reduce((a,l)=>a+parseMoney(l.valor),0);
+  // Saldo bancário: mesma lógica de fluxo de caixa real
+  // Entradas: receitas reais + entradas de transferência + cargas de cartão débito
+  // Saídas: despesas pagas (exceto pagamento de fatura — que já está nas despesas CC)
+  //         + saídas de transferência + investimentos aportados
+  const saldosBancos = bancos.reduce(function(s,b){
+    const mv = lancamentos.filter(function(l){
+      return l.pago && l.banco===b.nome && (!fimAno || l.data<=fimAno);
+    });
+    // Entradas: tudo que crédita a conta
+    const ent = mv.filter(function(l){
+      return l.tipo==='Receita' || l.transDir==='entrada' || l._cargaDebito;
+    }).reduce(function(a,l){ return a+parseMoney(l.valor); },0);
+    // Saídas: tudo que débita a conta (inclusive pagamento de fatura CC)
+    const sai = mv.filter(function(l){
+      return l.tipo==='Despesa' || l.transDir==='saida';
+    }).reduce(function(a,l){ return a+parseMoney(l.valor); },0);
     return s + (parseFloat(b.saldoInicial)||0) + ent - sai;
   },0);
 
-  const invCirculante = investimentos.filter(i=>
-    (i.categoria||'Investimento')==='Investimento' &&
-    (!i.liquidez || i.liquidez==='Imediata' || i.liquidez==='CurtoPrazo')
-  ).reduce((s,i)=>s+(i.atual||0),0);
+  // Investimentos circulantes: sem liquidez definida (legados) + Imediata + CurtoPrazo
+  const invCirculante = investimentos.filter(function(i){
+    return (i.categoria||'Investimento')==='Investimento' &&
+      (!i.liquidez || i.liquidez==='Imediata' || i.liquidez==='CurtoPrazo');
+  }).reduce(function(s,i){ return s+(i.atual||i.aportado||0); },0);
 
-  const invNaoCirculante = investimentos.filter(i=>
-    (i.categoria||'Investimento')==='Investimento' &&
-    (i.liquidez==='MedioPrazo' || i.liquidez==='LongoPrazo' || i.liquidez==='SemLiquidez')
-  ).reduce((s,i)=>s+(i.atual||0),0);
+  // Investimentos não circulantes: apenas os com liquidez de longo prazo
+  const invNaoCirculante = investimentos.filter(function(i){
+    return (i.categoria||'Investimento')==='Investimento' &&
+      (i.liquidez==='MedioPrazo' || i.liquidez==='LongoPrazo' || i.liquidez==='SemLiquidez');
+  }).reduce(function(s,i){ return s+(i.atual||i.aportado||0); },0);
 
   const imobilizado = investimentos.filter(i=>i.categoria==='Patrimônio')
     .reduce((s,i)=>s+(i.atual||0),0);
@@ -12464,20 +12661,156 @@ function delCotacao(id) {
   saveAll(); renderCotacoes();
 }
 
-function getCotacao(moedaId, anoOuMes) {
-  // Retorna a cotação mais recente para a moeda no ano/mês informado
-  // anoOuMes pode ser 'YYYY' ou 'YYYY-MM'
-  if (!moedaId || moedaId === 'BRL') return 1;
-  var filtro = cotacoes.filter(function(c) {
-    return c.moedaId === moedaId && c.mesAno.startsWith(anoOuMes ? String(anoOuMes).slice(0,4) : '');
-  });
-  if (!filtro.length) {
-    // Tentar cotação mais recente disponível
-    filtro = cotacoes.filter(function(c){ return c.moedaId === moedaId; });
+// ═══════════════════════════════════════════════════════════
+// INTEGRAÇÃO BANCO CENTRAL DO BRASIL — AwesomeAPI
+// ═══════════════════════════════════════════════════════════
+let _bcbPendentes = []; // [{moeda, cotacaoAPI, mesAno}]
+
+async function syncBCB() {
+  // 1. Verificar conectividade
+  if (!navigator.onLine) {
+    toast('Sem conexão com a internet. Conecte-se e tente novamente.', 'err');
+    return;
   }
-  if (!filtro.length) return 1;
-  filtro.sort(function(a,b){ return b.mesAno.localeCompare(a.mesAno); });
-  return filtro[0].valor;
+  if (moedas.length === 0) {
+    toast('Cadastre pelo menos uma moeda antes de sincronizar.', 'err');
+    return;
+  }
+
+  // 2. Animar botão
+  const icon = document.getElementById('iconBCBSync');
+  const lbl  = document.getElementById('lblBCBSync');
+  const btn  = document.getElementById('btnBCBSync');
+  if (icon) icon.classList.add('fa-spin');
+  if (lbl)  lbl.textContent = 'Consultando BCB…';
+  if (btn)  btn.disabled = true;
+
+  // 3. Montar lista de pares (apenas moedas cadastradas, exceto BRL)
+  const codigosNaoBRL = moedas.filter(m => m.codigo !== 'BRL').map(m => m.codigo + '-BRL');
+  if (codigosNaoBRL.length === 0) {
+    _bcbReset(); toast('Nenhuma moeda estrangeira cadastrada para sincronizar.', 'inf'); return;
+  }
+
+  const pares = codigosNaoBRL.join(',');
+  const url   = 'https://economia.awesomeapi.com.br/last/' + pares;
+
+  let dados;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    dados = await resp.json();
+  } catch(e) {
+    _bcbReset();
+    toast('Erro ao consultar o Banco Central. Tente novamente.', 'err');
+    return;
+  }
+
+  // 4. Montar preview
+  const now    = new Date();
+  const mesAno = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  _bcbPendentes = [];
+
+  moedas.filter(m => m.codigo !== 'BRL').forEach(m => {
+    const chave = m.codigo + 'BRL';
+    const item  = dados[chave];
+    if (!item) return;
+    const valor = parseFloat(item.bid);
+    if (!valor || isNaN(valor)) return;
+    _bcbPendentes.push({ moeda: m, valor, mesAno, bid: item.bid, ask: item.ask,
+      varPct: parseFloat(item.pctChange||0), nome: item.name||m.nome,
+      ts: item.create_date||'' });
+  });
+
+  _bcbReset();
+
+  if (_bcbPendentes.length === 0) {
+    toast('Nenhuma cotação encontrada para as moedas cadastradas.', 'inf');
+    return;
+  }
+
+  // 5. Mostrar modal de confirmação
+  document.getElementById('bcbModalMes').textContent = _fmtMesAno(mesAno);
+
+  const body = document.getElementById('bcbModalBody');
+  body.innerHTML = _bcbPendentes.map((p, i) => {
+    const cor   = p.varPct >= 0 ? 'var(--teal)' : 'var(--red)';
+    const sinal = p.varPct >= 0 ? '▲' : '▼';
+    const cotExistente = cotacoes.find(c => c.moedaId === p.moeda.id && c.mesAno === p.mesAno);
+    const badgeExiste  = cotExistente
+      ? '<span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(224,82,82,.15);color:var(--red);margin-left:6px">substituirá existente</span>'
+      : '<span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(62,184,154,.12);color:var(--teal);margin-left:6px">nova</span>';
+    return `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+        <input type="checkbox" id="bcbChk${i}" data-idx="${i}" checked style="accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
+            <strong style="font-family:var(--mono);color:var(--text)">${p.moeda.codigo}</strong>
+            <span style="font-size:12px;color:var(--text2)">${p.moeda.nome}</span>
+            ${badgeExiste}
+          </div>
+          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px">
+            ${p.ts ? 'Atualizado: ' + p.ts : ''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">${fmtBRL(p.valor)}</div>
+          <div style="font-size:11px;font-family:var(--mono);color:${cor}">${sinal} ${Math.abs(p.varPct).toFixed(2)}%</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  openModal('modalBCBSync');
+}
+
+function confirmarBCBSync() {
+  let salvos = 0;
+  _bcbPendentes.forEach((p, i) => {
+    const chk = document.getElementById('bcbChk' + i);
+    if (!chk || !chk.checked) return;
+    // Remove cotação anterior do mesmo mês/moeda
+    cotacoes = cotacoes.filter(c => !(c.moedaId === p.moeda.id && c.mesAno === p.mesAno));
+    cotacoes.push({ id: uid(), moedaId: p.moeda.id, mesAno: p.mesAno, valor: p.valor });
+    salvos++;
+  });
+  if (salvos > 0) {
+    saveAll(); renderCotacoes();
+    toast(salvos + ' cotação(ões) salva(s) com sucesso!', 'ok');
+  }
+  closeModal('modalBCBSync');
+  _bcbPendentes = [];
+}
+
+function _bcbReset() {
+  const icon = document.getElementById('iconBCBSync');
+  const lbl  = document.getElementById('lblBCBSync');
+  const btn  = document.getElementById('btnBCBSync');
+  if (icon) icon.classList.remove('fa-spin');
+  if (lbl)  lbl.textContent = 'Atualizar pelo Banco Central';
+  if (btn)  btn.disabled = false;
+}
+
+// Monitora mudança de conectividade
+window.addEventListener('online',  () => { toast('Conexão restaurada. Você pode sincronizar moedas.', 'ok'); });
+window.addEventListener('offline', () => { toast('Sem internet. Sincronização com BCB indisponível.', 'err'); });
+
+
+function getCotacao(moedaId, anoOuMes) {
+  // Retorna a cotação para a moeda (busca estritamente por moedaId)
+  if (!moedaId || moedaId === 'BRL') return 1;
+  // Filtrar apenas cotações desta moeda específica
+  var daMoeda = cotacoes.filter(function(c){ return c.moedaId === moedaId; });
+  if (!daMoeda.length) return 0; // sem cotação cadastrada → retorna 0 para sinalizar ausência
+  // Se ano especificado, preferir cotação daquele ano
+  if (anoOuMes) {
+    var doAno = daMoeda.filter(function(c){ return c.mesAno.startsWith(String(anoOuMes).slice(0,4)); });
+    if (doAno.length) {
+      doAno.sort(function(a,b){ return b.mesAno.localeCompare(a.mesAno); });
+      return doAno[0].valor;
+    }
+  }
+  // Fallback: cotação mais recente desta moeda
+  daMoeda.sort(function(a,b){ return b.mesAno.localeCompare(a.mesAno); });
+  return daMoeda[0].valor;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -12493,7 +12826,13 @@ function _renderBalancoModal() {
   var cotacao = getCotacao(moeSel, anoSel || new Date().getFullYear());
   var moedaObj = moeSel === 'BRL' ? null : moedas.find(function(m){ return m.id === moeSel; });
   var simb = moedaObj ? (moedaObj.simbolo || moedaObj.codigo) : 'R$';
-  if (moeSel !== 'BRL' && cotacao > 0) {
+  if (moeSel !== 'BRL') {
+    if (!cotacao) {
+      // Sem cotação cadastrada para esta moeda
+      var bodyEl2 = document.getElementById('modalBalancoBody');
+      if (bodyEl2) bodyEl2.innerHTML = '<div class="empty" style="color:var(--red)"><i class="fa fa-exclamation-circle"></i> Sem cotação cadastrada para ' + (moedaObj ? moedaObj.nome : moeSel) + '. Cadastre uma cotação em Cadastros → Moedas e Cotações.</div>';
+      return;
+    }
     var conv = function(v){ return v / cotacao; };
     b = {
       saldosBancos:      conv(b.saldosBancos),
@@ -12555,10 +12894,12 @@ function gerarRecorrentesAutoAoLogin() {
       if (jaLancado) return;
       const diaReal = Math.min(r.dia||1, new Date(hoje.getFullYear(), hoje.getMonth()+1,0).getDate());
       const data = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(diaReal).padStart(2,'0')}`;
+      // CC recorrente: banco fica vazio para aparecer na fatura do cartão
+      const _legBanco = r.cartaoId ? '' : (r.banco || '');
       lancamentos.push({
         dataCriacao: new Date().toISOString().slice(0,10),
         id: uid(), tipo: r.tipo, data,
-        banco: r.banco, cc: r.cc, forma: r.forma,
+        banco: _legBanco, cc: r.cc, forma: r.forma,
         cartaoId: r.cartaoId||'', valor: r.valor,
         desc: r.desc+' (recorrente)', parcelas:'1', period:'Mensal',
         recorrenteId: r.id
@@ -16581,6 +16922,29 @@ verificarTermos();
       <button class="btn btn-outline" onclick="closeModal('modalCarregarSaldo')">Cancelar</button>
       <button class="btn" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="confirmarCargaCartao()">
         <i class="fa fa-arrow-circle-up"></i> Confirmar Carga
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal BCB Sincronização -->
+<div class="modal-bg" id="modalBCBSync" onclick="if(event.target===this)closeModal('modalBCBSync')">
+  <div class="modal" style="max-width:520px;width:96vw">
+    <button class="modal-close" onclick="closeModal('modalBCBSync')"><i class="fa fa-times"></i></button>
+    <div class="modal-title"><i class="fa fa-university" style="color:var(--teal)"></i> Atualizar Cotações — Banco Central</div>
+    <div style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px">
+      Mês de referência: <strong id="bcbModalMes" style="color:var(--teal)"></strong>
+    </div>
+    <div id="bcbModalBody" style="max-height:52vh;overflow-y:auto"></div>
+    <div style="margin-top:12px;padding:10px 12px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:var(--r);font-size:11px;color:var(--text3);line-height:1.6">
+      <i class="fa fa-info-circle" style="color:var(--gold);margin-right:5px"></i>
+      Cotações do último dia útil disponível via <strong style="color:var(--gold)">AwesomeAPI / Banco Central do Brasil</strong>.<br>
+      Apenas moedas já cadastradas serão atualizadas. A cotação existente para o mês será substituída.
+    </div>
+    <div class="modal-footer" style="margin-top:14px">
+      <button class="btn btn-outline" onclick="closeModal('modalBCBSync')">Cancelar</button>
+      <button class="btn" id="btnBCBConfirm" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="confirmarBCBSync()">
+        <i class="fa fa-check"></i> Salvar Cotações Selecionadas
       </button>
     </div>
   </div>
