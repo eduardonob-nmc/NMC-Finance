@@ -3897,14 +3897,7 @@ window._applySelectOptions = function() {
 
         <!-- Cadastro de Moedas -->
         <div class="card" style="margin-top:16px">
-          <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
-            <span><i class="fa fa-coins" style="color:var(--gold)"></i> Moedas e Cotações</span>
-            <button class="btn btn-sm" id="btnBCBSync" onclick="syncBCB()" style="background:rgba(62,184,154,.12);color:var(--teal);border-color:rgba(62,184,154,.35);font-size:12px;display:flex;align-items:center;gap:6px">
-              <i class="fa fa-sync-alt" id="iconBCBSync"></i>
-              <span id="lblBCBSync">Atualizar pelo Banco Central</span>
-            </button>
-          </div>
-          <div id="bcbStatusBar" style="display:none;margin-bottom:8px;padding:8px 12px;border-radius:var(--r);font-size:12px;font-family:var(--mono)"></div>
+          <div class="card-title"><i class="fa fa-coins" style="color:var(--gold)"></i> Moedas e Cotações</div>
           <div class="cad-form" style="flex-wrap:wrap">
             <div class="field" style="min-width:120px;max-width:140px">
               <label>Código *</label>
@@ -7535,23 +7528,39 @@ function saveCartao() {
 // Helper: dados completos de fatura dado uma data e cartão
 // Retorna {vencData, fechData, vencYM, faturaNoMesSeguinte}
 function _calcVencFaturaInfo(data, cartao) {
+  // Regras de fatura dos cartões brasileiros:
+  // 1. Dia da compra <= dia de fechamento → fecha no mês atual
+  //    Dia da compra >  dia de fechamento → fecha no mês seguinte
+  // 2. vencDay > fechDay → vence no MESMO mês do fechamento (ex: fecha 3, vence 10)
+  //    vencDay <= fechDay → vence no mês SEGUINTE ao fechamento (ex: fecha 8, vence 3)
   if (!data || !cartao) return null;
   const fechS = cartao.fech ? parseInt(cartao.fech) : 31;
   const vencS = cartao.venc ? parseInt(cartao.venc) : 10;
   const base  = new Date(data + 'T12:00:00');
   const diaLanc = base.getDate();
-  let fatY = base.getFullYear(), fatM = base.getMonth(); // 0-based
+
+  // Determina mês do fechamento
+  let fechY = base.getFullYear(), fechMes = base.getMonth(); // 0-based
   const faturaNoMesSeguinte = diaLanc > fechS;
-  if (faturaNoMesSeguinte) { fatM++; if (fatM > 11) { fatM = 0; fatY++; } }
-  const ultVenc  = new Date(fatY, fatM + 1, 0).getDate();
-  const ultFech  = new Date(fatY, fatM + 1, 0).getDate();
-  const vencDia  = Math.min(vencS, ultVenc);
-  const fechDia  = Math.min(fechS, ultFech);
-  const mm = String(fatM + 1).padStart(2, '0');
-  const vencData = fatY + '-' + mm + '-' + String(vencDia).padStart(2, '0');
-  const fechData = fatY + '-' + mm + '-' + String(fechDia).padStart(2, '0');
-  const vencYM   = fatY + '-' + mm;
-  return { vencData, fechData, vencYM, faturaNoMesSeguinte, diaLanc, fechS };
+  if (faturaNoMesSeguinte) { fechMes++; if (fechMes > 11) { fechMes = 0; fechY++; } }
+  const ultDiaFech = new Date(fechY, fechMes + 1, 0).getDate();
+  const fechDia    = Math.min(fechS, ultDiaFech);
+  const fechMM     = String(fechMes + 1).padStart(2, '0');
+  const fechData   = fechY + '-' + fechMM + '-' + String(fechDia).padStart(2, '0');
+  const fechYM     = fechY + '-' + fechMM;
+
+  // Determina mês do vencimento:
+  // Se vencS > fechS → mesmo mês do fechamento (vencimento cai depois do fechamento)
+  // Se vencS <= fechS → mês seguinte ao fechamento (vencimento viria antes do fechamento)
+  let vencY = fechY, vencMes = fechMes;
+  if (vencS <= fechS) { vencMes++; if (vencMes > 11) { vencMes = 0; vencY++; } }
+  const ultDiaVenc = new Date(vencY, vencMes + 1, 0).getDate();
+  const vencDia    = Math.min(vencS, ultDiaVenc);
+  const vencMM     = String(vencMes + 1).padStart(2, '0');
+  const vencData   = vencY + '-' + vencMM + '-' + String(vencDia).padStart(2, '0');
+  const vencYM     = vencY + '-' + vencMM;
+
+  return { vencData, fechData, vencYM, fechYM, faturaNoMesSeguinte, diaLanc, fechS };
 }
 
 function _calcFaturaYM(data, cartao) {
@@ -8022,32 +8031,29 @@ function saveLanc() {
       }
       toast(t('toast.compra_parcelada') + nParcelas + 'x lançada no cartão débito!', 'ok');
     } else {
-      // Cartão de crédito: lógica de fatura/fechamento
-      // REGRA: dia == fechamento → fatura do mês atual
-      //        dia > fechamento (d+1 em diante) → fatura do mês seguinte
-      let primeiraFatura = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
-      if (baseDate.getDate() > fechDay) {
-        primeiraFatura.setMonth(primeiraFatura.getMonth() + 1);
-      }
+      // Cartão de crédito: vencimento = mês SEGUINTE ao fechamento
+      const infoPrimeira = _calcVencFaturaInfo(data, cartSel);
+      if (!infoPrimeira) return;
 
       for (let p = 0; p < nParcelas; p++) {
-        // Cada parcela e exatamente p meses apos a primeira fatura
-        const fatMonth = new Date(primeiraFatura.getFullYear(), primeiraFatura.getMonth() + p, 1);
-        const fatY  = fatMonth.getFullYear();
-        const fatM  = String(fatMonth.getMonth() + 1).padStart(2,'0');
-        // Dia de vencimento — garante data valida no mes
-        const ultimoDia = new Date(fatY, fatMonth.getMonth() + 1, 0).getDate();
-        const dia = String(Math.min(vencDay, ultimoDia)).padStart(2,'0');
-        const fatData = fatY + '-' + fatM + '-' + dia;
+        // Mês de fechamento desta parcela = mês da 1ª fatura + p meses
+        const [fechBaseY, fechBaseMStr] = infoPrimeira.fechData.split('-');
+        const fechBaseM = parseInt(fechBaseMStr) - 1; // 0-based
+        let parFechY = parseInt(fechBaseY), parFechM = fechBaseM + p;
+        while (parFechM > 11) { parFechM -= 12; parFechY++; }
+        const ultFechP = new Date(parFechY, parFechM + 1, 0).getDate();
+        const fechDiaP = Math.min(fechDay, ultFechP);
+        const fechMMP  = String(parFechM + 1).padStart(2,'0');
+        const fechDataParc = parFechY + '-' + fechMMP + '-' + String(fechDiaP).padStart(2,'0');
+        // Vencimento: mesmo mês do fechamento se vencDay > fechDay, senão mês seguinte
+        let parVencY = parFechY, parVencM = parFechM;
+        if (vencDay <= fechDay) { parVencM++; if (parVencM > 11) { parVencM = 0; parVencY++; } }
+        const ultVencP = new Date(parVencY, parVencM + 1, 0).getDate();
+        const vencDiaP = Math.min(vencDay, ultVencP);
+        const vencMMP  = String(parVencM + 1).padStart(2,'0');
+        const fatData  = parVencY + '-' + vencMMP + '-' + String(vencDiaP).padStart(2,'0');
 
         const descParcela = (desc ? desc + ' ' : '') + '(' + (p+1) + '/' + nParcelas + ')';
-        // Despesa parcelada no cartão:
-        // - data = fechamento do mês da parcela (data contábil da despesa)
-        // - dataFatura = vencimento do cartão (data da fatura a pagar)
-        // - pago:true → despesa já realizada, impacta CC/categoria
-        const ultDiaFech = new Date(fatY, parseInt(fatM)-1+1, 0).getDate();
-        const fechDiaParc = Math.min(fechDay, ultDiaFech);
-        const fechDataParc = fatY + '-' + fatM + '-' + String(fechDiaParc).padStart(2,'0');
         lancamentos.push({
           id: uid(), groupId,
           dataCriacao: new Date().toISOString().slice(0,10),
@@ -8055,9 +8061,9 @@ function saveLanc() {
           parcelas: String(nParcelas), parcelaNum: p+1, period,
           valor: parcelVal,
           desc: descParcela,
-          data: fechDataParc,  // data de fechamento do mês da parcela
-          dataFatura: fatData, // vencimento da fatura
-          pago: false          // pendente — aguarda pagamento da fatura
+          data: fechDataParc,  // data de fechamento (data contábil)
+          dataFatura: fatData, // vencimento da fatura (mês seguinte ao fechamento)
+          pago: false
         });
         // NÃO chama _criarOuAcumularFatura aqui — o agrupamento em renderLancamentos/renderContasPagarDash
         // já lida com as despesas via dataFatura, evitando duplicação de lançamentos _fatura
@@ -8152,20 +8158,11 @@ function saveLanc() {
     // REGRA: data == dia de fechamento → fatura do mês atual
     //        data > dia de fechamento (d+1 em diante) → fatura do mês seguinte
     if (isCartaoDesp && !isCartaoDebitoDesp) {
-      const cartS = cartSel2;
-      const fechS = cartS?.fech ? parseInt(cartS.fech) : 31;
-      const vencS = cartS?.venc ? parseInt(cartS.venc) : 10;
-      // Determina mês da fatura: só avança se dia ESTRITAMENTE MAIOR que fechamento
-      const baseS = new Date(data+'T12:00:00');
-      let fatYS = baseS.getFullYear(), fatMS = baseS.getMonth(); // 0-based
-      if (baseS.getDate() > fechS) { fatMS++; if(fatMS>11){fatMS=0;fatYS++;} }
-      // Data de vencimento da fatura
-      const ultVenc = new Date(fatYS, fatMS+1, 0).getDate();
-      fatDataSingle = fatYS+'-'+String(fatMS+1).padStart(2,'0')+'-'+String(Math.min(vencS,ultVenc)).padStart(2,'0');
-      // Data contábil = fechamento do mês da fatura
-      const ultFech = new Date(fatYS, fatMS+1, 0).getDate();
-      const fechDiaS = Math.min(fechS, ultFech);
-      fechDataSingle = fatYS+'-'+String(fatMS+1).padStart(2,'0')+'-'+String(fechDiaS).padStart(2,'0');
+      const infoS = _calcVencFaturaInfo(data, cartSel2);
+      if (infoS) {
+        fatDataSingle  = infoS.vencData;  // vencimento (mês seguinte ao fechamento)
+        fechDataSingle = infoS.fechData;  // data de fechamento (data contábil)
+      }
     }
 
     // Financiamento lançado manualmente vira Despesa com financId vinculado
@@ -12661,139 +12658,6 @@ function delCotacao(id) {
   saveAll(); renderCotacoes();
 }
 
-// ═══════════════════════════════════════════════════════════
-// INTEGRAÇÃO BANCO CENTRAL DO BRASIL — AwesomeAPI
-// ═══════════════════════════════════════════════════════════
-let _bcbPendentes = []; // [{moeda, cotacaoAPI, mesAno}]
-
-async function syncBCB() {
-  // 1. Verificar conectividade
-  if (!navigator.onLine) {
-    toast('Sem conexão com a internet. Conecte-se e tente novamente.', 'err');
-    return;
-  }
-  if (moedas.length === 0) {
-    toast('Cadastre pelo menos uma moeda antes de sincronizar.', 'err');
-    return;
-  }
-
-  // 2. Animar botão
-  const icon = document.getElementById('iconBCBSync');
-  const lbl  = document.getElementById('lblBCBSync');
-  const btn  = document.getElementById('btnBCBSync');
-  if (icon) icon.classList.add('fa-spin');
-  if (lbl)  lbl.textContent = 'Consultando BCB…';
-  if (btn)  btn.disabled = true;
-
-  // 3. Montar lista de pares (apenas moedas cadastradas, exceto BRL)
-  const codigosNaoBRL = moedas.filter(m => m.codigo !== 'BRL').map(m => m.codigo + '-BRL');
-  if (codigosNaoBRL.length === 0) {
-    _bcbReset(); toast('Nenhuma moeda estrangeira cadastrada para sincronizar.', 'inf'); return;
-  }
-
-  const pares = codigosNaoBRL.join(',');
-  const url   = 'https://economia.awesomeapi.com.br/last/' + pares;
-
-  let dados;
-  try {
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    dados = await resp.json();
-  } catch(e) {
-    _bcbReset();
-    toast('Erro ao consultar o Banco Central. Tente novamente.', 'err');
-    return;
-  }
-
-  // 4. Montar preview
-  const now    = new Date();
-  const mesAno = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-  _bcbPendentes = [];
-
-  moedas.filter(m => m.codigo !== 'BRL').forEach(m => {
-    const chave = m.codigo + 'BRL';
-    const item  = dados[chave];
-    if (!item) return;
-    const valor = parseFloat(item.bid);
-    if (!valor || isNaN(valor)) return;
-    _bcbPendentes.push({ moeda: m, valor, mesAno, bid: item.bid, ask: item.ask,
-      varPct: parseFloat(item.pctChange||0), nome: item.name||m.nome,
-      ts: item.create_date||'' });
-  });
-
-  _bcbReset();
-
-  if (_bcbPendentes.length === 0) {
-    toast('Nenhuma cotação encontrada para as moedas cadastradas.', 'inf');
-    return;
-  }
-
-  // 5. Mostrar modal de confirmação
-  document.getElementById('bcbModalMes').textContent = _fmtMesAno(mesAno);
-
-  const body = document.getElementById('bcbModalBody');
-  body.innerHTML = _bcbPendentes.map((p, i) => {
-    const cor   = p.varPct >= 0 ? 'var(--teal)' : 'var(--red)';
-    const sinal = p.varPct >= 0 ? '▲' : '▼';
-    const cotExistente = cotacoes.find(c => c.moedaId === p.moeda.id && c.mesAno === p.mesAno);
-    const badgeExiste  = cotExistente
-      ? '<span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(224,82,82,.15);color:var(--red);margin-left:6px">substituirá existente</span>'
-      : '<span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(62,184,154,.12);color:var(--teal);margin-left:6px">nova</span>';
-    return `
-      <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
-        <input type="checkbox" id="bcbChk${i}" data-idx="${i}" checked style="accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0">
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-            <strong style="font-family:var(--mono);color:var(--text)">${p.moeda.codigo}</strong>
-            <span style="font-size:12px;color:var(--text2)">${p.moeda.nome}</span>
-            ${badgeExiste}
-          </div>
-          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px">
-            ${p.ts ? 'Atualizado: ' + p.ts : ''}
-          </div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">${fmtBRL(p.valor)}</div>
-          <div style="font-size:11px;font-family:var(--mono);color:${cor}">${sinal} ${Math.abs(p.varPct).toFixed(2)}%</div>
-        </div>
-      </div>`;
-  }).join('');
-
-  openModal('modalBCBSync');
-}
-
-function confirmarBCBSync() {
-  let salvos = 0;
-  _bcbPendentes.forEach((p, i) => {
-    const chk = document.getElementById('bcbChk' + i);
-    if (!chk || !chk.checked) return;
-    // Remove cotação anterior do mesmo mês/moeda
-    cotacoes = cotacoes.filter(c => !(c.moedaId === p.moeda.id && c.mesAno === p.mesAno));
-    cotacoes.push({ id: uid(), moedaId: p.moeda.id, mesAno: p.mesAno, valor: p.valor });
-    salvos++;
-  });
-  if (salvos > 0) {
-    saveAll(); renderCotacoes();
-    toast(salvos + ' cotação(ões) salva(s) com sucesso!', 'ok');
-  }
-  closeModal('modalBCBSync');
-  _bcbPendentes = [];
-}
-
-function _bcbReset() {
-  const icon = document.getElementById('iconBCBSync');
-  const lbl  = document.getElementById('lblBCBSync');
-  const btn  = document.getElementById('btnBCBSync');
-  if (icon) icon.classList.remove('fa-spin');
-  if (lbl)  lbl.textContent = 'Atualizar pelo Banco Central';
-  if (btn)  btn.disabled = false;
-}
-
-// Monitora mudança de conectividade
-window.addEventListener('online',  () => { toast('Conexão restaurada. Você pode sincronizar moedas.', 'ok'); });
-window.addEventListener('offline', () => { toast('Sem internet. Sincronização com BCB indisponível.', 'err'); });
-
-
 function getCotacao(moedaId, anoOuMes) {
   // Retorna a cotação para a moeda (busca estritamente por moedaId)
   if (!moedaId || moedaId === 'BRL') return 1;
@@ -16922,29 +16786,6 @@ verificarTermos();
       <button class="btn btn-outline" onclick="closeModal('modalCarregarSaldo')">Cancelar</button>
       <button class="btn" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="confirmarCargaCartao()">
         <i class="fa fa-arrow-circle-up"></i> Confirmar Carga
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal BCB Sincronização -->
-<div class="modal-bg" id="modalBCBSync" onclick="if(event.target===this)closeModal('modalBCBSync')">
-  <div class="modal" style="max-width:520px;width:96vw">
-    <button class="modal-close" onclick="closeModal('modalBCBSync')"><i class="fa fa-times"></i></button>
-    <div class="modal-title"><i class="fa fa-university" style="color:var(--teal)"></i> Atualizar Cotações — Banco Central</div>
-    <div style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px">
-      Mês de referência: <strong id="bcbModalMes" style="color:var(--teal)"></strong>
-    </div>
-    <div id="bcbModalBody" style="max-height:52vh;overflow-y:auto"></div>
-    <div style="margin-top:12px;padding:10px 12px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:var(--r);font-size:11px;color:var(--text3);line-height:1.6">
-      <i class="fa fa-info-circle" style="color:var(--gold);margin-right:5px"></i>
-      Cotações do último dia útil disponível via <strong style="color:var(--gold)">AwesomeAPI / Banco Central do Brasil</strong>.<br>
-      Apenas moedas já cadastradas serão atualizadas. A cotação existente para o mês será substituída.
-    </div>
-    <div class="modal-footer" style="margin-top:14px">
-      <button class="btn btn-outline" onclick="closeModal('modalBCBSync')">Cancelar</button>
-      <button class="btn" id="btnBCBConfirm" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="confirmarBCBSync()">
-        <i class="fa fa-check"></i> Salvar Cotações Selecionadas
       </button>
     </div>
   </div>
